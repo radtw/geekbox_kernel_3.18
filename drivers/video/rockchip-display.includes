@@ -1,0 +1,14 @@
+.
+console
+display/screen
+fbdev
+fbdev/core
+rockchip
+rockchip/hdmi
+rockchip/hdmi/rockchip-hdmiv1
+rockchip/hdmi/rockchip-hdmiv2
+rockchip/lcdc
+rockchip/screen
+../../../../../32bitL/Andriod_code/rk3368/hardware/rockchip/hwcomposer
+../../../../../32bitL/Andriod_code/rk3368/hardware/rockchip/libgralloc
+../../include/linux
