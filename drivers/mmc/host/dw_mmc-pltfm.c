@@ -19,11 +19,21 @@
 #include <linux/slab.h>
 #include <linux/mmc/host.h>
 #include <linux/mmc/mmc.h>
+#if TSAI && defined(CONFIG_ARCH_ROCKCHIP)
+/* rk use overwriting data structures */
+#include <linux/mmc/rk_mmc.h>
+
+#else
 #include <linux/mmc/dw_mmc.h>
+#endif
 #include <linux/of.h>
 #include <linux/clk.h>
 
+#if TSAI && defined(CONFIG_ARCH_ROCKCHIP)
+#include "rk_sdmmc.h"
+#else
 #include "dw_mmc.h"
+#endif
 #include "dw_mmc-pltfm.h"
 
 static void dw_mci_pltfm_prepare_command(struct dw_mci *host, u32 *cmdr)

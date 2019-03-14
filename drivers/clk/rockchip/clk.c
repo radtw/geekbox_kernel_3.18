@@ -20,6 +20,7 @@
 #include <linux/of_address.h>
 #include <linux/clk-private.h>
 #include <asm/io.h>
+#include <linux/rockchip/cpu.h>
 
 #include "clk-ops.h"
 #include "clk-pll.h"
@@ -292,6 +293,9 @@ static int rkclk_init_divinfo(struct device_node *np, void __iomem *addr)
 		goto out;
 
 	divinfo->parent_name = of_clk_get_parent_name(np, 0);
+
+	if ((strcmp(divinfo->clk_name, "hclk_vio") == 0) && (soc_is_rk3288w()))
+		divinfo->parent_name = "aclk_vio1";
 
 	divinfo->np = np;
 
@@ -1084,6 +1088,20 @@ static int __init rkclk_init_special_regs(struct device_node *np)
 			ret = rkclk_init_muxinfo(node, reg);
 			if (ret != 0) {
 				clk_err("%s: init mux con err\n", __func__);
+				goto out;
+			}
+		} else if (strcmp(compatible, "rockchip,rk3188-div-con") == 0) {
+			reg = of_iomap(node, 0);
+			ret = rkclk_init_divinfo(node, reg);
+			if (ret != 0) {
+				clk_err("%s: init div con err\n", __func__);
+				goto out;
+			}
+		} else if (strcmp(compatible, "rockchip,rk3188-gate-clk") == 0) {
+			reg = of_iomap(node, 0);
+			ret = rkclk_init_gatecon(node);
+			if (ret != 0) {
+				clk_err("%s: init gate con err\n", __func__);
 				goto out;
 			}
 		}

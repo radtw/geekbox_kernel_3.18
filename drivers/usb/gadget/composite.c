@@ -39,6 +39,10 @@ struct usb_os_string {
 	__u8	bPad;
 } __packed;
 
+#if TSAI && defined(CONFIG_ARCH_ROCKCHIP) //needed by drivers/power/rk30_factory_adc_battery.c
+static int gadget_connected = 0;
+#endif
+
 /*
  * The code in this file is utility code, used to build a gadget driver
  * from one or more "function" drivers, one or more "configuration"
@@ -728,6 +732,10 @@ static int set_config(struct usb_composite_dev *cdev,
 
 	/* when we return, be sure our power usage is valid */
 	power = c->MaxPower ? c->MaxPower : CONFIG_USB_GADGET_VBUS_DRAW;
+#if TSAI && defined(CONFIG_ARCH_ROCKCHIP) //needed by drivers/power/rk30_factory_adc_battery.c
+	/* usb gadget connect flag */
+	gadget_connected = 1;
+#endif
 done:
 	usb_gadget_vbus_draw(gadget, power);
 	if (result >= 0 && cdev->delayed_status)
@@ -1794,9 +1802,19 @@ void composite_disconnect(struct usb_gadget *gadget)
 		reset_config(cdev);
 	if (cdev->driver->disconnect)
 		cdev->driver->disconnect(cdev);
+#if TSAI && defined(CONFIG_ARCH_ROCKCHIP) //needed by drivers/power/rk30_factory_adc_battery.c
+	/* usb gadget connect flag */
+	gadget_connected = 0;
+#endif
 	spin_unlock_irqrestore(&cdev->lock, flags);
 }
 
+#if TSAI && defined(CONFIG_ARCH_ROCKCHIP) //needed by drivers/power/rk30_factory_adc_battery.c
+int get_gadget_connect_flag( void )
+{
+	return gadget_connected;
+}
+#endif
 /*-------------------------------------------------------------------------*/
 
 static ssize_t suspended_show(struct device *dev, struct device_attribute *attr,

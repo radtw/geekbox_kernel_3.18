@@ -60,6 +60,12 @@
 #include <linux/regulator/rockchip_io_vol_domain.h>
 #include "../../clk/rockchip/clk-ops.h"
 
+#if TSAI
+#include "tsai_macro.h"
+extern int tsai_move_on;
+#endif
+
+
 #define RK_SDMMC_DRIVER_VERSION "Ver 2.00 2015-06-10"
 
 /* Common flag combinations */
@@ -3924,6 +3930,16 @@ int dw_mci_probe(struct dw_mci *host)
 	u32 fifo_size;
 	int init_slots = 0;
 	u32 regs;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+	/* TSAI: interface change, 3.10 dw_mci_pltfm_register will call drv_data->init ,
+	 * 3.18 doesn't, so we do it early here to reflect the interface change */
+	if (drv_data && drv_data->init) {
+		int ret;
+		ret = drv_data->init(host);
+		if (ret)
+			return ret;
+	}
+#endif
 
 	if (!host->pdata) {
 		host->pdata = dw_mci_parse_dt(host);
@@ -4055,6 +4071,10 @@ int dw_mci_probe(struct dw_mci *host)
 	dma_set_attr(DMA_ATTR_SKIP_CPU_SYNC, &dw_mci_direct_attrs);
 
 	host->dma_ops = host->pdata->dma_ops;
+#if TSAI
+	while(!tsai_move_on)
+		cpu_relax();
+#endif
 	dw_mci_init_dma(host);
 
 	/* Clear the interrupts for the host controller */

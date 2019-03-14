@@ -29,6 +29,11 @@
 
 #include "rk_sdmmc_dbg.h"
 
+#if TSAI
+#include "tsai_macro.h"
+extern int tsai_move_on;
+#endif
+
 static struct dw_mci_rockchip_compatible {
 	char				*compatible;
 	enum dw_mci_rockchip_type		ctrl_type;
@@ -89,6 +94,9 @@ static int dw_mci_rockchip_priv_init(struct dw_mci *host)
 	}
 
 	host->priv = priv;
+#if TSAI
+	printk("TSAI: dw_mci_rockchip_priv_init host->priv %p \n", priv);
+#endif
 	return 0;
 }
 
@@ -392,9 +400,12 @@ static int dw_mci_rockchip_probe(struct platform_device *pdev)
 {
 	const struct dw_mci_drv_data *drv_data;
 	const struct of_device_id *match;
-
+#if TSAI
+	printk("TSAI: dw_mci_rockchip_probe[in] %s\n", __FILE__);
+#endif
 	match = of_match_node(dw_mci_rockchip_match, pdev->dev.of_node);
 	drv_data = match->data;
+
 	return dw_mci_pltfm_register(pdev, drv_data);
 }
 

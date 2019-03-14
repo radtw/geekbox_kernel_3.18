@@ -431,6 +431,9 @@ deps_config := \
 	drivers/gpu/vga/Kconfig \
 	drivers/char/agp/Kconfig \
 	drivers/video/Kconfig \
+	drivers/media/video/Kconfig \
+	drivers/media/video/rk_camsys/ext_flashled_drv/Kconfig \
+	drivers/media/video/rk_camsys/Kconfig \
 	drivers/media/dvb-frontends/drx39xyj/Kconfig \
 	drivers/media/dvb-frontends/Kconfig \
 	drivers/media/tuners/Kconfig \

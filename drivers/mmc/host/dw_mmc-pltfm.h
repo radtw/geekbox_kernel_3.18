@@ -17,4 +17,8 @@ extern int dw_mci_pltfm_register(struct platform_device *pdev,
 extern int dw_mci_pltfm_remove(struct platform_device *pdev);
 extern const struct dev_pm_ops dw_mci_pltfm_pmops;
 
+#if TSAI && defined(CONFIG_ARCH_ROCKCHIP) /* TSAI: needed by RK*/
+extern int dw_mci_probe(struct dw_mci *host);
+extern void dw_mci_remove(struct dw_mci *host);
+#endif
 #endif /* _DW_MMC_PLTFM_H_ */

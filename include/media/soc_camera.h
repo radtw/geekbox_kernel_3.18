@@ -41,6 +41,10 @@ struct soc_camera_device {
 	unsigned char iface;		/* Host number */
 	unsigned char devnum;		/* Device number per host */
 	struct soc_camera_sense *sense;	/* See comment in struct definition */
+#if 0 && TSAI && defined(CONFIG_ARCH_ROCKCHIP)
+	struct soc_camera_ops *ops;/*yzm*/
+	struct mutex video_lock;/*yzm*/
+#endif
 	struct video_device *vdev;
 	struct v4l2_ctrl_handler ctrl_handler;
 	const struct soc_camera_format_xlate *current_fmt;
@@ -158,7 +162,9 @@ struct soc_camera_subdev_desc {
 	/* Optional callbacks to power on or off and reset the sensor */
 	int (*power)(struct device *, int);
 	int (*reset)(struct device *);
-
+#if TSAI && defined(CONFIG_ARCH_ROCKCHIP)
+	int (*powerdown)(struct device *, int);/*yzm*/
+#endif
 	/*
 	 * some platforms may support different data widths than the sensors
 	 * native ones due to different data line routing. Let the board code
@@ -218,6 +224,9 @@ struct soc_camera_link {
 	/* Optional callbacks to power on or off and reset the sensor */
 	int (*power)(struct device *, int);
 	int (*reset)(struct device *);
+#if TSAI && defined(CONFIG_ARCH_ROCKCHIP)
+	int (*powerdown)(struct device *,int);		/*yzm*/
+#endif
 	/*
 	 * some platforms may support different data widths than the sensors
 	 * native ones due to different data line routing. Let the board code
