@@ -487,6 +487,9 @@ static const char *fault_name(unsigned int esr)
 	return inf->name;
 }
 
+#if TSAI
+int tsai_memabort_level[8];
+#endif
 /*
  * Dispatch a data abort to the relevant handler.
  */
@@ -495,9 +498,21 @@ asmlinkage void __exception do_mem_abort(unsigned long addr, unsigned int esr,
 {
 	const struct fault_info *inf = fault_info + (esr & 63);
 	struct siginfo info;
+#if TSAI
+	int cpu = smp_processor_id();
+	int ret;
+	tsai_memabort_level[cpu]++;
+	if (tsai_memabort_level[cpu] > 3)
+		__asm("hlt #0");
+	ret = inf->fn(addr, esr, regs);
+	tsai_memabort_level[cpu]--;
 
+	if (!ret)
+		return;
+#else
 	if (!inf->fn(addr, esr, regs))
 		return;
+#endif
 
 	pr_alert("Unhandled fault: %s (0x%08x) at 0x%016lx\n",
 		 inf->name, esr, addr);

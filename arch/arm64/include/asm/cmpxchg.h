@@ -152,7 +152,13 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
 		break;
 
 	default:
+#if TSAI
+		/* BUILD_BUG(); stops compilation, it is not supposed to reach here at run-time, but with O0 this clause will be compiled
+		 * so use a hlt instruction instead */
+		__asm("hlt #0");
+#else	
 		BUILD_BUG();
+#endif
 	}
 
 	return oldval;

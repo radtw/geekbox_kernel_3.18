@@ -34,6 +34,9 @@
 /* TSAI: kernel/include/linux/workqueue.h removed this*/
 #define WQ_NON_REENTRANT	(1)
 #endif
+#if TSAI
+	extern int tsai_move_on;
+#endif
 
 
 #define MHz	(1000 * 1000)
@@ -287,7 +290,11 @@ static struct cpufreq_frequency_table *of_get_regu_mode_table(struct device_node
 	const struct property *prop;
 	const __be32 *val;
 	int nr, i;
-
+#if TSAI
+	printk("TSAI: of_get_regu_mode_table %s\n", __FILE__);
+	while(!tsai_move_on)
+	cpu_relax();
+#endif
 	prop = of_find_property(dev_node, "regu-mode-table", NULL);
 	if (!prop)
 		return NULL;
@@ -823,6 +830,10 @@ static void dvfs_table_round_clk_rate(struct dvfs_node  *clk_dvfs_node)
 	
 	if(!clk_dvfs_node || !clk_dvfs_node->dvfs_table || !clk_dvfs_node->clk)
 		return;
+#if TSAI
+	while(!tsai_move_on)
+		cpu_relax();
+#endif
 
 	for (i = 0; (clk_dvfs_node->dvfs_table[i].frequency != CPUFREQ_TABLE_END); i++) {
 		//ddr rate = real rate+flags
@@ -1639,7 +1650,11 @@ int dvfs_set_freq_volt_table(struct dvfs_node *clk_dvfs_node, struct cpufreq_fre
 		DVFS_ERR("%s:invalid table!\n", __func__);
 		return -EINVAL;
 	}
-	
+#if TSAI
+	printk("TSAI dvfs_set_freq_volt_table table=%p %s\n", table, __FILE__);
+	while(!tsai_move_on)
+		cpu_relax();
+#endif
 	mutex_lock(&clk_dvfs_node->vd->mutex);
 	clk_dvfs_node->dvfs_table = table;
 	dvfs_get_rate_range(clk_dvfs_node);

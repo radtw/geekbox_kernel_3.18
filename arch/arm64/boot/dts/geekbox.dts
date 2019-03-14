@@ -9,9 +9,10 @@
 #include "../../../arm/boot/dts/lcd-box.dtsi"
 
 
+// TSAI: I add rockchip_jtag
 / {
 	chosen {
-		bootargs = "earlyprintk=uart8250-32bit,0xff690000";
+		bootargs = "earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag";
 	};
 
 	wireless-wlan {

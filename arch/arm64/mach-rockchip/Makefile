@@ -15,3 +15,7 @@ obj-$(CONFIG_RK_VCODEC) += ../../arm/mach-rockchip/vcodec_service.o
 obj-$(CONFIG_DDR_TEST) += ../../arm/mach-rockchip/ddr_test.o
 obj-$(CONFIG_RK_PM_TESTS) += ../../arm/mach-rockchip/rk_pm_tests/
 obj-$(CONFIG_ROCK_CHIP_SOC_CAMERA) += ../../arm/mach-rockchip/rk_camera.o
+
+ifeq ($(TSAI_OPT),1) 
+	CFLAGS_dvfs.o += -O0
+endif

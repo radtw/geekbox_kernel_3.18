@@ -26,6 +26,7 @@ obj-$(CONFIG_DEV_COREDUMP) += devcoredump.o
 ifeq ($(TSAI_OPT),1) 
 	CFLAGS_bus.o += -O0
 	CFLAGS_dma-mapping.o += -O0
+	CFLAGS_dma-contiguous.o += -O0
 	CFLAGS_dd.o += -O0
 	CFLAGS_platform.o += -O0
 	CFLAGS_driver.o += -O0
