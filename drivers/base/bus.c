@@ -687,6 +687,9 @@ static ssize_t uevent_store(struct device_driver *drv, const char *buf,
 }
 static DRIVER_ATTR_WO(uevent);
 
+#if TSAI
+	#include <linux/platform_device.h>
+#endif
 /**
  * bus_add_driver - Add a driver to the bus.
  * @drv: driver.
@@ -703,7 +706,15 @@ int bus_add_driver(struct device_driver *drv)
 
 	pr_debug("bus: '%s': add driver %s\n", bus->name, drv->name);
 #if TSAI
-	printk("TSAI  bus '%s': add driver %s\n", bus->name, drv->name);
+	{
+		uint64_t bus_name_u64 = *(uint64_t*)(bus->name);
+		if (bus_name_u64==0x6D726F6674616C70) { /* "platform" */
+			struct platform_driver* pd = container_of(drv, struct platform_driver, driver);
+			printk("TSAI  bus '%s': add driver %s probe %p %s\n", bus->name, drv->name, pd->probe, __FILE__);
+		}
+		else
+			printk("TSAI  bus '%s': add driver %s %s\n", bus->name, drv->name, __FILE__);
+	}
 #endif
 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
 	if (!priv) {

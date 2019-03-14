@@ -63,6 +63,7 @@
 #if TSAI
 #include "tsai_macro.h"
 extern int tsai_move_on;
+extern int tsai_debug_smp_drain_local_pages;
 #endif
 
 
@@ -4072,10 +4073,12 @@ int dw_mci_probe(struct dw_mci *host)
 
 	host->dma_ops = host->pdata->dma_ops;
 #if TSAI
-	while(!tsai_move_on)
-		cpu_relax();
+tsai_debug_smp_drain_local_pages = 1;
 #endif
 	dw_mci_init_dma(host);
+#if TSAI
+tsai_debug_smp_drain_local_pages = 0;
+#endif
 
 	/* Clear the interrupts for the host controller */
 	mci_writel(host, RINTSTS, 0xFFFFFFFF);
@@ -4126,7 +4129,10 @@ int dw_mci_probe(struct dw_mci *host)
 		host->num_slots = host->pdata->num_slots;
 	else
 		host->num_slots = ((mci_readl(host, HCON) >> 1) & 0x1F) + 1;
-
+#if 0 && TSAI
+	while(!tsai_move_on)
+		cpu_relax();
+#endif
 	/* We need at least one slot to succeed */
 	for (i = 0; i < host->num_slots; i++) {
 		ret = dw_mci_init_slot(host, i);
@@ -4135,7 +4141,6 @@ int dw_mci_probe(struct dw_mci *host)
 		else
 			init_slots++;
 	}
-	
 	/*
 	 * Enable interrupts for command done, data over, data empty, card det,
 	 * receive ready and error such as transmit, receive timeout, crc error

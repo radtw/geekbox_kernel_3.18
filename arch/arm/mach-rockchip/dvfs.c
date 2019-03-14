@@ -31,10 +31,23 @@
 
 #include <linux/version.h>
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+
+/* TSAI struct cpufreq_frequency_table remove .index and add .driver_data
+ * */
+#define DVFS_INDEX driver_data
+
 /* TSAI: kernel/include/linux/workqueue.h removed this*/
 #define WQ_NON_REENTRANT	(1)
+
+#else
+
+#define DVFS_INDEX index
 #endif
 
+
+#if TSAI
+#include "tsai_macro.h"
+#endif
 
 #define MHz	(1000 * 1000)
 static LIST_HEAD(rk_dvfs_tree);
@@ -287,7 +300,11 @@ static struct cpufreq_frequency_table *of_get_regu_mode_table(struct device_node
 	const struct property *prop;
 	const __be32 *val;
 	int nr, i;
-
+#if TSAI
+	printk("TSAI: of_get_regu_mode_table %s\n", __FILE__);
+	while(!tsai_move_on)
+	cpu_relax();
+#endif
 	prop = of_find_property(dev_node, "regu-mode-table", NULL);
 	if (!prop)
 		return NULL;
@@ -310,10 +327,12 @@ static struct cpufreq_frequency_table *of_get_regu_mode_table(struct device_node
 	val = prop->value;
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on)
+		cpu_relax();
 #else
 	for (i=0; i<nr/2; i++){
 		regu_mode_table[i].frequency = be32_to_cpup(val++) * 1000;
-		regu_mode_table[i].index = be32_to_cpup(val++);
+		regu_mode_table[i].DVFS_INDEX = be32_to_cpup(val++);
 	}
 
 
@@ -323,7 +342,7 @@ static struct cpufreq_frequency_table *of_get_regu_mode_table(struct device_node
 		return NULL;
 	}
 
-	regu_mode_table[i].index = 0;
+	regu_mode_table[i].DVFS_INDEX = 0;
 	regu_mode_table[i].frequency = CPUFREQ_TABLE_END;
 #endif
 	return regu_mode_table;
@@ -347,10 +366,11 @@ static int dvfs_regu_mode_table_constrain(struct dvfs_node *clk_dvfs_node)
 		return -EINVAL;
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
 #else
 
 	for (i = 0; (clk_dvfs_node->regu_mode_table[i].frequency != CPUFREQ_TABLE_END); i++) {
-		mode = clk_dvfs_node->regu_mode_table[i].index;
+		mode = clk_dvfs_node->regu_mode_table[i].DVFS_INDEX;
 		convert_mode = dvfs_regu_mode_convert(mode);
 
 		ret = regulator_is_supported_mode(clk_dvfs_node->vd->regulator,
@@ -367,7 +387,7 @@ static int dvfs_regu_mode_table_constrain(struct dvfs_node *clk_dvfs_node)
 		if (valid_mode != mode) {
 			DVFS_ERR("%s: round mode=%d to valid mode=%d!\n",
 				__func__, mode, valid_mode);
-			clk_dvfs_node->regu_mode_table[i].index = valid_mode;
+			clk_dvfs_node->regu_mode_table[i].DVFS_INDEX = valid_mode;
 		}
 
 	}
@@ -385,11 +405,12 @@ static int clk_dvfs_node_get_regu_mode(struct dvfs_node *clk_dvfs_node,
 		return -EINVAL;
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
 #else
 
 	for (i = 0; (clk_dvfs_node->regu_mode_table[i].frequency != CPUFREQ_TABLE_END); i++) {
 		if (rate >= clk_dvfs_node->regu_mode_table[i].frequency) {
-			*mode = clk_dvfs_node->regu_mode_table[i].index;
+			*mode = clk_dvfs_node->regu_mode_table[i].DVFS_INDEX;
 			return 0;
 		}
 	}	
@@ -598,6 +619,9 @@ static int dvfs_scale_volt_direct(struct vd_node *vd_clk, int volt_new)
 
 	vd_clk->volt_set_flag = DVFS_SET_VOLT_SUCCESS;
 	vd_clk->cur_volt = volt_new;
+#if TSAI
+	printk("TSAI dvfs_scale_volt_direct %s %d\n", __FILE__, __LINE__);
+#endif
 
 	return 0;
 
@@ -623,6 +647,11 @@ static int dvfs_reset_volt(struct vd_node *dvfs_vd)
 
 	/* Reset vd's voltage */
 	dvfs_vd->cur_volt = flag_set_volt_correct;
+#if TSAI
+	printk("TSAI clk_enable_dvfs_regulator_check %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
+#endif
+
 
 	return dvfs_vd->cur_volt;
 }
@@ -636,6 +665,11 @@ static void clk_enable_dvfs_regulator_check(struct vd_node *vd)
 		vd->volt_set_flag = DVFS_SET_VOLT_FAILURE;
 	}
 	vd->volt_set_flag = DVFS_SET_VOLT_SUCCESS;
+#if TSAI
+	printk("TSAI clk_enable_dvfs_regulator_check %s cur_volt %d %s %d\n", 
+	vd->name, vd->cur_volt, __FILE__, __LINE__);
+#endif
+	
 }
 
 static void dvfs_get_vd_regulator_volt_list(struct vd_node *vd)
@@ -725,17 +759,17 @@ static void dvfs_table_round_volt(struct dvfs_node *clk_dvfs_node)
 
 	for (i = 0; (clk_dvfs_node->dvfs_table[i].frequency != CPUFREQ_TABLE_END); i++) {
 
-		test_volt = vd_regulator_round_volt(clk_dvfs_node->vd, clk_dvfs_node->dvfs_table[i].index, VD_LIST_RELATION_H);
+		test_volt = vd_regulator_round_volt(clk_dvfs_node->vd, clk_dvfs_node->dvfs_table[i].DVFS_INDEX, VD_LIST_RELATION_H);
 		if(test_volt <= 0)
 		{	
 			DVFS_WARNING("%s: clk(%s) round volt(%d) but list <=0\n",
-				__func__, clk_dvfs_node->name, clk_dvfs_node->dvfs_table[i].index);
+				__func__, clk_dvfs_node->name, clk_dvfs_node->dvfs_table[i].DVFS_INDEX);
 			break;
 		}
 		DVFS_DBG("clk %s:round_volt %d to %d\n",
-			clk_dvfs_node->name, clk_dvfs_node->dvfs_table[i].index, test_volt);
+			clk_dvfs_node->name, clk_dvfs_node->dvfs_table[i].DVFS_INDEX, test_volt);
 		
-		clk_dvfs_node->dvfs_table[i].index=test_volt;		
+		clk_dvfs_node->dvfs_table[i].DVFS_INDEX=test_volt;
 	}
 }
 
@@ -823,7 +857,6 @@ static void dvfs_table_round_clk_rate(struct dvfs_node  *clk_dvfs_node)
 	
 	if(!clk_dvfs_node || !clk_dvfs_node->dvfs_table || !clk_dvfs_node->clk)
 		return;
-
 	for (i = 0; (clk_dvfs_node->dvfs_table[i].frequency != CPUFREQ_TABLE_END); i++) {
 		//ddr rate = real rate+flags
 		flags = clk_dvfs_node->dvfs_table[i].frequency%1000;
@@ -858,19 +891,19 @@ static int clk_dvfs_node_get_ref_volt(struct dvfs_node *clk_dvfs_node, int rate_
 		return -EINVAL;
 	}
 	clk_fv->frequency = rate_khz;
-	clk_fv->index = 0;
+	clk_fv->DVFS_INDEX = 0;
 
 	for (i = 0; (clk_dvfs_node->dvfs_table[i].frequency != CPUFREQ_TABLE_END); i++) {
 		if (clk_dvfs_node->dvfs_table[i].frequency >= rate_khz) {
 			clk_fv->frequency = clk_dvfs_node->dvfs_table[i].frequency;
-			clk_fv->index = clk_dvfs_node->dvfs_table[i].index;
+			clk_fv->DVFS_INDEX = clk_dvfs_node->dvfs_table[i].DVFS_INDEX;
 			 //printk("%s,%s rate=%ukhz(vol=%d)\n",__func__,clk_dvfs_node->name,
 			 //clk_fv->frequency, clk_fv->index);
 			return 0;
 		}
 	}
 	clk_fv->frequency = 0;
-	clk_fv->index = 0;
+	clk_fv->DVFS_INDEX = 0;
 	//DVFS_DBG("%s get corresponding voltage error! out of bound\n", clk_dvfs_node->name);
 	return -EINVAL;
 }
@@ -929,15 +962,15 @@ static int dvfs_vd_get_newvolt_byclk(struct dvfs_node *clk_dvfs_node)
 }
 
 static struct cpufreq_frequency_table rk3288v0_arm_pvtm_table[] = {
-	{.frequency = 216000,  .index = 4006},
-	{.frequency = 408000,  .index = 6518},
-	{.frequency = 600000,  .index = 8345},
-	{.frequency = 816000,  .index = 11026},
-	{.frequency = 1008000,  .index = 12906},
-	{.frequency = 1200000,  .index = 15532},
-	{.frequency = 1416000,  .index = 18076},
-	{.frequency = 1608000,  .index = 21282},
-	{.frequency = CPUFREQ_TABLE_END, .index = 1},
+	{.frequency = 216000,  .DVFS_INDEX = 4006},
+	{.frequency = 408000,  .DVFS_INDEX = 6518},
+	{.frequency = 600000,  .DVFS_INDEX = 8345},
+	{.frequency = 816000,  .DVFS_INDEX = 11026},
+	{.frequency = 1008000,  .DVFS_INDEX = 12906},
+	{.frequency = 1200000,  .DVFS_INDEX = 15532},
+	{.frequency = 1416000,  .DVFS_INDEX = 18076},
+	{.frequency = 1608000,  .DVFS_INDEX = 21282},
+	{.frequency = CPUFREQ_TABLE_END, .DVFS_INDEX = 1},
 };
 
 static struct pvtm_info rk3288v0_arm_pvtm_info = {
@@ -957,15 +990,15 @@ static struct pvtm_info rk3288v0_arm_pvtm_info = {
 };
 
 static struct cpufreq_frequency_table rk3288v1_arm_pvtm_table[] = {
-	{.frequency = 216000,  .index = 4710},
-	{.frequency = 408000,  .index = 7200},
-	{.frequency = 600000,  .index = 9192},
-	{.frequency = 816000,  .index = 12560},
-	{.frequency = 1008000,  .index = 14741},
-	{.frequency = 1200000,  .index = 16886},
-	{.frequency = 1416000,  .index = 20081},
-	{.frequency = 1608000,  .index = 24061},
-	{.frequency = CPUFREQ_TABLE_END, .index = 1},
+	{.frequency = 216000,  .DVFS_INDEX = 4710},
+	{.frequency = 408000,  .DVFS_INDEX = 7200},
+	{.frequency = 600000,  .DVFS_INDEX = 9192},
+	{.frequency = 816000,  .DVFS_INDEX = 12560},
+	{.frequency = 1008000,  .DVFS_INDEX = 14741},
+	{.frequency = 1200000,  .DVFS_INDEX = 16886},
+	{.frequency = 1416000,  .DVFS_INDEX = 20081},
+	{.frequency = 1608000,  .DVFS_INDEX = 24061},
+	{.frequency = CPUFREQ_TABLE_END, .DVFS_INDEX = 1},
 };
 
 static struct pvtm_info rk3288v1_arm_pvtm_info = {
@@ -985,15 +1018,15 @@ static struct pvtm_info rk3288v1_arm_pvtm_info = {
 };
 
 static struct cpufreq_frequency_table rk3288v2_arm_pvtm_table[] = {
-	{.frequency = 216000,  .index = 5369},
-	{.frequency = 408000,  .index = 6984},
-	{.frequency = 600000,  .index = 8771},
-	{.frequency = 816000,  .index = 11434},
-	{.frequency = 1008000,  .index = 14178},
-	{.frequency = 1200000,  .index = 16797},
-	{.frequency = 1416000,  .index = 20178},
-	{.frequency = 1608000,  .index = 23303},
-	{.frequency = CPUFREQ_TABLE_END, .index = 1},
+	{.frequency = 216000,  .DVFS_INDEX = 5369},
+	{.frequency = 408000,  .DVFS_INDEX = 6984},
+	{.frequency = 600000,  .DVFS_INDEX = 8771},
+	{.frequency = 816000,  .DVFS_INDEX = 11434},
+	{.frequency = 1008000,  .DVFS_INDEX = 14178},
+	{.frequency = 1200000,  .DVFS_INDEX = 16797},
+	{.frequency = 1416000,  .DVFS_INDEX = 20178},
+	{.frequency = 1608000,  .DVFS_INDEX = 23303},
+	{.frequency = CPUFREQ_TABLE_END, .DVFS_INDEX = 1},
 };
 
 static struct pvtm_info rk3288v2_arm_pvtm_info = {
@@ -1012,18 +1045,18 @@ static struct pvtm_info rk3288v2_arm_pvtm_info = {
 	.cluster = 0,
 };
 static struct cpufreq_frequency_table rk3368v0_arm_b_pvtm_table[] = {
-	{.frequency = 216000,  .index = 9891},
-	{.frequency = 312000,  .index = 9891},
-	{.frequency = 408000,  .index = 9891},
-	{.frequency = 600000,  .index = 9891},
-	{.frequency = 696000,  .index = 10115},
-	{.frequency = 816000,  .index = 11014},
-	{.frequency = 1008000,  .index = 13650},
-	{.frequency = 1200000,  .index = 16520},
-	{.frequency = 1296000,  .index = 17856},
-	{.frequency = 1416000,  .index = 19662},
-	{.frequency = 1512000,  .index = 21069},
-	{.frequency = CPUFREQ_TABLE_END, .index = 1},
+	{.frequency = 216000,  .DVFS_INDEX = 9891},
+	{.frequency = 312000,  .DVFS_INDEX = 9891},
+	{.frequency = 408000,  .DVFS_INDEX = 9891},
+	{.frequency = 600000,  .DVFS_INDEX = 9891},
+	{.frequency = 696000,  .DVFS_INDEX = 10115},
+	{.frequency = 816000,  .DVFS_INDEX = 11014},
+	{.frequency = 1008000,  .DVFS_INDEX = 13650},
+	{.frequency = 1200000,  .DVFS_INDEX = 16520},
+	{.frequency = 1296000,  .DVFS_INDEX = 17856},
+	{.frequency = 1416000,  .DVFS_INDEX = 19662},
+	{.frequency = 1512000,  .DVFS_INDEX = 21069},
+	{.frequency = CPUFREQ_TABLE_END, .DVFS_INDEX = 1},
 };
 
 static struct pvtm_info rk3368v0_arm_b_pvtm_info = {
@@ -1043,15 +1076,15 @@ static struct pvtm_info rk3368v0_arm_b_pvtm_info = {
 };
 
 static struct cpufreq_frequency_table rk3368v0_arm_l_pvtm_table[] = {
-	{.frequency = 216000,  .index = 9913},
-	{.frequency = 312000,  .index = 9913},
-	{.frequency = 408000,  .index = 9913},
-	{.frequency = 600000,  .index = 9913},
-	{.frequency = 696000,  .index = 11056},
-	{.frequency = 816000,  .index = 12816},
-	{.frequency = 1008000,  .index = 15613},
-	{.frequency = 1200000,  .index = 18329},
-	{.frequency = CPUFREQ_TABLE_END, .index = 1},
+	{.frequency = 216000,  .DVFS_INDEX = 9913},
+	{.frequency = 312000,  .DVFS_INDEX = 9913},
+	{.frequency = 408000,  .DVFS_INDEX = 9913},
+	{.frequency = 600000,  .DVFS_INDEX = 9913},
+	{.frequency = 696000,  .DVFS_INDEX = 11056},
+	{.frequency = 816000,  .DVFS_INDEX = 12816},
+	{.frequency = 1008000,  .DVFS_INDEX = 15613},
+	{.frequency = 1200000,  .DVFS_INDEX = 18329},
+	{.frequency = CPUFREQ_TABLE_END, .DVFS_INDEX = 1},
 };
 
 static struct pvtm_info rk3368v0_arm_l_pvtm_info = {
@@ -1091,9 +1124,10 @@ static int pvtm_set_single_dvfs(struct dvfs_node *dvfs_node, u32 idx,
 	int n, temp;
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
 #else
 
-	volt_margin = info->volt_margin_uv + pvtm_table[idx].index;
+	volt_margin = info->volt_margin_uv + pvtm_table[idx].DVFS_INDEX;
 #endif
 	n = volt_margin/info->volt_step_uv;
 	if (volt_margin%info->volt_step_uv)
@@ -1114,11 +1148,12 @@ static int pvtm_set_single_dvfs(struct dvfs_node *dvfs_node, u32 idx,
 		 __func__, temp, dvfs_table[idx].frequency, target_pvtm);
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
 #else
 
 	for (n = 0; n < n_voltages; n++) {
 		if (pvtm_list[n] >= target_pvtm) {
-			dvfs_table[idx].index = volt_list[n];
+			dvfs_table[idx].DVFS_INDEX = volt_list[n];
 			DVFS_DBG("freq[%d]=%d, volt=%d\n",
 				 idx, dvfs_table[idx].frequency, volt_list[n]);
 
@@ -1159,6 +1194,7 @@ static void pvtm_set_dvfs_table(struct dvfs_node *dvfs_node)
 	}
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
 #else
 
 	for (i = 0; dvfs_table[i].frequency != CPUFREQ_TABLE_END; i++) {
@@ -1166,7 +1202,7 @@ static void pvtm_set_dvfs_table(struct dvfs_node *dvfs_node)
 		     CPUFREQ_TABLE_END; j++)
 			if (info->pvtm_table[j].frequency >=
 			    dvfs_table[i].frequency) {
-				int min_pvtm = info->pvtm_table[j].index;
+				int min_pvtm = info->pvtm_table[j].DVFS_INDEX;
 
 				ret = pvtm_set_single_dvfs(dvfs_node,
 							   i,
@@ -1243,13 +1279,14 @@ static void dvfs_virt_temp_limit_work_func(struct dvfs_node *dvfs_node)
 	}
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
 #else
 
 	if (limits_table) {
 		new_temp_limit_rate = limits_table[0].frequency;
 		for (i = 0; limits_table[i].frequency != CPUFREQ_TABLE_END; i++) {
 			if (dvfs_node->target_temp >=
-				limits_table[i].index)
+				limits_table[i].DVFS_INDEX)
 				new_temp_limit_rate = limits_table[i].frequency;
 		}
 	}
@@ -1334,11 +1371,12 @@ static void dvfs_temp_limit_performance(struct dvfs_node *dvfs_node, int temp)
 	dvfs_node->temp_limit_rate = dvfs_node->max_rate;
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
 #else
 	
 	for (i = 0; dvfs_node->per_temp_limit_table[i].frequency !=
 		CPUFREQ_TABLE_END; i++) {
-		if (temp > dvfs_node->per_temp_limit_table[i].index)
+		if (temp > dvfs_node->per_temp_limit_table[i].DVFS_INDEX)
 			dvfs_node->temp_limit_rate =
 			dvfs_node->per_temp_limit_table[i].frequency;
 	}
@@ -1357,13 +1395,14 @@ static void dvfs_temp_limit_normal(struct dvfs_node *dvfs_node, int temp)
 			delta_temp = temp - dvfs_node->target_temp;
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
 #else
 			
 			for (i = 0;
 			dvfs_node->nor_temp_limit_table[i].frequency !=
 				CPUFREQ_TABLE_END; i++) {
 				if (delta_temp >
-				dvfs_node->nor_temp_limit_table[i].index)
+				dvfs_node->nor_temp_limit_table[i].DVFS_INDEX)
 					arm_rate_step =
 				dvfs_node->nor_temp_limit_table[i].frequency;
 			}
@@ -1386,13 +1425,14 @@ static void dvfs_temp_limit_normal(struct dvfs_node *dvfs_node, int temp)
 			delta_temp = dvfs_node->target_temp - temp;
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
 #else
 			
 			for (i = 0;
 			dvfs_node->nor_temp_limit_table[i].frequency !=
 				CPUFREQ_TABLE_END; i++) {
 				if (delta_temp >
-				dvfs_node->nor_temp_limit_table[i].index)
+				dvfs_node->nor_temp_limit_table[i].DVFS_INDEX)
 					arm_rate_step =
 				dvfs_node->nor_temp_limit_table[i].frequency;
 			}
@@ -1639,7 +1679,11 @@ int dvfs_set_freq_volt_table(struct dvfs_node *clk_dvfs_node, struct cpufreq_fre
 		DVFS_ERR("%s:invalid table!\n", __func__);
 		return -EINVAL;
 	}
-	
+#if TSAI
+	printk("TSAI dvfs_set_freq_volt_table table=%p %s\n", table, __FILE__);
+	while(!tsai_move_on)
+		cpu_relax();
+#endif
 	mutex_lock(&clk_dvfs_node->vd->mutex);
 	clk_dvfs_node->dvfs_table = table;
 	dvfs_get_rate_range(clk_dvfs_node);
@@ -1710,13 +1754,14 @@ static void adjust_table_by_leakage(struct dvfs_node *dvfs_node)
 		return;
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
 #else
 
 	for (i = 0;
 	(dvfs_node->dvfs_table[i].frequency != CPUFREQ_TABLE_END); i++) {
 		if (dvfs_node->dvfs_table[i].frequency >=
 			dvfs_node->lkg_info.min_adjust_freq)
-			dvfs_node->dvfs_table[i].index += adjust_volt;
+			dvfs_node->dvfs_table[i].DVFS_INDEX += adjust_volt;
 	}
 #endif	
 }
@@ -1798,10 +1843,9 @@ int clk_enable_dvfs(struct dvfs_node *clk_dvfs_node)
 		}
 		clk_dvfs_node->enable_count++;
 #if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-#else		
-		clk_dvfs_node->set_volt = clk_fv.index;
+	printk("TSAI clk_enable_dvfs cur_volt %d %s %d\n", clk_dvfs_node->vd->cur_volt, __FILE__, __LINE__);	
 #endif
+		clk_dvfs_node->set_volt = clk_fv.DVFS_INDEX;
 		volt_new = dvfs_vd_get_newvolt_byclk(clk_dvfs_node);
 		DVFS_DBG("%s: %s, freq %u(ref vol %u)\n",
 			__func__, clk_dvfs_node->name, clk_dvfs_node->set_freq, clk_dvfs_node->set_volt);
@@ -1966,11 +2010,11 @@ static int dvfs_target(struct dvfs_node *clk_dvfs_node, unsigned long rate)
 		return ret;
 	}
 	clk_volt_store = clk_dvfs_node->set_volt;
+	clk_dvfs_node->set_volt = clk_fv.DVFS_INDEX;
 #if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-#else	
-	clk_dvfs_node->set_volt = clk_fv.index;
-#endif	
+//	if (strcmp(clk_dvfs_node->name, "clk_ddr")==0) BKPT;
+	printk("TSAI: dvfs_target %s\n", clk_dvfs_node->name);
+#endif
 	volt_new = dvfs_vd_get_newvolt_byclk(clk_dvfs_node);
 	DVFS_DBG("%s:%s new rate=%lu(was=%lu),new volt=%lu,(was=%d)\n",
 		__func__, clk_dvfs_node->name, new_rate, old_rate, volt_new,clk_dvfs_node->vd->cur_volt);
@@ -2243,18 +2287,15 @@ static struct cpufreq_frequency_table *of_get_temp_limit_table(struct device_nod
 			     (nr/2 + 1), GFP_KERNEL);
 
 	val = prop->value;
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-#else
 
 	for (i=0; i<nr/2; i++){
-		temp_limt_table[i].index = be32_to_cpup(val++);
+		temp_limt_table[i].DVFS_INDEX = be32_to_cpup(val++);
 		temp_limt_table[i].frequency = be32_to_cpup(val++) * 1000;
 	}
 
-	temp_limt_table[i].index = 0;
+	temp_limt_table[i].DVFS_INDEX = 0;
 	temp_limt_table[i].frequency = CPUFREQ_TABLE_END;
-#endif
+
 	return temp_limt_table;
 
 }
@@ -2266,7 +2307,6 @@ static int of_get_dvfs_table(struct device_node *dev_node,
 	const struct property *prop;
 	const __be32 *val;
 	int nr, i;
-
 	prop = of_find_property(dev_node, "operating-points", NULL);
 	if (!prop)
 		return -EINVAL;
@@ -2282,18 +2322,15 @@ static int of_get_dvfs_table(struct device_node *dev_node,
 	tmp_dvfs_table = kzalloc(sizeof(*tmp_dvfs_table) *
 			     (nr/2 + 1), GFP_KERNEL);
 	val = prop->value;
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-#else
 
 	for (i = 0; i < nr/2; i++) {
 		tmp_dvfs_table[i].frequency = be32_to_cpup(val++);
-		tmp_dvfs_table[i].index = be32_to_cpup(val++);
+		tmp_dvfs_table[i].DVFS_INDEX = be32_to_cpup(val++);
 	}
 
-	tmp_dvfs_table[i].index = 0;
+	tmp_dvfs_table[i].DVFS_INDEX = 0;
 	tmp_dvfs_table[i].frequency = CPUFREQ_TABLE_END;
-#endif
+
 	*dvfs_table = tmp_dvfs_table;
 
 	return 0;
@@ -2309,6 +2346,10 @@ static int of_get_dvfs_pvtm_table(struct device_node *dev_node,
 	const struct property *prop;
 	const __be32 *val;
 	int nr, i;
+#if TSAI
+	while(!tsai_move_on)
+		cpu_relax();
+#endif
 
 	prop = of_find_property(dev_node, "pvtm-operating-points", NULL);
 	if (!prop)
@@ -2331,20 +2372,21 @@ static int of_get_dvfs_pvtm_table(struct device_node *dev_node,
 	val = prop->value;
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
 #else
 
 	for (i = 0; i < nr/3; i++) {
 		tmp_dvfs_table[i].frequency = be32_to_cpup(val++);
-		tmp_dvfs_table[i].index = be32_to_cpup(val++);
+		tmp_dvfs_table[i].DVFS_INDEX = be32_to_cpup(val++);
 
 		tmp_pvtm_table[i].frequency = tmp_dvfs_table[i].frequency;
-		tmp_pvtm_table[i].index = be32_to_cpup(val++);
+		tmp_pvtm_table[i].DVFS_INDEX = be32_to_cpup(val++);
 	}
 
-	tmp_dvfs_table[i].index = 0;
+	tmp_dvfs_table[i].DVFS_INDEX = 0;
 	tmp_dvfs_table[i].frequency = CPUFREQ_TABLE_END;
 
-	tmp_pvtm_table[i].index = 0;
+	tmp_pvtm_table[i].DVFS_INDEX = 0;
 	tmp_pvtm_table[i].frequency = CPUFREQ_TABLE_END;
 #endif
 	*dvfs_table = tmp_dvfs_table;
@@ -2642,12 +2684,13 @@ static int dump_dbg_map(char *buf)
 						clk_dvfs_node->last_set_rate/1000);
 #if TSAI
 	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
+	while(!tsai_move_on) cpu_relax();
 #else
 						
 				for (i = 0; (clk_dvfs_node->dvfs_table[i].frequency != CPUFREQ_TABLE_END); i++) {
 					printk( "|  |  |  |- freq = %d, volt = %d\n",
 							clk_dvfs_node->dvfs_table[i].frequency,
-							clk_dvfs_node->dvfs_table[i].index);
+							clk_dvfs_node->dvfs_table[i].DVFS_INDEX);
 
 				}
 
@@ -2660,7 +2703,7 @@ static int dump_dbg_map(char *buf)
 					for (i = 0; (clk_dvfs_node->regu_mode_table[i].frequency != CPUFREQ_TABLE_END); i++) {
 						printk( "|  |  |  |- freq = %d, regu_mode = %s\n",
 								clk_dvfs_node->regu_mode_table[i].frequency/1000,
-								dvfs_regu_mode_to_string(clk_dvfs_node->regu_mode_table[i].index));
+								dvfs_regu_mode_to_string(clk_dvfs_node->regu_mode_table[i].DVFS_INDEX));
 					}
 				}
 #endif				

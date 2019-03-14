@@ -750,6 +750,18 @@ static inline struct dma_async_tx_descriptor *dmaengine_prep_dma_cyclic(
 	return chan->device->device_prep_dma_cyclic(chan, buf_addr, buf_len,
 						period_len, dir, flags);
 }
+#if 0 && defined(CONFIG_ARCH_ROCKCHIP) //TSAI, but doesn't seem to be referenced 
+static inline struct dma_async_tx_descriptor *dmaengine_prep_dma_infiniteloop(
+		struct dma_chan *chan, dma_addr_t buf_addr, size_t buf_len,
+		size_t period_len, enum dma_transfer_direction dir,
+		unsigned long flags,unsigned int limit)
+{
+	unsigned int t=limit;
+	return chan->device->device_prep_dma_cyclic(chan, buf_addr, buf_len,
+						period_len, dir, flags, &t);
+}
+#endif
+
 
 static inline struct dma_async_tx_descriptor *dmaengine_prep_interleaved_dma(
 		struct dma_chan *chan, struct dma_interleaved_template *xt,

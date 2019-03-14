@@ -35,20 +35,38 @@
 #include <linux/tty_flip.h>
 #include <linux/wakelock.h>
 
+#if defined(CONFIG_FIQ_DEBUGGER_EL3_TO_EL1) || defined(CONFIG_ARM_PSCI)
+#include <linux/rockchip/psci.h>
+#endif
+
 #ifdef CONFIG_FIQ_GLUE
 #include <asm/fiq_glue.h>
 #endif
 
 #include <linux/uaccess.h>
-
+#if TSAI && defined(CONFIG_ARCH_ROCKCHIP) //TSAI: for RK
+#include <linux/rockchip/grf.h>
+#include <linux/rockchip/iomap.h>
+#include <linux/rockchip/cpu.h>
+#endif
 #include "fiq_debugger.h"
 #include "fiq_debugger_priv.h"
 #include "fiq_debugger_ringbuf.h"
 
+#ifdef CONFIG_RK29_WATCHDOG //TSAI
+extern void rk29_wdt_keepalive(void);
+#define wdt_keepalive() rk29_wdt_keepalive()
+#else
+#define wdt_keepalive() do {} while (0)
+#endif
 #define DEBUG_MAX 64
 #define MAX_UNHANDLED_FIQ_COUNT 1000000
 
+#ifdef CONFIG_ARCH_ROCKCHIP //TSAI
+#define MAX_FIQ_DEBUGGER_PORTS 1
+#else
 #define MAX_FIQ_DEBUGGER_PORTS 4
+#endif
 
 struct fiq_debugger_state {
 #ifdef CONFIG_FIQ_GLUE
@@ -72,6 +90,11 @@ struct fiq_debugger_state {
 	char debug_buf[DEBUG_MAX];
 	int debug_count;
 
+#ifdef CONFIG_ARCH_ROCKCHIP //TSAI
+	char cmd_buf[CMD_COUNT+1][DEBUG_MAX];
+	int back_pointer;
+	int current_pointer;
+#endif
 	bool no_sleep;
 	bool debug_enable;
 	bool ignore_next_wakeup_irq;
@@ -96,8 +119,13 @@ struct fiq_debugger_state {
 	bool syslog_dumping;
 #endif
 
+#ifdef CONFIG_ARCH_ROCKCHIP //TSAI
+	unsigned int last_irqs[1024];
+	unsigned int last_local_irqs[NR_CPUS][32];
+#else
 	unsigned int last_irqs[NR_IRQS];
 	unsigned int last_local_timer_irqs[NR_CPUS];
+#endif
 };
 
 #ifdef CONFIG_FIQ_DEBUGGER_CONSOLE
@@ -116,6 +144,10 @@ static bool initial_console_enable = true;
 #else
 static bool initial_debug_enable;
 static bool initial_console_enable;
+#endif
+
+#if defined(CONFIG_FIQ_DEBUGGER_EL3_TO_EL1) || defined(CONFIG_ARM_PSCI) //TSAI
+static struct fiq_debugger_state *state_tf;
 #endif
 
 static bool fiq_kgdb_enable;
@@ -156,12 +188,14 @@ static inline bool fiq_debugger_have_fiq(struct fiq_debugger_state *state)
 	return (state->fiq >= 0);
 }
 
-#ifdef CONFIG_FIQ_GLUE
+#if defined(CONFIG_FIQ_GLUE) || defined(CONFIG_FIQ_DEBUGGER_EL3_TO_EL1)
 static void fiq_debugger_force_irq(struct fiq_debugger_state *state)
 {
 	unsigned int irq = state->signal_irq;
 
 	if (WARN_ON(!fiq_debugger_have_fiq(state)))
+		return;
+	if (irq < 0)
 		return;
 	if (state->pdata->force_irq) {
 		state->pdata->force_irq(state->pdev, irq);
@@ -217,7 +251,11 @@ static void fiq_debugger_prompt(struct fiq_debugger_state *state)
 
 static void fiq_debugger_dump_kernel_log(struct fiq_debugger_state *state)
 {
+#ifdef CONFIG_ARCH_ROCKCHIP //TSAI
+	char buf[968];
+#else
 	char buf[512];
+#endif
 	size_t len;
 	struct kmsg_dumper dumper = { .active = true };
 
@@ -227,8 +265,33 @@ static void fiq_debugger_dump_kernel_log(struct fiq_debugger_state *state)
 					 sizeof(buf) - 1, &len)) {
 		buf[len] = 0;
 		fiq_debugger_puts(state, buf);
+#ifdef CONFIG_ARCH_ROCKCHIP //TSAI
+		wdt_keepalive();
+#endif
 	}
 }
+
+#ifdef CONFIG_RK_LAST_LOG //TSAI
+#include <linux/ctype.h>
+extern char *rk_last_log_get(unsigned *size);
+static void fiq_debugger_dump_last_kernel_log(struct fiq_debugger_state *state)
+{
+	unsigned size, i, c;
+	char *s = rk_last_log_get(&size);
+
+	for (i = 0; i < size; i++) {
+		if (i % 1024 == 0)
+			wdt_keepalive();
+		c = s[i];
+		if (c == '\n') {
+			state->pdata->uart_putc(state->pdev, '\r');
+			state->pdata->uart_putc(state->pdev, c);
+		} else if (isascii(c) && isprint(c)) {
+			state->pdata->uart_putc(state->pdev, c);
+		}
+	}
+}
+#endif
 
 static void fiq_debugger_printf(struct fiq_debugger_output *output,
 			       const char *fmt, ...)
@@ -282,6 +345,79 @@ static void fiq_debugger_dump_irqs(struct fiq_debugger_state *state)
 			(act && act->name) ? act->name : "???");
 		state->last_irqs[n] = kstat_irqs(n);
 	}
+
+#ifdef CONFIG_ARCH_ROCKCHIP //TSAI
+	for (n = 16; n < 32; n++) {
+		desc = irq_to_desc(n);
+		if (!desc)
+			continue;
+		for (cpu = 0; cpu < NR_CPUS; cpu++) {
+			unsigned int irqs = kstat_irqs_cpu(n, cpu);
+			struct irqaction *act = desc->action;
+			const char *name = (act && act->name) ? act->name : "???";
+			if (!irqs)
+				continue;
+			fiq_debugger_printf(&state->output,
+				"%5d: %10u %11u           %s (CPU%d)\n", n,
+				irqs, irqs - state->last_local_irqs[cpu][n],
+				name, cpu);
+			state->last_local_irqs[cpu][n] = irqs;
+		}
+	}
+#ifdef CONFIG_SMP
+	for (n = 0; n < NR_IPI; n++) {
+#define S(x,s)	[x] = s
+#ifdef CONFIG_ARM
+		enum ipi_msg_type {
+			IPI_WAKEUP,
+			IPI_TIMER,
+			IPI_RESCHEDULE,
+			IPI_CALL_FUNC,
+			IPI_CALL_FUNC_SINGLE,
+			IPI_CPU_STOP,
+			IPI_COMPLETION,
+			IPI_CPU_BACKTRACE,
+		};
+		static const char *ipi_types[NR_IPI] = {
+			S(IPI_WAKEUP, "CPU wakeup"),
+			S(IPI_TIMER, "Timer broadcast"),
+			S(IPI_RESCHEDULE, "Rescheduling"),
+			S(IPI_CALL_FUNC, "Function call"),
+			S(IPI_CALL_FUNC_SINGLE, "Single function call"),
+			S(IPI_CPU_STOP, "CPU stop"),
+			S(IPI_COMPLETION, "Completion"),
+			S(IPI_CPU_BACKTRACE, "CPU backtrace"),
+		};
+#elif defined(CONFIG_ARM64)
+		enum ipi_msg_type {
+			IPI_RESCHEDULE,
+			IPI_CALL_FUNC,
+			IPI_CALL_FUNC_SINGLE,
+			IPI_CPU_STOP,
+			IPI_TIMER,
+		};
+		static const char *ipi_types[NR_IPI] = {
+			S(IPI_RESCHEDULE, "Rescheduling"),
+			S(IPI_CALL_FUNC, "Function call"),
+			S(IPI_CALL_FUNC_SINGLE, "Single function call"),
+			S(IPI_CPU_STOP, "CPU stop"),
+			S(IPI_TIMER, "Timer broadcast"),
+		};
+#endif
+#undef S
+		for (cpu = 0; cpu < NR_CPUS; cpu++) {
+			unsigned int irqs = __get_irq_stat(cpu, ipi_irqs[n]);
+			if (irqs == 0)
+				continue;
+			fiq_debugger_printf(&state->output,
+				"%5d: %10u %11u           %s (CPU%d)\n",
+				n, irqs, irqs - state->last_local_irqs[cpu][n],
+				ipi_types[n], cpu);
+			state->last_local_irqs[cpu][n] = irqs;
+		}
+	}
+#endif /* CONFIG_SMP */
+#endif
 }
 
 static void fiq_debugger_do_ps(struct fiq_debugger_state *state)
@@ -420,7 +556,52 @@ static void fiq_debugger_irq_exec(struct fiq_debugger_state *state, char *cmd)
 #endif
 	if (!strncmp(cmd, "reboot", 6))
 		fiq_debugger_schedule_work(state, cmd);
+#ifdef CONFIG_ARCH_ROCKCHIP //TSAI
+	else {
+		invalid_cmd = 1;
+		memset(state->debug_buf, 0, DEBUG_MAX);
+	}
+
+	if (invalid_cmd == 0) {
+		state->current_pointer = (state->current_pointer-1) & CMD_COUNT;
+		if (strcmp(state->cmd_buf[state->current_pointer], state->debug_buf)) {
+			state->current_pointer = (state->current_pointer+1) & CMD_COUNT;
+			memset(state->cmd_buf[state->current_pointer], 0, DEBUG_MAX);
+			strcpy(state->cmd_buf[state->current_pointer], state->debug_buf);
+		}
+		memset(state->debug_buf, 0, DEBUG_MAX);
+		state->current_pointer = (state->current_pointer+1) & CMD_COUNT;
+		state->back_pointer = state->current_pointer;
+	}
+#endif
 }
+
+#ifdef CONFIG_ARCH_ROCKCHIP //TSAI
+static char cmd_buf[][16] = {
+		{"pc"},
+		{"regs"},
+		{"allregs"},
+		{"bt"},
+		{"reboot"},
+		{"irqs"},
+		{"kmsg"},
+#ifdef CONFIG_RK_LAST_LOG
+		{"last_kmsg"},
+#endif
+		{"version"},
+		{"sleep"},
+		{"nosleep"},
+		{"console"},
+		{"cpu"},
+		{"ps"},
+		{"sysrq"},
+		{"reset"},
+#ifdef CONFIG_KGDB
+		{"kgdb"},
+#endif
+};
+#endif
+
 
 static void fiq_debugger_help(struct fiq_debugger_state *state)
 {
@@ -435,6 +616,10 @@ static void fiq_debugger_help(struct fiq_debugger_state *state)
 				" irqs          Interupt status\n"
 				" kmsg          Kernel log\n"
 				" version       Kernel version\n");
+#ifdef CONFIG_RK_LAST_LOG //TSAI
+	fiq_debugger_printf(&state->output,
+				" last_kmsg     Last kernel log\n");
+#endif
 	fiq_debugger_printf(&state->output,
 				" sleep         Allow sleep while in FIQ\n"
 				" nosleep       Disable sleep while in FIQ\n"
@@ -467,6 +652,35 @@ static void fiq_debugger_switch_cpu(struct fiq_debugger_state *state, int cpu)
 	if (!fiq_debugger_have_fiq(state))
 		smp_call_function_single(cpu, fiq_debugger_take_affinity, state,
 				false);
+#ifdef CONFIG_ARCH_ROCKCHIP //TSAI
+	else {
+#ifdef CONFIG_FIQ_DEBUGGER_EL3_TO_EL1
+		if (state->pdata->switch_cpu)
+			state->pdata->switch_cpu(state->pdev, cpu);
+#else
+		struct cpumask cpumask;
+
+		if (!cpu_online(cpu)) {
+			fiq_debugger_printf(&state->output, "cpu %d offline\n", cpu);
+			return;
+		}
+
+#ifdef CONFIG_ARM_PSCI
+		if (is_psci_enable()) {
+			if (state->pdata->switch_cpu)
+				state->pdata->switch_cpu(state->pdev, cpu);
+			state->current_cpu = cpu;
+			return;
+		}
+#endif
+		cpumask_clear(&cpumask);
+		cpumask_set_cpu(cpu, &cpumask);
+
+		irq_set_affinity(state->fiq, &cpumask);
+		irq_set_affinity(state->uart_irq, &cpumask);
+#endif
+	}
+#endif
 	state->current_cpu = cpu;
 }
 
@@ -501,6 +715,10 @@ static bool fiq_debugger_fiq_exec(struct fiq_debugger_state *state,
 		fiq_debugger_dump_irqs(state);
 	} else if (!strcmp(cmd, "kmsg")) {
 		fiq_debugger_dump_kernel_log(state);
+#ifdef CONFIG_RK_LAST_LOG //TSAI
+	} else if (!strcmp(cmd, "last_kmsg")) {
+		fiq_debugger_dump_last_kernel_log(state);
+#endif
 	} else if (!strcmp(cmd, "version")) {
 		fiq_debugger_printf(&state->output, "%s\n", linux_banner);
 	} else if (!strcmp(cmd, "sleep")) {
@@ -513,6 +731,15 @@ static bool fiq_debugger_fiq_exec(struct fiq_debugger_state *state,
 		fiq_debugger_printf(&state->output, "console mode\n");
 		fiq_debugger_uart_flush(state);
 		state->console_enable = true;
+#ifdef CONFIG_FIQ_DEBUGGER_EL3_TO_EL1 //TSAI
+		if (state->pdata->enable_debug)
+			state->pdata->enable_debug(state->pdev, false);
+#elif defined(CONFIG_ARM_PSCI)
+		if (is_psci_enable()) {
+			if (state->pdata->enable_debug)
+				state->pdata->enable_debug(state->pdev, false);
+		}
+#endif
 	} else if (!strcmp(cmd, "cpu")) {
 		fiq_debugger_printf(&state->output, "cpu %d\n", state->current_cpu);
 	} else if (!strncmp(cmd, "cpu ", 4)) {
@@ -669,13 +896,46 @@ static bool fiq_debugger_handle_uart_interrupt(struct fiq_debugger_state *state,
 			}
 		} else if (c == FIQ_DEBUGGER_BREAK) {
 			state->console_enable = false;
+#ifdef CONFIG_ARCH_ROCKCHIP
+			fiq_debugger_puts(state, "\nWelcome to ");
+#endif
 			fiq_debugger_puts(state, "fiq debugger mode\n");
 			state->debug_count = 0;
+#ifdef CONFIG_ARCH_ROCKCHIP
+			fiq_debugger_puts(state, "Enter ? to get command help\n");
+			state->back_pointer = CMD_COUNT;
+			state->current_pointer = CMD_COUNT;
+			memset(state->cmd_buf, 0, (CMD_COUNT+1)*DEBUG_MAX);
+#endif
+
+#ifdef CONFIG_FIQ_DEBUGGER_EL3_TO_EL1
+			if (state->pdata->enable_debug)
+				state->pdata->enable_debug(state->pdev, true);
+#elif defined(CONFIG_ARM_PSCI)
+			if (is_psci_enable()) {
+				if (state->pdata->enable_debug)
+					state->pdata->enable_debug(state->pdev,
+								   true);
+			}
+#endif
 			fiq_debugger_prompt(state);
 #ifdef CONFIG_FIQ_DEBUGGER_CONSOLE
 		} else if (state->console_enable && state->tty_rbuf) {
 			fiq_debugger_ringbuf_push(state->tty_rbuf, c);
 			signal_helper = true;
+#endif
+#ifdef CONFIG_ARCH_ROCKCHIP //TSAI
+		} else if (last_c == '[' && (c == 'A' || c == 'B' || c == 'C' || c == 'D')) {
+			if (state->debug_count > 0) {
+				state->debug_count--;
+				state->pdata->uart_putc(state->pdev, 8);
+				state->pdata->uart_putc(state->pdev, ' ');
+				state->pdata->uart_putc(state->pdev, 8);
+			}
+			fiq_debugger_cmd_check_back(state, c);
+			//tab
+		} else if (c == 9) {
+			fiq_debugger_cmd_tab(state);
 #endif
 		} else if ((c >= ' ') && (c < 127)) {
 			if (state->debug_count < (DEBUG_MAX - 1)) {
@@ -701,6 +961,19 @@ static bool fiq_debugger_handle_uart_interrupt(struct fiq_debugger_state *state,
 					fiq_debugger_fiq_exec(state,
 							state->debug_buf,
 							regs, svc_sp);
+#ifdef CONFIG_ARCH_ROCKCHIP //TSAI
+				if (signal_helper == false) {
+					state->current_pointer = (state->current_pointer-1) & CMD_COUNT;
+					if (strcmp(state->cmd_buf[state->current_pointer], state->debug_buf)) {
+						state->current_pointer = (state->current_pointer+1) & CMD_COUNT;
+						memset(state->cmd_buf[state->current_pointer], 0, DEBUG_MAX);
+						strcpy(state->cmd_buf[state->current_pointer], state->debug_buf);
+					}
+					memset(state->debug_buf, 0, DEBUG_MAX);
+					state->current_pointer = (state->current_pointer+1) & CMD_COUNT;
+					state->back_pointer = state->current_pointer;
+				}
+#endif
 			} else {
 				fiq_debugger_prompt(state);
 			}
@@ -731,6 +1004,25 @@ static void fiq_debugger_fiq(struct fiq_glue_handler *h,
 	unsigned int this_cpu = THREAD_INFO(svc_sp)->cpu;
 	bool need_irq;
 
+	/* RK2928 USB-UART function, otg dp/dm default in uart status;
+	 * connect with otg cable&usb device, dp/dm will be hi-z status 
+	 * and make uart controller enter infinite fiq loop 
+	 */
+#ifdef CONFIG_RK_USB_UART //TSAI
+	if (cpu_is_rk3188()) {
+		if (!(readl_relaxed(RK_GRF_VIRT + RK3188_GRF_SOC_STATUS0) & (1 << 13)) ||
+		     (readl_relaxed(RK_GRF_VIRT + RK3188_GRF_SOC_STATUS0) & (1 << 10))) {
+			/* id low or bvalid high, enter usb phy */
+			writel_relaxed((0x0300 << 16), RK_GRF_VIRT + RK3188_GRF_UOC0_CON0);
+		}
+	} else if (cpu_is_rk3288()) {
+		if (!(readl_relaxed(RK_GRF_VIRT + RK3288_GRF_SOC_STATUS2) & (1 << 17)) ||
+		     (readl_relaxed(RK_GRF_VIRT + RK3288_GRF_SOC_STATUS2) & (1 << 14))) {
+			/* id low or bvalid high, enter usb phy */
+			writel_relaxed((0x00c0 << 16), RK_GRF_VIRT + RK3288_GRF_UOC0_CON3);
+		}
+	}
+#endif
 	need_irq = fiq_debugger_handle_uart_interrupt(state, this_cpu, regs,
 			svc_sp);
 	if (need_irq)
@@ -759,6 +1051,37 @@ static irqreturn_t fiq_debugger_uart_irq(int irq, void *dev)
 
 	return IRQ_HANDLED;
 }
+
+#ifdef CONFIG_FIQ_DEBUGGER_EL3_TO_EL1 //TSAI
+void fiq_debugger_fiq(void *regs)
+{
+	struct fiq_debugger_state *state = state_tf;
+	bool need_irq;
+
+	if (!state)
+		return;
+	need_irq = fiq_debugger_handle_uart_interrupt(state, smp_processor_id(),
+						      regs,
+						      current_thread_info());
+	if (need_irq)
+		fiq_debugger_force_irq(state);
+}
+#elif defined(CONFIG_ARM_PSCI)
+void fiq_debugger_fiq_tf(void *regs)
+{
+	struct fiq_debugger_state *state = state_tf;
+	bool need_irq;
+
+	if (!state)
+		return;
+
+	need_irq = fiq_debugger_handle_uart_interrupt(state, smp_processor_id(),
+						      regs,
+						      current_thread_info());
+	if (need_irq)
+		fiq_debugger_force_irq(state);
+}
+#endif
 
 /*
  * If FIQs are used, not everything can happen in fiq context.
@@ -804,6 +1127,13 @@ static void fiq_debugger_console_write(struct console *co,
 
 	if (!state->console_enable && !state->syslog_dumping)
 		return;
+
+#ifdef CONFIG_RK_CONSOLE_THREAD //TSAI
+	if (state->pdata->console_write) {
+		state->pdata->console_write(state->pdev, s, count);
+		return;
+	}
+#endif
 
 	fiq_debugger_uart_enable(state);
 	spin_lock_irqsave(&state->console_lock, flags);
@@ -1113,7 +1443,12 @@ static int fiq_debugger_probe(struct platform_device *pdev)
 			pr_err("%s: could not install fiq handler\n", __func__);
 			goto err_register_irq;
 		}
-
+#ifdef CONFIG_ARCH_ROCKCHIP //TSAI
+		//set state->fiq to secure state, so fiq is avalable
+		gic_set_irq_secure(irq_get_irq_data(state->fiq));
+		//set state->fiq priority a little higher than other interrupts (normal is 0xa0)
+		gic_set_irq_priority(irq_get_irq_data(state->fiq), 0x90);
+#endif
 		pdata->fiq_enable(pdev, state->fiq, 1);
 	} else
 #endif
@@ -1161,6 +1496,9 @@ static int fiq_debugger_probe(struct platform_device *pdev)
 	}
 	if (state->no_sleep)
 		fiq_debugger_handle_wakeup(state);
+#if defined(CONFIG_FIQ_DEBUGGER_EL3_TO_EL1) || defined(CONFIG_ARM_PSCI) //TSAI
+	state_tf = state;
+#endif
 
 #if defined(CONFIG_FIQ_DEBUGGER_CONSOLE)
 	spin_lock_init(&state->console_lock);

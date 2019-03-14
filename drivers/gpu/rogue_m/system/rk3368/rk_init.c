@@ -1016,6 +1016,10 @@ static void rk33_dvfs_record_gpu_active(struct rk_context *platform)
     spin_unlock_irqrestore(&platform->timer_lock, flags);
 }
 
+#if TSAI
+extern int tsai_move_on;
+#endif
+
 static IMG_BOOL rk33_dvfs_get_freq_table(struct rk_context *platform)
 {
     IMG_INT i;
