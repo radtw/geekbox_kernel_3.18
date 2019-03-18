@@ -2917,3 +2917,4 @@ static int __init dvfs_init(void)
 }
 
 late_initcall(dvfs_init);
+

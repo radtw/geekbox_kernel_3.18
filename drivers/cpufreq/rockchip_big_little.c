@@ -272,11 +272,16 @@ static int rockchip_bl_cpufreq_scale_rate_for_dvfs(struct clk *clk,
 
 	freqs.new = rate / 1000;
 	freqs.old = clk_get_rate(clk) / 1000;
+<<<<<<< HEAD
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI
 	cpufreq_freq_transition_begin(policy, &freqs);
 #else
 	cpufreq_notify_transition(policy, &freqs, CPUFREQ_PRECHANGE);
 #endif
+=======
+
+	cpufreq_notify_transition(policy, &freqs, CPUFREQ_PRECHANGE);
+>>>>>>> 735d3397e52446cad5432d6b7eabccbbe1f6b5ca
 
 	FREQ_DBG("cpufreq_scale_rate_for_dvfs(%lu)\n", rate);
 
@@ -289,11 +294,16 @@ static int rockchip_bl_cpufreq_scale_rate_for_dvfs(struct clk *clk,
 #endif
 
 	/* notifiers */
+<<<<<<< HEAD
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI
 	cpufreq_freq_transition_end(policy, &freqs, 0);
 #else
 	cpufreq_notify_transition(policy, &freqs, CPUFREQ_POSTCHANGE);
 #endif
+=======
+	cpufreq_notify_transition(policy, &freqs, CPUFREQ_POSTCHANGE);
+
+>>>>>>> 735d3397e52446cad5432d6b7eabccbbe1f6b5ca
 	cpu_last_rate[cur_cluster] = rate;
 	cpufreq_cpu_put(policy);
 	return ret;
@@ -323,11 +333,19 @@ static int cluster_cpus_freq_dvfs_init(u32 cluster_id, char *dvfs_name)
 
 	for (i = 0; freq_table[cluster_id][i].frequency != CPUFREQ_TABLE_END;
 	     i++) {
+<<<<<<< HEAD
 		if (freq_table[cluster_id][i].DVFS_INDEX >= suspend_volt &&
 		    v > freq_table[cluster_id][i].DVFS_INDEX) {
 			suspend_freq[cluster_id] =
 				freq_table[cluster_id][i].frequency;
 			v = freq_table[cluster_id][i].DVFS_INDEX;
+=======
+		if (freq_table[cluster_id][i].index >= suspend_volt &&
+		    v > freq_table[cluster_id][i].index) {
+			suspend_freq[cluster_id] =
+				freq_table[cluster_id][i].frequency;
+			v = freq_table[cluster_id][i].index;
+>>>>>>> 735d3397e52446cad5432d6b7eabccbbe1f6b5ca
 		}
 	}
 	low_battery_freq[cluster_id] =
@@ -374,24 +392,33 @@ static int rockchip_bl_cpufreq_init(struct cpufreq_policy *policy)
 {
 	static int cpu0_err;
 	u32 cur_cluster = cpu_to_cluster(policy->cpu);
+<<<<<<< HEAD
 #if TSAI
 	printk("TSAI: rockchip_bl_cpufreq_init %s\n", __FILE__);
 #endif
+=======
+>>>>>>> 735d3397e52446cad5432d6b7eabccbbe1f6b5ca
 
 	if (policy->cpu == 0)
 		cpu0_err = rockchip_bl_cpufreq_init_cpu0(policy);
 	if (cpu0_err)
 		return cpu0_err;
 
+<<<<<<< HEAD
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI
 	/* 3rd parameter is latency */
 	cpufreq_generic_init(policy, freq_table[cur_cluster], 40 * NSEC_PER_USEC);
 #else
+=======
+>>>>>>> 735d3397e52446cad5432d6b7eabccbbe1f6b5ca
 	/* set freq min max */
 	cpufreq_frequency_table_cpuinfo(policy, freq_table[cur_cluster]);
 	/* sys nod */
 	cpufreq_frequency_table_get_attr(freq_table[cur_cluster], policy->cpu);
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> 735d3397e52446cad5432d6b7eabccbbe1f6b5ca
 
 	if (cur_cluster < MAX_CLUSTERS) {
 		cpumask_copy(policy->cpus, topology_core_cpumask(policy->cpu));
@@ -653,11 +680,15 @@ static struct cpufreq_driver rockchip_bl_cpufreq_driver = {
 	.init = rockchip_bl_cpufreq_init,
 	.exit = rockchip_bl_cpufreq_exit,
 	.name = "rockchip-bl",
+<<<<<<< HEAD
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))//TSAI
 	/* no longer have have_governor_per_policy in 3.18 */
 #else
 	.have_governor_per_policy = true,
 #endif
+=======
+	.have_governor_per_policy = true,
+>>>>>>> 735d3397e52446cad5432d6b7eabccbbe1f6b5ca
 	.attr = rockchip_bl_cpufreq_attr,
 };
 
@@ -673,9 +704,13 @@ static int __init rockchip_bl_cpufreq_probe(struct platform_device *pdev)
 {
 	int ret, i;
 	int freq = 0;
+<<<<<<< HEAD
 #if TSAI
 	printk("TSAI rockchip_bl_cpufreq_probe %s \n", __FILE__);
 #endif
+=======
+
+>>>>>>> 735d3397e52446cad5432d6b7eabccbbe1f6b5ca
 	ret = of_property_read_u32_index(pdev->dev.of_node, "safe_freq_b",
 					 0, &freq);
 	if (ret == 0)
