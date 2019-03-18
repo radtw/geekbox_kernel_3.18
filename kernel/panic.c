@@ -25,6 +25,10 @@
 #include <linux/nmi.h>
 #include <linux/console.h>
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 #define PANIC_TIMER_STEP 100
 #define PANIC_BLINK_SPD 18
 
@@ -78,6 +82,10 @@ void panic(const char *fmt, ...)
 	va_list args;
 	long i, i_next = 0;
 	int state = 0;
+
+#if TSAI
+	BKPT;
+#endif
 
 	/*
 	 * Disable local interrupts. This will prevent panic_smp_self_stop

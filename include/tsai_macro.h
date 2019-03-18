@@ -20,4 +20,7 @@
 	#define ASSERT(x)
 #endif
 
+extern int tsai_move_on; /* instance in tsai_spy.c */
+#define TSAI_BUSY_WAIT while(!tsai_move_on) cpu_relax();
+
 #endif /* TSAI_ASSERT_H_ */

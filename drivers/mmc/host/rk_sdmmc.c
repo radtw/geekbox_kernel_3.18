@@ -51,8 +51,13 @@
 #include <linux/log2.h>
 #include <linux/rockchip/cru.h>
 #include <linux/reset.h>
-#include <linux/scpi_protocol.h>
 
+#include <linux/version.h> //TSAI
+#if defined(CONFIG_RK3368_SCPI_PROTOCOL) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI: use newer version
+#include <soc/rockchip/scpi.h>
+#else
+#include <linux/scpi_protocol.h>
+#endif
 
 #include <asm-generic/dma-mapping-common.h>
 #include "rk_sdmmc.h"

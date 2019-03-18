@@ -26,8 +26,19 @@
 #include <linux/rk_fb.h>
 #include <linux/rockchip/common.h>
 #include <linux/rockchip/psci.h>
+
+#include <linux/version.h> //TSAI
+#if defined(CONFIG_RK3368_SCPI_PROTOCOL) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI: use newer version
+#include <soc/rockchip/scpi.h>
+#else
 #include <linux/scpi_protocol.h>
+#endif
+
 #include <asm/compiler.h>
+
+#if TSAI
+	#include "tsai_macro.h"
+#endif
 
 #define GRF_DDRC0_CON0    0x600
 #define GRF_SOC_STATUS5  0x494
@@ -404,6 +415,7 @@ static int __init rockchip_ddr_probe(struct platform_device *pdev)
 	ddr_bandwidth_get = _ddr_bandwidth_get;
 	ddr_recalc_rate = _ddr_recalc_rate;
 	rockchip_tf_ver_check();
+	//TSAI_BUSY_WAIT;
 	if (!of_do_get_timings(np, (struct ddr_timing *)&ddr_data->dram_timing)) {
 		if (scpi_ddr_send_timing((u32 *)&ddr_data->dram_timing,
 					 sizeof(struct ddr_timing)))

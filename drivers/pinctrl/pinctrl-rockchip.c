@@ -1366,8 +1366,14 @@ static int rockchip_set_pull(struct rockchip_pin_bank *bank,
 	case RK3288:
 		spin_lock_irqsave(&bank->slock, flags);
 
-		/* enable the write to the equivalent lower bits */
-		data = ((1 << RK3188_PULL_BITS_PER_PIN) - 1) << (bit + 16);
+		/* enable the write to the equivalent lower bits,
+		 * but gpio0 has not the write_enable bit.
+		 */
+		if (bank->bank_num == 0) {
+			data = readl_relaxed(reg);
+			data &= ~(3 << bit);
+		} else
+			data = ((1 << RK3188_PULL_BITS_PER_PIN) - 1) << (bit + 16);
 
 		switch (pull) {
 		case PIN_CONFIG_BIAS_DISABLE:
@@ -1746,10 +1752,15 @@ static int _rockchip_pinconf_set(struct rockchip_pin_bank *bank,
 
 				spin_lock_irqsave(&bank->slock, flags);
 
-				data = arg << bit;
-				data &= (3<<bit);
-				data |= (3<<(bit+16));
-				
+				if (bank->bank_num == 0) {
+					data = readl_relaxed(reg);
+					data &= ~(3<<bit);
+					data |= arg << bit;
+				} else {
+					data = arg << bit;
+					data |= (3<<(bit+16));
+				}
+
 				writel_relaxed(data, reg);
 				spin_unlock_irqrestore(&bank->slock, flags);
 				
@@ -1878,6 +1889,7 @@ static int rockchip_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
 	u16 arg;
 	int rc;
 
+
 	param = pinconf_to_config_param(configs);
 	arg = pinconf_to_config_argument(configs);
 
@@ -1890,7 +1902,7 @@ static int rockchip_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
 		break;
 	case PIN_CONFIG_BIAS_PULL_UP:
 	case PIN_CONFIG_BIAS_PULL_DOWN:
-	case PIN_CONFIG[_BIAS_PULL_PIN_DEFAULT:
+	case PIN_CONFIG_BIAS_PULL_PIN_DEFAULT:
 	case PIN_CONFIG_BIAS_BUS_HOLD:
 		if (!rockchip_pinconf_pull_valid(info->ctrl, param))
 			return -ENOTSUPP;
@@ -2047,8 +2059,6 @@ static void rockchip_pinconf_group_dbg_show(struct pinctrl_dev *pctldev,
 
 
 static const struct pinconf_ops rockchip_pinconf_ops = {
-	.pin_config_set			= rockchip_pinconf_set,
-
 	.pin_config_group_get		= rockchip_pinconf_group_get,
 	.pin_config_group_set		= rockchip_pinconf_group_set,
 	.pin_config_dbg_show		= rockchip_pinconf_dbg_show,
@@ -3069,7 +3079,6 @@ static int rockchip_pinctrl_suspend(void)
 		bank++;
 	}
 
-	
 	return 0;
 }
 
@@ -3106,6 +3115,10 @@ static void rockchip_pinctrl_resume(void)
               
 }
 
+static struct syscore_ops rockchip_gpio_syscore_ops = {
+	.suspend        = rockchip_pinctrl_suspend,
+	.resume         = rockchip_pinctrl_resume,
+};
 #endif
 
 
@@ -3290,8 +3303,11 @@ static int rockchip_pinctrl_probe(struct platform_device *pdev)
 	pinctrl_debugfs_init(info);
 
 	platform_set_drvdata(pdev, info);
-
+#ifdef CONFIG_PM
+	register_syscore_ops(&rockchip_gpio_syscore_ops);
+#endif
 	printk("%s:init ok\n",__func__);
+
 	return 0;
 }
 
@@ -3369,7 +3385,7 @@ static struct rockchip_pin_ctrl rk3188_pin_ctrl = {
 
 
 static struct rockchip_pin_bank rk3288_pin_banks[] = {
-	PIN_BANK(0, 32, "gpio0"),
+	PIN_BANK(0, 24, "gpio0"),
 	PIN_BANK(1, 32, "gpio1"),
 	PIN_BANK(2, 32, "gpio2"),
 	PIN_BANK(3, 32, "gpio3"),
@@ -3460,18 +3476,8 @@ static struct platform_driver rockchip_pinctrl_driver = {
 	},
 };
 
-#ifdef CONFIG_PM
-static struct syscore_ops rockchip_gpio_syscore_ops = {
-        .suspend        = rockchip_pinctrl_suspend,
-        .resume         = rockchip_pinctrl_resume,
-};
-#endif
-
 static int __init rockchip_pinctrl_drv_register(void)
 {
-#ifdef CONFIG_PM
-	register_syscore_ops(&rockchip_gpio_syscore_ops);
-#endif
 	return platform_driver_register(&rockchip_pinctrl_driver);
 }
 postcore_initcall(rockchip_pinctrl_drv_register);

@@ -619,7 +619,7 @@ static int dvfs_scale_volt_direct(struct vd_node *vd_clk, int volt_new)
 
 	vd_clk->volt_set_flag = DVFS_SET_VOLT_SUCCESS;
 	vd_clk->cur_volt = volt_new;
-#if TSAI
+#if 0 && TSAI
 	printk("TSAI dvfs_scale_volt_direct %s %d\n", __FILE__, __LINE__);
 #endif
 
@@ -2917,4 +2917,3 @@ static int __init dvfs_init(void)
 }
 
 late_initcall(dvfs_init);
-

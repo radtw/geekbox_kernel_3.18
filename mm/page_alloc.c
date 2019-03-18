@@ -1166,6 +1166,15 @@ __rmqueue_fallback(struct zone *zone, unsigned int order, int start_migratetype)
 
 			page = list_entry(area->free_list[migratetype].next,
 					struct page, lru);
+
+#ifdef CONFIG_ARCH_ROCKCHIP
+			if (is_migrate_cma(migratetype)){
+				int mt = get_pageblock_migratetype(page);
+				if (unlikely(is_migrate_isolate(mt)))
+					continue;
+			}
+#endif
+
 			area->nr_free--;
 
 			if (!is_migrate_cma(migratetype)) {
@@ -1332,12 +1341,42 @@ static void drain_pages(unsigned int cpu)
 	}
 }
 
+#if TSAI
+
+int tsai_debug_smp_drain_local_pages;
+
+extern struct PTR_SMP_C {
+	void* flush_smp_call_function_queue;
+
+}
+tsai_ptr_smp_c;
+
+#endif
+
 /*
  * Spill all of this CPU's per-cpu pages back into the buddy allocator.
  */
 void drain_local_pages(void *arg)
 {
+	int tsai_print = 0;
+	int cpu;
+#if TSAI
+	if (tsai_debug_smp_drain_local_pages) {
+		void* pret = __builtin_return_address(0);
+		if (pret >= tsai_ptr_smp_c.flush_smp_call_function_queue &&
+				(pret < tsai_ptr_smp_c.flush_smp_call_function_queue+0x400))
+		{
+			cpu = smp_processor_id();
+			printk("TSAI: drain_local_pages called by %p cpu %d\n", pret, cpu);
+			tsai_print = 0;
+		}
+	}
+#endif
 	drain_pages(smp_processor_id());
+#if TSAI
+	if (tsai_print)
+		printk("TSAI: drain_pages() done for %d\n", cpu);
+#endif
 }
 
 /*

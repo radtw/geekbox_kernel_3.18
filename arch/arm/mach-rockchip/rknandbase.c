@@ -20,6 +20,10 @@
 
 #include <linux/version.h>
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 struct rknand_info {
     int tag;
     int enable;
@@ -236,7 +240,7 @@ static int rknand_probe(struct platform_device *pdev)
 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
-	printk("TSAI check %s %d \n", __FILE__,__LINE__);
+	//printk("TSAI check %s %d \n", __FILE__,__LINE__);
 	membase = devm_ioremap_resource(&pdev->dev, mem);
 #else
 	membase = devm_request_and_ioremap(&pdev->dev, mem);
@@ -259,8 +263,12 @@ static int rknand_probe(struct platform_device *pdev)
         memcpy(nand_idb_data,membase+0x1000,0x800);
 		if (*(int *)(&nand_idb_data[0]) == 0x44535953) {
 			rknand_boot_media = *(int *)(&nand_idb_data[8]);
-			if (rknand_boot_media == 2) /*boot from emmc*/
+			if (rknand_boot_media == 2) {/*boot from emmc*/
+#if TSAI
+				printk("TSAI: rknand_boot_media==2 boot from emmc, return -1 (expected) %s\n", __FILE__);
+#endif
 				return -1;
+			}
 		}
 	}
 	else if(id >= 2)

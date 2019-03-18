@@ -24,11 +24,6 @@ obj-y			:= filemap.o mempool.o oom_kill.o \
 
 obj-y += init-mm.o
 
-ifeq ($(TSAI_OPT),1) 
-CFLAGS_maccess.o += -O0
-endif
-
-
 ifdef CONFIG_NO_BOOTMEM
 	obj-y		+= nobootmem.o
 else
@@ -77,3 +72,10 @@ obj-$(CONFIG_GENERIC_EARLY_IOREMAP) += early_ioremap.o
 obj-$(CONFIG_CMA)	+= cma.o
 obj-$(CONFIG_MEMORY_BALLOON) += balloon_compaction.o
 obj-$(CONFIG_HARDENED_USERCOPY) += usercopy.o
+
+ifeq ($(TSAI_OPT),1) 
+CFLAGS_cma.o += -O0
+CFLAGS_maccess.o += -O0
+CFLAGS_page_alloc.o += -O0
+endif
+

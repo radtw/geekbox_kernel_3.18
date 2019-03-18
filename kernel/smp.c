@@ -721,3 +721,14 @@ void wake_up_all_idle_cpus(void)
 	preempt_enable();
 }
 EXPORT_SYMBOL_GPL(wake_up_all_idle_cpus);
+
+#if TSAI
+struct PTR_SMP_C {
+	void* flush_smp_call_function_queue;
+
+}
+tsai_ptr_smp_c = {
+		.flush_smp_call_function_queue = flush_smp_call_function_queue,
+};
+
+#endif

@@ -10,6 +10,6 @@ obj-$(CONFIG_ARM_EXYNOS4_BUS_DEVFREQ)	+= exynos/
 obj-$(CONFIG_ARM_EXYNOS5_BUS_DEVFREQ)	+= exynos/
 
 ifeq ($(TSAI_OPT),1) 
-	ddr_rk3368.o += -O0
+	CFLAGS_ddr_rk3368.o += -O0
 #CFLAGS_ddr_freq.o += -O0
 endif

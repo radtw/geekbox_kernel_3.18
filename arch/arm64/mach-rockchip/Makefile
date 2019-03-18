@@ -19,4 +19,5 @@ obj-$(CONFIG_ROCK_CHIP_SOC_CAMERA) += ../../arm/mach-rockchip/rk_camera.o
 ifeq ($(TSAI_OPT),1) 
 	CFLAGS_dvfs.o += -O0
 	CFLAGS_ddr_freq.o += -O0
+	CFLAGS_rknandbase.o += -O0
 endif

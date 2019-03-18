@@ -99,6 +99,7 @@ obj-$(CONFIG_TORTURE_TEST) += torture.o
 
 #TSAI
 ifeq ($(TSAI_OPT),1) 
+CFLAGS_smp.o += -O0
 CFLAGS_tracepoint.o += -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-inline -fno-unit-at-a-time
 CFLAGS_jump_label.o += -O0
 CFLAGS_module.o += -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-inline -fno-unit-at-a-time
