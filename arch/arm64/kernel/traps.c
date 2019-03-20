@@ -39,6 +39,10 @@
 #include <asm/exception.h>
 #include <asm/system_misc.h>
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 static const char *handler[]= {
 	"Synchronous Abort",
 	"IRQ",
@@ -187,7 +191,9 @@ static int __die(const char *str, int err, struct thread_info *thread,
 	struct task_struct *tsk = thread->task;
 	static int die_counter;
 	int ret;
-
+#if TSAI
+	BKPT;
+#endif
 	pr_emerg("Internal error: %s: %x [#%d]" S_PREEMPT S_SMP "\n",
 		 str, err, ++die_counter);
 

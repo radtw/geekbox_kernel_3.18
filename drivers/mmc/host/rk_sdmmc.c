@@ -3670,6 +3670,10 @@ static void dw_mci_cleanup_slot(struct dw_mci_slot *slot, unsigned int id)
 
 static void dw_mci_init_dma(struct dw_mci *host)
 {
+#if 0 && TSAI
+	while(!tsai_move_on)
+		cpu_relax();
+#endif
 	/* Alloc memory for sg translation */
 	host->sg_cpu = dmam_alloc_coherent(host->dev, PAGE_SIZE,
 					  &host->sg_dma, GFP_KERNEL);
@@ -4078,7 +4082,7 @@ int dw_mci_probe(struct dw_mci *host)
 
 	host->dma_ops = host->pdata->dma_ops;
 #if TSAI
-tsai_debug_smp_drain_local_pages = 1;
+tsai_debug_smp_drain_local_pages = 0;
 #endif
 	dw_mci_init_dma(host);
 #if TSAI

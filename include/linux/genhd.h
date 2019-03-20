@@ -200,6 +200,9 @@ struct gendisk {
 	struct blk_integrity *integrity;
 #endif
 	int node_id;
+#if TSAI && defined(CONFIG_ARCH_ROCKCHIP)	/* needed by RK */
+	int emmc_disk;//for emmc devive; added by xbw at 2014-03-22
+#endif
 };
 
 static inline struct gendisk *part_to_disk(struct hd_struct *part)

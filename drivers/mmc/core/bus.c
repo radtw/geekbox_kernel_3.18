@@ -352,6 +352,9 @@ int mmc_add_card(struct mmc_card *card)
 #endif
 	mmc_init_context_info(card->host);
 
+#if TSAI
+	printk("TSAI mmc_add_card card->dev %s \n", card->dev.kobj.name);
+#endif
 	ret = device_add(&card->dev);
 	if (ret)
 		return ret;

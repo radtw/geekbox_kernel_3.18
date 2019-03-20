@@ -48,6 +48,10 @@
 #include "sd_ops.h"
 #include "sdio_ops.h"
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 EXPORT_TRACEPOINT_SYMBOL_GPL(mmc_blk_erase_start);
 EXPORT_TRACEPOINT_SYMBOL_GPL(mmc_blk_erase_end);
 EXPORT_TRACEPOINT_SYMBOL_GPL(mmc_blk_rw_start);
@@ -2375,6 +2379,11 @@ static int mmc_rescan_try_freq(struct mmc_host *host, unsigned freq)
 	pr_info("%s: %s: trying to init card at %u Hz\n",
 		mmc_hostname(host), __func__, host->f_init);
 #endif
+#if TSAI
+	printk("TSAI %s: %s: trying to init card at %u Hz %s\n",
+		mmc_hostname(host), __func__, host->f_init, __FILE__);
+	//TSAI_BUSY_WAIT;
+#endif
 	mmc_power_up(host, host->ocr_avail);
 
 	/*
@@ -2388,6 +2397,7 @@ static int mmc_rescan_try_freq(struct mmc_host *host, unsigned freq)
 	 * if the card is being re-initialized, just send it.  CMD52
 	 * should be ignored by SD/eMMC cards.
 	 */
+#ifdef MMC_STANDARD_PROBE //TSAI: for Geekbox it should not enter this clause, it will stuck at sdio_reset forever
 	sdio_reset(host);
 	mmc_go_idle(host);
 
@@ -2400,6 +2410,31 @@ static int mmc_rescan_try_freq(struct mmc_host *host, unsigned freq)
 		return 0;
 	if (!mmc_attach_mmc(host))
 		return 0;
+#else
+	/* TSAI: this clause appears to be for RK priprietary, it was not in standard Android 3.10 */
+	/*
+	* Simplifying initialization process.
+	*/
+	if (host->restrict_caps & RESTRICT_CARD_TYPE_SDIO)
+		sdio_reset(host);
+
+	mmc_go_idle(host);
+
+	if (host->restrict_caps &
+	    (RESTRICT_CARD_TYPE_SDIO | RESTRICT_CARD_TYPE_SD))
+		mmc_send_if_cond(host, host->ocr_avail);
+
+	/* Order's important: probe SDIO, then SD, then MMC */
+	if ((host->restrict_caps & RESTRICT_CARD_TYPE_SDIO) &&
+	    !mmc_attach_sdio(host))
+		return 0;
+	if ((host->restrict_caps & RESTRICT_CARD_TYPE_SD) &&
+	    !mmc_attach_sd(host))
+		return 0;
+	if ((host->restrict_caps & RESTRICT_CARD_TYPE_EMMC) &&
+	    !mmc_attach_mmc(host))
+		return 0;
+#endif
 
 	mmc_power_off(host);
 	return -EIO;
@@ -2477,6 +2512,9 @@ void mmc_rescan(struct work_struct *work)
 	struct mmc_host *host =
 		container_of(work, struct mmc_host, detect.work);
 	int i;
+#if TSAI
+	printk("TSAI: mmc_rescan %s %s\n", host->parent->kobj.name, mmc_hostname(host));
+#endif
 
 	if (host->trigger_card_event && host->ops->card_event) {
 		host->ops->card_event(host);

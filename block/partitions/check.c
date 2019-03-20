@@ -172,7 +172,7 @@ check_partition(struct gendisk *hd, struct block_device *bdev)
 #if TSAI && defined(CONFIG_ARCH_ROCKCHIP)
         /* Rockchip partition table ONLY used by eMMC disk */
         #ifdef CONFIG_RK_PARTITION
-        if (179 == MAJOR(bdev->bd_dev))
+	if ((179 == MAJOR(bdev->bd_dev) && (1 == hd->emmc_disk)))
                i = sizeof(check_part) / sizeof(struct parsed_partitions *) - 2;
         #endif
 #endif

@@ -12,7 +12,11 @@
 // TSAI: I add rockchip_jtag
 / {
 	chosen {
+#if 1 && TSAI
 		bootargs = "earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag";
+#else
+		bootargs = "earlyprintk=uart8250-32bit,0xff690000";
+#endif
 	};
 
 	wireless-wlan {

@@ -30,6 +30,9 @@
 #include "core.h"
 #include "host.h"
 
+#if TSAI
+	#include "tsai_macro.h"
+#endif
 static void mmc_host_classdev_release(struct device *dev)
 {
 	struct mmc_host *host = cls_dev_to_mmc_host(dev);
@@ -506,6 +509,10 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
 
 	spin_lock_init(&host->lock);
 	init_waitqueue_head(&host->wq);
+#if TSAI
+	printk("TSAI: mmc_alloc_host issue mmc_rescan %s %s %s \n", dev->kobj.name, mmc_hostname(host), __FILE__);
+	//TSAI_BUSY_WAIT;
+#endif
 	INIT_DELAYED_WORK(&host->detect, mmc_rescan);
 #ifdef CONFIG_PM
 	host->pm_notify.notifier_call = mmc_pm_notify;
