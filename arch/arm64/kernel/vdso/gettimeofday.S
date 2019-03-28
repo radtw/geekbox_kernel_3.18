@@ -22,6 +22,9 @@
 #include <asm/asm-offsets.h>
 #include <asm/unistd.h>
 
+/* change the assembly to store return address on stack */
+#define TSAI_LR (1)
+
 #define NSEC_PER_SEC_LO16	0xca00
 #define NSEC_PER_SEC_HI16	0x3b9a
 
@@ -37,7 +40,19 @@ x_tmp		.req	x8
  */
 
 	.macro	seqcnt_acquire
-9999:	ldr	seqcnt, [vdso_data, #VDSO_TB_SEQ_COUNT]
+#if TSAI
+    cmp x6, #4095, LSL#12
+	bhi 9997f
+    hlt #0
+9997:
+    mov x10,x30 //copy x30 to x10
+    cmp x10, #4095, LSL#12 /* check whether LR is suscipious */
+    bhi 9998f
+    //hlt #0
+9998:
+#endif
+9999:
+    ldr	seqcnt, [vdso_data, #VDSO_TB_SEQ_COUNT]
 	tbnz	seqcnt, #0, 9999b
 	dmb	ishld
 	.endm
@@ -121,6 +136,10 @@ x_tmp		.req	x8
 	.endif
 	stp	x10, x11, [x1, #TSPEC_TV_SEC]
 	mov	x0, xzr
+#if TSAI_LR
+    mov SP,x29
+    ldp x29,x30,[SP],#0x10
+#endif
 	ret
 	.endm
 
@@ -182,6 +201,15 @@ ENDPROC(__kernel_gettimeofday)
 /* int __kernel_clock_gettime(clockid_t clock_id, struct timespec *tp); */
 ENTRY(__kernel_clock_gettime)
 	.cfi_startproc
+#if 0 && TSAI
+	hlt #0
+#endif
+#if TSAI_LR
+	stp     x29,x30,[SP,#-0x10]!
+	mov     x29,SP
+	sub     SP,SP,#0x10
+	stp     x0, x1, [SP,#0] /* preserve X0, X1 incoming parameter on stack for debug purpose */
+#endif
 	cmp	w0, #JUMPSLOT_MAX
 	b.hi	syscall
 	adr	vdso_data, _vdso_data
@@ -290,6 +318,10 @@ monotonic_coarse:
 syscall: /* Syscall fallback. */
 	mov	x8, #__NR_clock_gettime
 	svc	#0
+#if TSAI_LR
+    mov SP,x29
+    ldp x29,x30,[SP],#0x10
+#endif
 	ret
 	.cfi_endproc
 ENDPROC(__kernel_clock_gettime)

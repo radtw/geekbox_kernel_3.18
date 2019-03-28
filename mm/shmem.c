@@ -33,6 +33,10 @@
 #include <linux/swap.h>
 #include <linux/aio.h>
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 static struct vfsmount *shm_mnt;
 
 #ifdef CONFIG_SHMEM
@@ -1395,6 +1399,14 @@ out_nomem:
 
 static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
 {
+#if 0 && TSAI
+	if (strcmp(current->comm,"init")==0 && current->pid==1) {
+		struct vm_area_struct* vma_sus;
+		BKPT;
+		vma_sus = find_vma(current->mm, vma->vm_start + 0x27000);
+		printk("TSAI: suspicious VMA %p \n", vma_sus);
+	}
+#endif
 	file_accessed(file);
 	vma->vm_ops = &shmem_vm_ops;
 	return 0;

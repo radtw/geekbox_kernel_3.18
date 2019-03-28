@@ -634,7 +634,7 @@ endif
 #SRUK ##############################################################################################################################
 #-include "tsai_bkpt.h" 
 KBUILD_CFLAGS += -DTSAI=1 -DTSAI_DS5=1 -DSRUK_DBF_REF=0 -DSRUK_GEM_REF=0
-KBUILD_AFLAGS += -DSRUK_MUST=1 
+KBUILD_AFLAGS += -DTSAI=1
 TSAI_OPT=1
 export TSAI_OPT
 KBUILD_CFLAGS += -DTSAI_OPT=$(TSAI_OPT)

@@ -49,6 +49,10 @@
 
 #include "internal.h"
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 #ifndef arch_mmap_check
 #define arch_mmap_check(addr, len, flags)	(0)
 #endif
@@ -682,11 +686,25 @@ __vma_link(struct mm_struct *mm, struct vm_area_struct *vma,
 	__vma_link_rb(mm, vma, rb_link, rb_parent);
 }
 
+#if TSAI
+int tsai_init_dso_map_count;
+#endif
+
 static void vma_link(struct mm_struct *mm, struct vm_area_struct *vma,
 			struct vm_area_struct *prev, struct rb_node **rb_link,
 			struct rb_node *rb_parent)
 {
 	struct address_space *mapping = NULL;
+#if 1 && TSAI
+	if (strcmp(current->comm,"init")==0 && current->pid==1) {
+		if (1 && (vma->vm_flags & 0x04) && vma->vm_file==0 && (vma->vm_start & 0xFF00000000)) {
+			printk("TSAI: init created VMA %p %llx flags %x current=%p\n", vma, (u64)vma->vm_start, (unsigned int)vma->vm_flags, current);
+			//if (tsai_init_dso_map_count)
+			//	BKPT;
+			tsai_init_dso_map_count++;
+		}
+	}
+#endif
 
 	if (vma->vm_file) {
 		mapping = vma->vm_file->f_mapping;
