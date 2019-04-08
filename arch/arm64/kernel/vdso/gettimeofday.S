@@ -137,7 +137,9 @@ x_tmp		.req	x8
 	stp	x10, x11, [x1, #TSPEC_TV_SEC]
 	mov	x0, xzr
 #if TSAI_LR
-    mov SP,x29
+	LDP     X25, X26, [SP, #0x20] /* restore X25 X26 X27 X28 */
+	LDP     X27, X28, [SP, #0x30] /* */
+    ADD SP,SP,#0x40
     ldp x29,x30,[SP],#0x10
 #endif
 	ret
@@ -198,6 +200,12 @@ ENDPROC(__kernel_gettimeofday)
 
 #define JUMPSLOT_MAX CLOCK_MONOTONIC_COARSE
 
+#if TSAI_LR
+    .align 4
+1001:
+    .asciz "__kernel_clock_gettime"
+#endif
+
 /* int __kernel_clock_gettime(clockid_t clock_id, struct timespec *tp); */
 ENTRY(__kernel_clock_gettime)
 	.cfi_startproc
@@ -205,10 +213,16 @@ ENTRY(__kernel_clock_gettime)
 	hlt #0
 #endif
 #if TSAI_LR
-	stp     x29,x30,[SP,#-0x10]!
-	mov     x29,SP
-	sub     SP,SP,#0x10
-	stp     x0, x1, [SP,#0] /* preserve X0, X1 incoming parameter on stack for debug purpose */
+	STP     x29,x30,[SP,#-0x10]!
+	MOV     x29,SP
+	SUB     SP,SP,#0x40
+	STP     X0, X1, [SP,#0x10] /* preserve X0, X1 incoming parameter on stack for debug purpose */
+	STP     X25, X26, [SP, #0x20] /* save X25 X26 X27 X28 */
+	STP     X27, X28, [SP, #0x30] /* save X25 X26 X27 X28 */
+	LDR     X0, 1001b
+	LDR     X1, (1001b+8)
+	STP     X0, X1, [SP,#0x0]
+    LDP     X0, X1, [SP,#0x10]
 #endif
 	cmp	w0, #JUMPSLOT_MAX
 	b.hi	syscall
@@ -319,8 +333,10 @@ syscall: /* Syscall fallback. */
 	mov	x8, #__NR_clock_gettime
 	svc	#0
 #if TSAI_LR
-    mov SP,x29
-    ldp x29,x30,[SP],#0x10
+	LDP     X25, X26, [SP, #0x20] /* restore X25 X26 X27 X28 */
+	LDP     X27, X28, [SP, #0x30] /* */
+    ADD SP,SP,#0x40
+    LDP x29,x30,[SP],#0x10
 #endif
 	ret
 	.cfi_endproc

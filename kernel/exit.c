@@ -61,6 +61,10 @@
 #include <asm/pgtable.h>
 #include <asm/mmu_context.h>
 
+#if TSAI
+	#include "tsai_macro.h"
+#endif
+
 static void exit_mm(struct task_struct *tsk);
 
 static void __unhash_process(struct task_struct *p, bool group_dead)
@@ -1646,7 +1650,11 @@ SYSCALL_DEFINE4(wait4, pid_t, upid, int __user *, stat_addr,
 	wo.wo_rusage	= ru;
 	ret = do_wait(&wo);
 	put_pid(pid);
-
+#if 0 && TSAI
+	if (current->pid > 1 && strcmp(current->comm, "init")==0) {
+		printk("TSAI: wait4 pid=%d ret=%d\n", upid, ret);
+	}
+#endif
 	return ret;
 }
 

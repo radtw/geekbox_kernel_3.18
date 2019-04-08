@@ -475,3 +475,41 @@ int tsai_remove_watchpoint(u64 address) {
 }
 
 EXPORT_SYMBOL(tsai_remove_watchpoint);
+
+/* ==================================================================================================== */
+#ifdef __aarch64__
+#include <linux/sched.h>
+
+static struct task_struct* tsai_init_2nd;
+static struct task_struct* tsai_init_3;
+static struct task_struct* tsai_watch_task;
+static u64 tsai_watch_pc_addr;
+
+/* comes from arm64/kernel/entry.S */
+void tsai_enter_kernel(void* regdump, struct thread_info* ti) {
+	struct task_struct* tsk = ti->task;
+	if (tsk->pid > 1 && ((*(u64*)tsk->comm)& 0xFFFFFFFFFF) == 0x0074696E69) { /* when task->comm is "init"*/
+		if (!tsai_init_2nd)
+			tsai_init_2nd = tsk;
+		if (tsai_init_2nd && tsk != tsai_init_2nd)
+			tsai_init_3 = tsk;
+
+		if (!tsai_watch_task && tsk==tsai_init_3 ) {
+			tsai_watch_task = tsk;
+			tsai_watch_pc_addr = (u64)regdump+0x100;
+			tsai_install_watchpoint(tsai_watch_pc_addr, WP_WRITE, "INIT_SAVED_PC");
+		}
+	}
+}
+
+void tsai_exit_kernel(void* regdump, struct thread_info* ti) {
+	struct task_struct* tsk = ti->task;
+	if (tsai_watch_task && tsai_watch_task==tsk) {
+		//__asm("hlt #0");
+		tsai_remove_watchpoint(tsai_watch_pc_addr);
+		tsai_watch_task = 0;
+		tsai_watch_pc_addr = 0;
+	}
+}
+
+#endif

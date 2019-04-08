@@ -39,6 +39,7 @@ ifeq ($(TSAI_OPT),1)
 	CFLAGS_insn.o += -O0
 	CFLAGS_stacktrace.o += -O0
 	CFLAGS_topology.o += -O0
+	CFLAGS_signal.o += -O0
 endif 
 
 obj-y					+= $(arm64-obj-y) vdso/

@@ -174,7 +174,22 @@ alternative_else_nop_endif
 	.if	\el == 0
 	msr	sp_el0, tsk
 	.endif
+#if 0 && TSAI /* only enable to debug kernel entry/exit */
+    .if \el == 0 && \regsize == 64
+        SUB SP,SP,#0x100
+        STP X0,X1,[SP,#0x0]
+        STP X2,X3,[SP,#0x10]
 
+		ADD X0, SP, #0x100
+		MOV X1, tsk
+
+		BL tsai_enter_kernel
+
+        LDP X0,X1,[SP,#0x0]
+        LDP X2,X3,[SP,#0x10]
+		ADD SP,SP,#0x100
+	.endif
+#endif
 	/*
 	 * Registers that may be useful after this macro is invoked:
 	 *
@@ -192,6 +207,23 @@ alternative_else_nop_endif
 
 	/* No need to restore UAO, it will be restored from SPSR_EL1 */
 	.endif
+
+#if 0 && TSAI  /* only enable to debug kernel entry/exit */
+    .if \el == 0
+        SUB SP,SP,#0x100
+        STP X0,X1,[SP,#0x0]
+        STP X2,X3,[SP,#0x10]
+
+		ADD X0, SP, #0x100
+		MOV X1, tsk
+
+		BL tsai_exit_kernel
+
+        LDP X0,X1,[SP,#0x0]
+        LDP X2,X3,[SP,#0x10]
+		ADD SP,SP,#0x100
+	.endif
+#endif
 
 	ldp	x21, x22, [sp, #S_PC]		// load ELR, SPSR
 	.if	\el == 0
