@@ -686,22 +686,28 @@ __vma_link(struct mm_struct *mm, struct vm_area_struct *vma,
 	__vma_link_rb(mm, vma, rb_link, rb_parent);
 }
 
-#if TSAI
-int tsai_init_dso_map_count;
-#endif
-
 static void vma_link(struct mm_struct *mm, struct vm_area_struct *vma,
 			struct vm_area_struct *prev, struct rb_node **rb_link,
 			struct rb_node *rb_parent)
 {
 	struct address_space *mapping = NULL;
-#if 1 && TSAI
-	if (strcmp(current->comm,"init")==0 && current->pid==1) {
-		if (1 && (vma->vm_flags & 0x04) && vma->vm_file==0 && (vma->vm_start & 0xFF00000000)) {
-			printk("TSAI: init created VMA %p %llx flags %x current=%p\n", vma, (u64)vma->vm_start, (unsigned int)vma->vm_flags, current);
-			//if (tsai_init_dso_map_count)
-			//	BKPT;
-			tsai_init_dso_map_count++;
+#if 0 && TSAI
+	if (current->pid > 133) {
+		/* executable: (vma->vm_flags & 0x04) */
+		if (1 && vma->vm_file )
+		{
+			printk("TSAI: created VMA %llx--%llx flags %x %s current=%d %s\n",
+					(u64)vma->vm_start,(u64)vma->vm_end, (unsigned int)vma->vm_flags, vma->vm_file->f_path.dentry->d_iname,
+					current->pid, current->comm);
+
+			if ( (vma->vm_flags & 0x07)==0x01 && vma->vm_flags != 0xD1 &&
+					(vma->vm_end-vma->vm_start)>0x1000 ) { /* 0xD1 is system properties, more than 1KB (rule out program header section) */
+				char* is_so;
+				is_so = strstr(vma->vm_file->f_path.dentry->d_iname, ".so");
+				if (is_so && prev && (prev->vm_file != vma->vm_file))
+					BKPT;
+
+			}
 		}
 	}
 #endif
@@ -1451,7 +1457,6 @@ SYSCALL_DEFINE6(mmap_pgoff, unsigned long, addr, unsigned long, len,
 {
 	struct file *file = NULL;
 	unsigned long retval = -EBADF;
-
 	if (!(flags & MAP_ANONYMOUS)) {
 		audit_mmap_fd(fd, flags);
 		file = fget(fd);
@@ -1484,6 +1489,13 @@ SYSCALL_DEFINE6(mmap_pgoff, unsigned long, addr, unsigned long, len,
 		if (IS_ERR(file))
 			return PTR_ERR(file);
 	}
+#if TSAI
+	if (addr && len && file) {
+		printk("TSAI mmap_pgoff VMA %llx flags %x %s current=%d %s\n",
+							(u64)addr, (unsigned int)flags, file->f_path.dentry->d_iname,
+							current->pid, current->comm);
+	}
+#endif
 
 	flags &= ~(MAP_EXECUTABLE | MAP_DENYWRITE);
 

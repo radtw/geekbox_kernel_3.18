@@ -498,7 +498,7 @@ asmlinkage void __exception do_mem_abort(unsigned long addr, unsigned int esr,
 {
 	const struct fault_info *inf = fault_info + (esr & 63);
 	struct siginfo info;
-#if TSAI
+#if 0 && TSAI
 	int cpu = smp_processor_id();
 	int ret;
 	tsai_memabort_level[cpu]++;

@@ -44,6 +44,10 @@
 #include "ion_priv.h"
 #include "compat_ion.h"
 
+#if TSAI
+	#include "tsai_macro.h"
+#endif
+
 #if TSAI_DS5
 #include "streamline_annotate.h"
 #endif
@@ -387,7 +391,7 @@ static struct ion_handle *ion_handle_create(struct ion_client *client,
 	handle = kzalloc(sizeof(struct ion_handle), GFP_KERNEL);
 	if (!handle)
 		return ERR_PTR(-ENOMEM);
-	printk(KERN_ERR "Coki04 ION: %s. Buffer %p. Buffer->lock %p.\n", __func__, buffer, &buffer->lock);
+//	printk(KERN_ERR "Coki04 ION: %s. Buffer %p. Buffer->lock %p.\n", __func__, buffer, &buffer->lock);
 	kref_init(&handle->ref);
 	RB_CLEAR_NODE(&handle->node);
 	handle->client = client;
@@ -1587,15 +1591,18 @@ struct ion_handle *ion_import_dma_buf(struct ion_client *client, int fd)
 		goto end;
 	}
 
-	printk(KERN_ERR "Coki04 ION: %s. 3. WTF. FD %d.\n", __func__, fd);
+	//printk(KERN_ERR "Coki04 ION: %s. 3. WTF. FD %d.\n", __func__, fd);
 
 	handle = ion_handle_create(client, buffer);
 	if (IS_ERR(handle)) {
+#if TSAI
+		BKPT;
+#endif
 		mutex_unlock(&client->lock);
 		goto end;
 	}
 
-	printk("Coki04 ION: %s. 4\n", __func__);
+	//printk("Coki04 ION: %s. 4\n", __func__);
 
 	ret = ion_handle_add(client, handle);
 	mutex_unlock(&client->lock);
@@ -1603,7 +1610,7 @@ struct ion_handle *ion_import_dma_buf(struct ion_client *client, int fd)
 		ion_handle_put(handle);
 		handle = ERR_PTR(ret);
 	}
-	printk("Coki04 ION: %s. 5\n", __func__);
+	//printk("Coki04 ION: %s. 5\n", __func__);
 
 	trace_ion_buffer_import(client->display_name, (void*)buffer,
 				buffer->size);

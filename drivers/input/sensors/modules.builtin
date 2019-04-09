@@ -1,0 +1,2 @@
+kernel/drivers/input/sensors/sensor-i2c.ko
+kernel/drivers/input/sensors/sensor-dev.ko

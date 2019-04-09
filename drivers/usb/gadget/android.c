@@ -1470,7 +1470,9 @@ static int __init init(void)
 {
 	struct android_dev *dev;
 	int err;
-
+#if TSAI
+	printk("TSAI init %s %d \n", __FILE__,__LINE__);
+#endif
 	android_class = class_create(THIS_MODULE, "android_usb");
 	if (IS_ERR(android_class))
 		return PTR_ERR(android_class);
