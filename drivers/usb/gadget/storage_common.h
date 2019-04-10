@@ -1,1 +1,0 @@
-function/storage_common.h

@@ -4,6 +4,9 @@
 #include <linux/err.h>
 
 #include <linux/usb/composite.h>
+#if TSAI
+    #include "tsai_macro.h"
+#endif
 
 static LIST_HEAD(func_list);
 static DEFINE_MUTEX(func_lock);
@@ -12,7 +15,9 @@ static struct usb_function_instance *try_get_usb_function_instance(const char *n
 {
 	struct usb_function_driver *fd;
 	struct usb_function_instance *fi;
-
+#if TSAI
+	BKPT;
+#endif
 	fi = ERR_PTR(-ENOENT);
 	mutex_lock(&func_lock);
 	list_for_each_entry(fd, &func_list, list) {
@@ -39,7 +44,9 @@ struct usb_function_instance *usb_get_function_instance(const char *name)
 {
 	struct usb_function_instance *fi;
 	int ret;
-
+#if TSAI
+	BKPT;
+#endif
 	fi = try_get_usb_function_instance(name);
 	if (!IS_ERR(fi))
 		return fi;

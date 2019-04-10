@@ -37,6 +37,10 @@
 #include "u_os_desc.h"
 #include "configfs.h"
 
+#if TSAI
+    #include "tsai_macro.h"
+#endif
+
 #define FUNCTIONFS_MAGIC	0xa647361 /* Chosen by a honest dice roll ;) */
 
 /* Reference counter handling */
@@ -1615,7 +1619,7 @@ static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
 	kfree(epfiles);
 }
 
-#if 0 && TSAI && defined(CONFIG_ANDROID)
+#if 1 && TSAI && defined(CONFIG_ANDROID)
 
 static void ffs_func_unbind(struct usb_configuration *c, struct usb_function *f);
 /* copied from geekbox kernel 3.10 needed by drivers/usb/gadget/android.c by no function in google release  */
@@ -3533,6 +3537,30 @@ static char *ffs_prepare_buffer(const char __user *buf, size_t len)
 	return data;
 }
 
+#if TSAI /* expanding the MACRO for break points */
+
+static struct usb_function_driver ffsusb_func = { .name = "ffs", .mod = ((struct module *)0), .alloc_inst = ffs_alloc_inst, .alloc_func = ffs_alloc, };
+
+struct __UNIQUE_ID_alias1 {}; static int __attribute__ ((__section__(".init.text"))) __attribute__((__cold__)) __attribute__((no_instrument_function))
+ffsmod_init(void)
+{ 
+	int ret;
+	ret = usb_function_register(&ffsusb_func);
+	printk("TSAI: ffsmod_init ret = %d \n", ret);
+    return ret;
+} 
+
+static void __attribute__ ((__section__(".exit.text"))) __attribute__((__used__)) __attribute__((__cold__)) __attribute__((no_instrument_function)) ffsmod_exit(void)
+{
+	usb_function_unregister(&ffsusb_func);
+}
+
+static initcall_t __initcall_ffsmod_init6 __attribute__((__used__)) __attribute__((__section__(".initcall" "6" ".init"))) = ffsmod_init; ;;
+static exitcall_t __exitcall_ffsmod_exit __attribute__((__used__)) __attribute__ ((__section__(".exitcall.exit"))) = ffsmod_exit;;
+
+#else
 DECLARE_USB_FUNCTION_INIT(ffs, ffs_alloc_inst, ffs_alloc);
+#endif
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michal Nazarewicz");
+

@@ -40,6 +40,10 @@
 #include "rndis.c"
 #include "u_ether.c"
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 MODULE_AUTHOR("Mike Lockwood");
 MODULE_DESCRIPTION("Android Composite USB Driver");
 MODULE_LICENSE("GPL");
@@ -599,7 +603,12 @@ rndis_function_bind_config(struct android_usb_function *f,
 		rndis->ethaddr[0], rndis->ethaddr[1], rndis->ethaddr[2],
 		rndis->ethaddr[3], rndis->ethaddr[4], rndis->ethaddr[5]);
 
+#if TSAI /* my fix */
+	BKPT;
+	dev = gether_setup_name(c->cdev->gadget, 0, 0, rndis->ethaddr, 0, "rndis");
+#else
 	dev = gether_setup_name(c->cdev->gadget, rndis->ethaddr, "rndis");
+#endif
 	if (IS_ERR(dev)) {
 		ret = PTR_ERR(dev);
 		pr_err("%s: gether_setup failed\n", __func__);

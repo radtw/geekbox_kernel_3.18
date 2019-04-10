@@ -1,1 +1,0 @@
-function/ndis.h

@@ -1489,7 +1489,7 @@ SYSCALL_DEFINE6(mmap_pgoff, unsigned long, addr, unsigned long, len,
 		if (IS_ERR(file))
 			return PTR_ERR(file);
 	}
-#if TSAI
+#if 0 && TSAI
 	if (addr && len && file) {
 		printk("TSAI mmap_pgoff VMA %llx flags %x %s current=%d %s\n",
 							(u64)addr, (unsigned int)flags, file->f_path.dentry->d_iname,
