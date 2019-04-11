@@ -2885,10 +2885,13 @@ SYSCALL_DEFINE5(mount, char __user *, dev_name, char __user *, dir_name,
 		goto out_data;
 
 #if TSAI
-	if (strcmp(kernel_dev, "rootfs")==0 && strcmp(current->comm, "init")==0) {
+	if (0 && strcmp(kernel_dev, "rootfs")==0 && strcmp(current->comm, "init")==0) {
 		tsai_rootfs_init_count++;
 		printk("TSAI init mount rootfs, count=%d @%s\n",
 				tsai_rootfs_init_count, __FILE__);
+	}
+	if (0 && strcmp(kernel_dev, "adb")==0 ) {
+		BKPT;
 	}
 #endif
 	ret = do_mount(kernel_dev, dir_name, kernel_type, flags,

@@ -36,6 +36,14 @@
 #include "tsai_macro.h"
 #endif
 
+/* TSAI: to coped DVFS index change */
+#include <linux/version.h>
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+    #define DVFS_INDEX driver_data
+#else
+    #define DVFS_INDEX index
+#endif
+
 static DECLARE_COMPLETION(ddrfreq_completion);
 static DEFINE_MUTEX(ddrfreq_mutex);
 
@@ -218,14 +226,10 @@ unsigned long req_freq_by_vop(unsigned long bandwidth)
 
 	if (bd_freq_table == NULL)
 		return 0;
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s\n", __FILE__);
-#else
 	for (i = 0; bd_freq_table[i].frequency != CPUFREQ_TABLE_END; i++) {
-		if (bandwidth >= bd_freq_table[i].index)
+		if (bandwidth >= bd_freq_table[i].DVFS_INDEX)
 			return bd_freq_table[i].frequency * 1000;
 	}
-#endif
 
 	return 0;
 }

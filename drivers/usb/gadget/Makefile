@@ -16,7 +16,7 @@ obj-$(CONFIG_USB_GADGET)	+= udc/ function/ legacy/
 obj-$(CONFIG_USB_G_ANDROID)	+= g_android.o
 
 ifeq ($(TSAI_OPT),1) 
-CFLAGS_function.o += -O0
+CFLAGS_functions.o += -O0
 CFLAGS_configfs.o += -O0
 endif
 

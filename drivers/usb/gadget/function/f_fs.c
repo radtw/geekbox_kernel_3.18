@@ -535,7 +535,6 @@ done_mutex:
 static int ffs_ep0_open(struct inode *inode, struct file *file)
 {
 	struct ffs_data *ffs = inode->i_private;
-
 	ENTER();
 
 	if (unlikely(ffs->state == FFS_CLOSING))

@@ -581,6 +581,16 @@ deps_config := \
 	drivers/input/gameport/Kconfig \
 	drivers/input/serio/Kconfig \
 	drivers/input/misc/Kconfig \
+	drivers/input/sensors/hall/Kconfig \
+	drivers/input/sensors/pressure/Kconfig \
+	drivers/input/sensors/temperature/Kconfig \
+	drivers/input/sensors/psensor/Kconfig \
+	drivers/input/sensors/lsensor/Kconfig \
+	drivers/input/sensors/gyro/Kconfig \
+	drivers/input/sensors/compass/Kconfig \
+	drivers/input/sensors/accel/Kconfig \
+	drivers/input/sensors/angle/Kconfig \
+	drivers/input/sensors/Kconfig \
 	drivers/input/touchscreen/Kconfig \
 	drivers/input/tablet/Kconfig \
 	drivers/input/joystick/iforce/Kconfig \
