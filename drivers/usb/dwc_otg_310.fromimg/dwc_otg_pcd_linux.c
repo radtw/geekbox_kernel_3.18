@@ -366,8 +366,7 @@ static int ep_queue(struct usb_ep *usb_ep, struct usb_request *usb_req,
 		/* In device DMA mode when gadget perform ep_queue request
 		 * with buffer length 0, Kernel stack dump occurred. For 0
 		 * length buffers perform dma_map_single() with length 4.*/
-		if (usb_req->dma == DWC_DMA_ADDR_INVALID &&
-		    ep != NULL) {
+		if (usb_req->dma == DWC_DMA_ADDR_INVALID) {
 			dma_addr =
 			    dma_map_single(gadget_wrapper->gadget.dev.parent,
 					   usb_req->buf,
@@ -747,9 +746,6 @@ static int dwc_otg_pcd_pullup(struct usb_gadget *_gadget, int is_on)
 		pcd->conn_status = 0;
 	} else {
 		dwc_otg_pcd_pullup_disable(pcd);
-		/* report disconnect; the driver is already quiesced */
-		if (pcd->fops->disconnect)
-			pcd->fops->disconnect(pcd);
 		pcd->conn_en = 0;
 	}
 
@@ -937,8 +933,7 @@ static int _complete(dwc_otg_pcd_t *pcd, void *ep_handle,
 
 	if (GET_CORE_IF(pcd)->dma_enable) {
 		/* if (req->length != 0) */
-		if (req->dma != DWC_DMA_ADDR_INVALID &&
-		    ep != NULL) {
+		if (req->dma != DWC_DMA_ADDR_INVALID) {
 			dma_unmap_single(gadget_wrapper->gadget.dev.parent,
 					 req->dma,
 					 req->length !=
@@ -1566,7 +1561,7 @@ static void id_status_change(dwc_otg_core_if_t *p, bool current_id)
 		core_if->op_state = A_HOST;
 		dwc_otg_set_force_mode(core_if, USB_MODE_FORCE_HOST);
 
-		cancel_delayed_work_sync(&pcd->check_vbus_work);
+		cancel_delayed_work(&pcd->check_vbus_work);
 
 		/*
 		 * Initialize the Core for Host mode.
@@ -1595,8 +1590,11 @@ static void check_id(struct work_struct *work)
 			pldata->phy_suspend(pldata, USB_PHY_ENABLED);
 		}
 
-		/* Force Device or Host by id */
-		id_status_change(otg_dev->core_if, id);
+		if (!id) { /* Force Host */
+			id_status_change(otg_dev->core_if, id);
+		} else { /* Force Device */
+			id_status_change(otg_dev->core_if, id);
+		}
 	}
 	last_id = id;
 	schedule_delayed_work(&_pcd->check_id_work, (HZ));
@@ -1664,12 +1662,10 @@ static void dwc_otg_pcd_check_vbus_work(struct work_struct *work)
 		if (pldata->phy_status == USB_PHY_ENABLED) {
 			/* release wake lock */
 			dwc_otg_msc_unlock(_pcd);
-			if (pldata->get_status(USB_STATUS_ID)) {
-				/* no vbus detect here , close usb phy  */
-				pldata->phy_suspend(pldata, USB_PHY_SUSPEND);
-				udelay(3);
-				pldata->clock_enable(pldata, 0);
-			}
+			/* no vbus detect here , close usb phy  */
+			pldata->phy_suspend(pldata, USB_PHY_SUSPEND);
+			udelay(3);
+			pldata->clock_enable(pldata, 0);
 		}
 
 		/* usb phy bypass to uart mode  */
@@ -1677,8 +1673,7 @@ static void dwc_otg_pcd_check_vbus_work(struct work_struct *work)
 			pldata->dwc_otg_uart_mode(pldata, PHY_UART_MODE);
 	}
 
-	if (pldata->get_status(USB_STATUS_ID))
-		schedule_delayed_work(&_pcd->check_vbus_work, HZ);
+	schedule_delayed_work(&_pcd->check_vbus_work, HZ);
 	return;
 
 connect:

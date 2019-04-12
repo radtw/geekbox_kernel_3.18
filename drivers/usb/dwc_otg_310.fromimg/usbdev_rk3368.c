@@ -23,8 +23,8 @@ static void usb20otg_hw_init(void)
 	/* Turn off differential receiver in suspend mode */
 	uoc_write(UOC_HIWORD_UPDATE(0, 1, 2), 0x798);
 
-	/* Set disconnect detection trigger point to 625mv */
-	uoc_write(UOC_HIWORD_UPDATE(0x9, 0xf, 11), 0x79c);
+	/* Set disconnect detection trigger point to 600mv */
+	uoc_write(UOC_HIWORD_UPDATE(0, 0xf, 11), 0x79c);
 
 	/* other haredware init,include:
 	 * DRV_VBUS GPIO init */
@@ -79,16 +79,7 @@ static void usb20otg_soft_reset(void *pdata, enum rkusb_rst_flag rst_type)
 		reset_control_deassert(rst_otg_c);
 		reset_control_deassert(rst_otg_h);
 		break;
-	case RST_CHN_HALT:
-		/* PHY reset */
-		uoc_write(UOC_HIWORD_UPDATE(0x1, 0x3, 0), 0x700);
-		reset_control_assert(rst_otg_p);
-		udelay(15);
-		uoc_write(UOC_HIWORD_UPDATE(0x2, 0x3, 0), 0x700);
-		udelay(1500);
-		reset_control_deassert(rst_otg_p);
-		udelay(2);
-		break;
+
 	default:
 		break;
 	}
@@ -220,8 +211,8 @@ static void usb20ehci_hw_init(void)
 {
 	/* Turn off differential receiver in suspend mode */
 	uoc_write(UOC_HIWORD_UPDATE(0, 1, 2), 0x7b8);
-	/* Set disconnect detection trigger point to 625mv */
-	uoc_write(UOC_HIWORD_UPDATE(0x9, 0xf, 11), 0x7bc);
+	/* Set disconnect detection trigger point to 600mv */
+	uoc_write(UOC_HIWORD_UPDATE(1, 0xf, 11), 0x7bc);
 
 	/* other haredware init,include:
 	 * DRV_VBUS GPIO init */
@@ -330,7 +321,7 @@ static const struct of_device_id rk_usb_control_id_table[] = {
 static inline void do_wakeup(struct work_struct *work)
 {
 	/* wake up the system */
-	rk_send_wakeup_key();
+	/*rk_send_wakeup_key(); */ //Coki04
 }
 
 static void usb_battery_charger_detect_work(struct work_struct *work)

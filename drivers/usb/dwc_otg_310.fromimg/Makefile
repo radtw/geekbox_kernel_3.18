@@ -25,11 +25,5 @@ endif
 dwc_otg-objs	+= common_port/dwc_common_linux.o
 
 #objs relative to RK platform
-dwc_otg-objs 	+= usbdev_rk30.o usbdev_rk32.o usbdev_rk3036.o usbdev_rk3126.o
-dwc_otg-objs	+= usbdev_rk3368.o usbdev_rk322x.o usbdev_rk1108.o usbdev_bc.o
+dwc_otg-objs 	+= usbdev_rk30.o usbdev_rk32.o usbdev_rk3036.o usbdev_rk3126.o usbdev_rk3368.o usbdev_bc.o
 obj-$(CONFIG_DWC_OTG_310) := dwc_otg.o
-
-ifeq ($(TSAI_OPT),1) 
-   CFLAGS_usbdev_rk3368.o += -O0
-   CFLAGS_dwc_otg_pcd_linux.o += -O0
-endif
