@@ -32,4 +32,5 @@ obj-$(CONFIG_DWC_OTG_310) := dwc_otg.o
 ifeq ($(TSAI_OPT),1) 
    CFLAGS_usbdev_rk3368.o += -O0
    CFLAGS_dwc_otg_pcd_linux.o += -O0
+   CFLAGS_dwc_otg_hcd.o += -O0
 endif

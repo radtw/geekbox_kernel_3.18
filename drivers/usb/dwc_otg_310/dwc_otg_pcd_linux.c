@@ -61,6 +61,9 @@
 #include "dwc_otg_attr.h"
 
 #include "usbdev_rk.h"
+
+#include <linux/version.h> //TSAI
+
 static struct gadget_wrapper {
 	dwc_otg_pcd_t *pcd;
 
@@ -1152,7 +1155,11 @@ void gadget_add_eps(struct gadget_wrapper *d)
 	 * @todo NGS: What should the max packet size be set to
 	 * here?  Before EP type is set?
 	 */
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))//TSAI
+	usb_ep_set_maxpacket_limit(ep, MAX_PACKET_SIZE);
+#else
 	ep->maxpacket = MAX_PACKET_SIZE;
+#endif
 	dwc_otg_pcd_ep_enable(d->pcd, NULL, ep);
 
 	list_add_tail(&ep->ep_list, &d->gadget.ep_list);
@@ -1173,7 +1180,11 @@ void gadget_add_eps(struct gadget_wrapper *d)
 		 * @todo NGS: What should the max packet size be set to
 		 * here?  Before EP type is set?
 		 */
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI
+		usb_ep_set_maxpacket_limit(ep, MAX_PACKET_SIZE);
+#else
 		ep->maxpacket = MAX_PACKET_SIZE;
+#endif
 		list_add_tail(&ep->ep_list, &d->gadget.ep_list);
 	}
 

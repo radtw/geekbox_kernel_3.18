@@ -53,4 +53,5 @@ obj-$(CONFIG_USB_F_MIDI)	+= usb_f_midi.o
 
 ifeq ($(TSAI_OPT),1) 
 CFLAGS_f_fs.o += -O0
+CFLAGS_f_mtp.o += -O0
 endif

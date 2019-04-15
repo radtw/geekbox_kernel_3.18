@@ -18,6 +18,7 @@ obj-$(CONFIG_USB_G_ANDROID)	+= g_android.o
 ifeq ($(TSAI_OPT),1) 
 CFLAGS_functions.o += -O0
 CFLAGS_configfs.o += -O0
+CFLGAG_epautoconf.o += -O0
 endif
 
 #TSAI: disable CONFIG_USB_G_ANDROID for now, don't know how to fix or whether if it's needed or not?
