@@ -396,6 +396,7 @@ static int udc_bind_to_driver(struct usb_udc *udc, struct usb_gadget_driver *dri
 	ret = driver->bind(udc->gadget, driver);
 	if (ret)
 		goto err1;
+//__asm("hlt #0");
 	ret = usb_gadget_udc_start(udc->gadget, driver);
 	if (ret) {
 		driver->unbind(udc->gadget);

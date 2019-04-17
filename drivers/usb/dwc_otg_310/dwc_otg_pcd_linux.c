@@ -763,6 +763,9 @@ static int dwc_otg_pcd_pullup(struct usb_gadget *_gadget, int is_on)
 static int dwc_otg_gadget_start(struct usb_gadget *g,
 				struct usb_gadget_driver *driver)
 {
+#if TSAI
+	printk("TSAI: dwc_otg_gadget_start() %s %d\n", __FILE__ ,__LINE__ );
+#endif
 	DWC_DEBUGPL(DBG_PCD, "registering gadget driver '%s'\n",
 		    driver->driver.name);
 	if (gadget_wrapper == 0) {
@@ -785,6 +788,12 @@ static int dwc_otg_gadget_start(struct usb_gadget *g,
 static int dwc_otg_gadget_stop(struct usb_gadget *g,
 			       struct usb_gadget_driver *driver)
 {
+#if TSAI
+	printk("TSAI: dwc_otg_gadget_stop() %s %d\n", __FILE__ ,__LINE__ );
+
+	gadget_wrapper->driver = 0;
+	/* when use usb.configfs, adb root would lead to dwc_otg_gadget_stop/dwc_otg_gadget_start */
+#endif
 	return 0;
 }
 
@@ -1494,7 +1503,9 @@ static void dwc_phy_reconnect(struct work_struct *work)
 	gotgctl_data_t gctrl;
 	dctl_data_t dctl = {.d32 = 0 };
 	struct dwc_otg_platform_data *pldata;
-
+#if TSAI
+	printk("TSAI: dwc_phy_reconnect() %s \n", __FILE__);
+#endif
 	pcd = container_of(work, dwc_otg_pcd_t, reconnect.work);
 	pldata = pcd->otg_dev->pldata;
 	core_if = GET_CORE_IF(pcd);
@@ -1597,6 +1608,9 @@ static void check_id(struct work_struct *work)
 	struct dwc_otg_platform_data *pldata = otg_dev->pldata;
 	static int last_id = -1;
 	int id = pldata->get_status(USB_STATUS_ID);
+#if 0 && TSAI
+	printk("TSAI: check_id() %s \n", __FILE__);
+#endif
 
 	if (last_id != id) {
 		pr_info("[otg id chg] last id %d current id %d\n", last_id, id);
@@ -1619,6 +1633,9 @@ static void dwc_otg_pcd_check_vbus_work(struct work_struct *work)
 	    container_of(work, dwc_otg_pcd_t, check_vbus_work.work);
 	struct dwc_otg_device *otg_dev = _pcd->otg_dev;
 	struct dwc_otg_platform_data *pldata = otg_dev->pldata;
+#if 0 && TSAI
+	printk("TSAI: dwc_otg_pcd_check_vbus_work() %s %s \n", current->comm, __FILE__);
+#endif
 
 	if (pldata->get_status(USB_STATUS_BVABLID) &&
 	    pldata->get_status(USB_STATUS_ID)) {
@@ -1747,6 +1764,7 @@ static void dwc_otg_pcd_work_init(dwc_otg_pcd_t *pcd,
 
 	pcd->vbus_status = USB_BC_TYPE_DISCNT;
 	pcd->phy_suspend = USB_PHY_ENABLED;
+
 
 	INIT_DELAYED_WORK(&pcd->reconnect, dwc_phy_reconnect);
 	INIT_DELAYED_WORK(&pcd->check_vbus_work, dwc_otg_pcd_check_vbus_work);

@@ -165,8 +165,15 @@ static void reset_cpu_stall_ticks(struct rcu_ctrlblk *rcp)
 	ACCESS_ONCE(rcp->jiffies_stall) = jiffies + rcu_jiffies_till_stall_check();
 }
 
+#if TSAI
+	extern bool rockchip_jtag_enabled;
+#endif
 static void check_cpu_stalls(void)
 {
+#if TSAI
+	if (rockchip_jtag_enabled)
+	    return;
+#endif
 	RCU_TRACE(check_cpu_stall(&rcu_bh_ctrlblk));
 	RCU_TRACE(check_cpu_stall(&rcu_sched_ctrlblk));
 }
