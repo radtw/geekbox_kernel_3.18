@@ -425,6 +425,9 @@ config SND_SOC_ES8328_SPI
 	tristate
 	select SND_SOC_ES8328
 
+config SND_SOC_ES8316
+	tristate
+
 config SND_SOC_ISABELLE
         tristate
 
@@ -808,5 +811,12 @@ config SND_SOC_ML26124
 config SND_SOC_TPA6130A2
 	tristate "Texas Instruments TPA6130A2 headphone amplifier"
 	depends on I2C
+
+#TSAI: copied from geekbox 3.10
+config SND_SOC_HDMI_I2S
+	tristate
+
+config SND_SOC_HDMI_SPDIF
+	tristate
 
 endmenu

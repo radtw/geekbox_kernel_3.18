@@ -37,3 +37,8 @@ obj-$(CONFIG_SND_OSSEMUL)	+= oss/
 obj-$(CONFIG_SND_SEQUENCER)	+= seq/
 
 obj-$(CONFIG_SND_COMPRESS_OFFLOAD)	+= snd-compress.o
+
+ifeq ($(TSAI_OPT),1) 
+	CFLAGS_pcm_dmaengine.o += -O0
+endif
+

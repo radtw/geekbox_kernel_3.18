@@ -49,3 +49,7 @@ obj-y += xilinx/
 obj-$(CONFIG_INTEL_MIC_X100_DMA) += mic_x100_dma.o
 obj-$(CONFIG_NBPFAXI_DMA) += nbpfaxi.o
 obj-$(CONFIG_DMA_SUN6I) += sun6i-dma.o
+
+ifeq ($(TSAI_OPT),1) 
+	CFLAGS_pl330.o += -O0
+endif

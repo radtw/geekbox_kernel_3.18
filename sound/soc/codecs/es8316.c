@@ -32,8 +32,16 @@
 #include <linux/interrupt.h>
 #include <linux/irq.h>
 #include <linux/regmap.h>
+#include <linux/version.h> //TSAI
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+#include <linux/clk.h>
+#endif
+
 #include "es8316.h"
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
 #if 0
 #define DBG(x...) printk(x)
 #else
@@ -109,6 +117,9 @@ struct es8316_priv {
 	unsigned int dmic_amic;
 	unsigned int sysclk;
 	struct snd_pcm_hw_constraint_list *sysclk_constraints;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI	
+	struct clk *mclk;
+#endif
 
 	int spk_ctl_gpio;
 	int hp_ctl_gpio;
@@ -339,7 +350,11 @@ static const struct soc_enum es8316_left_hpmux_enum =
 			      es8316_hpmux_texts,
 			      es8316_hpmux_values);
 static const struct snd_kcontrol_new es8316_left_hpmux_controls =
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+	SOC_DAPM_ENUM("Route", es8316_left_hpmux_enum);
+#else
 	SOC_DAPM_VALUE_ENUM("Route", es8316_left_hpmux_enum);
+#endif
 
 static const struct soc_enum es8316_right_hpmux_enum =
 	SOC_VALUE_ENUM_SINGLE(ES8316_HPMIX_SEL_REG13, 0, 7,
@@ -347,7 +362,11 @@ static const struct soc_enum es8316_right_hpmux_enum =
 			      es8316_hpmux_texts,
 			      es8316_hpmux_values);
 static const struct snd_kcontrol_new es8316_right_hpmux_controls =
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+	SOC_DAPM_ENUM("Route", es8316_right_hpmux_enum);
+#else
 	SOC_DAPM_VALUE_ENUM("Route", es8316_right_hpmux_enum);
+#endif
 
 /* headphone Output Mixer */
 static const struct snd_kcontrol_new es8316_out_left_mix[] = {
@@ -380,7 +399,11 @@ static const struct soc_enum es8316_dacsrc_mux_enum =
 			      es8316_dacsrc_texts,
 			      es8316_dacsrc_values);
 static const struct snd_kcontrol_new es8316_dacsrc_mux_controls =
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+	SOC_DAPM_ENUM("Route", es8316_dacsrc_mux_enum);
+#else
 	SOC_DAPM_VALUE_ENUM("Route", es8316_dacsrc_mux_enum);
+#endif
 
 
 static const struct snd_soc_dapm_widget es8316_dapm_widgets[] = {
@@ -1163,13 +1186,23 @@ static int es8316_probe(struct snd_soc_codec *codec)
 	struct es8316_priv *es8316 = snd_soc_codec_get_drvdata(codec);
 
 	DBG("---%s--start--\n", __func__);
-
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+TSAI_BUSY_WAIT;
+	es8316->mclk = devm_clk_get(codec->dev, "mclk");
+	if (PTR_ERR(es8316->mclk) == -EPROBE_DEFER)
+		ret = -EPROBE_DEFER;
+		goto err;
+	ret = clk_prepare_enable(es8316->mclk);
+	if (ret)
+		goto err;
+#else
 	ret = snd_soc_codec_set_cache_io(codec, 8, 8, SND_SOC_I2C);
-
 	if (ret < 0) {
 		dev_err(codec->dev, "fail to reset audio (%d)\n", ret);
 		goto err;
 	}
+#endif
+
 	retv = snd_soc_read(codec, ES8316_CLKMGR_ADCDIV2_REG05);
 	if (retv == 0) {
 		retv = es8316_reset(codec); /* UPDATED BY DAVID,15-3-5 */
@@ -1233,8 +1266,12 @@ static struct snd_soc_codec_driver soc_codec_dev_es8316 = {
 	.reg_cache_size = ARRAY_SIZE(es8316_reg_defaults),
 	.reg_word_size = sizeof(u8),
 	.reg_cache_default = es8316_reg_defaults,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+	/* .volatile_register and .readable_register removed */
+#else	
 	.volatile_register = es8316_volatile,
 	.readable_register = es8316_readable,
+#endif	
 
 	.controls = es8316_snd_controls,
 	.num_controls = ARRAY_SIZE(es8316_snd_controls),
