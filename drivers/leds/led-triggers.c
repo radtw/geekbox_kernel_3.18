@@ -22,6 +22,10 @@
 #include <linux/slab.h>
 #include "leds.h"
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 /*
  * Nests outside led_cdev->trigger_lock
  */
@@ -196,6 +200,9 @@ int led_trigger_register(struct led_trigger *trig)
 			return -EEXIST;
 		}
 	}
+#if 0 && TSAI
+	TSAI_BUSY_WAIT;
+#endif
 	/* Add to the list of led triggers */
 	list_add_tail(&trig->next_trig, &trigger_list);
 	up_write(&triggers_list_lock);

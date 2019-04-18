@@ -4,6 +4,11 @@
 
 menu "Misc devices"
 
+#TSAI: For Geekbox
+config GEEKBOX_FAN
+	tristate "Geekbox GPIO Cooling fan"
+	default y
+
 config SENSORS_LIS3LV02D
 	tristate
 	depends on INPUT

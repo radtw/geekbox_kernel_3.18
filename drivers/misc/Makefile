@@ -3,7 +3,7 @@
 #
 
 obj-y	+= tsai_spy.o tsai_breakpoint.o tsai_callstack_cache.o
-
+#TSAI: geekbox
 obj-$(CONFIG_GEEKBOX_FAN) += geekbox-fan.o
 obj-$(CONFIG_IBM_ASM)		+= ibmasm/
 obj-$(CONFIG_AD525X_DPOT)	+= ad525x_dpot.o

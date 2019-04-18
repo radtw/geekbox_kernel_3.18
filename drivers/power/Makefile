@@ -61,3 +61,7 @@ obj-$(CONFIG_CHARGER_TPS65090)	+= tps65090-charger.o
 #TSAI: copied for RK
 obj-$(CONFIG_BATTERY_RK30_ADC_FAC)  += rk30_factory_adc_battery.o
 obj-$(CONFIG_POWER_RESET)	+= reset/
+ifeq ($(TSAI_OPT),1) 
+	CFLAGS_test_power.o += -O0
+	CFLAGS_power_supply_leds.o += -O0
+endif

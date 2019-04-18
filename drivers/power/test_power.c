@@ -20,6 +20,11 @@
 #include <linux/errno.h>
 #include <linux/delay.h>
 #include <linux/vermagic.h>
+#if defined(CONFIG_ARCH_ROCKCHIP) /* TSAI copied for geekbox*/
+#include <linux/of.h>
+#include <linux/of_address.h>
+#include <linux/err.h>
+#endif
 
 static int ac_online			= 1;
 static int usb_online			= 1;
@@ -177,6 +182,22 @@ static int __init test_power_init(void)
 {
 	int i;
 	int ret;
+#if defined(CONFIG_ARCH_ROCKCHIP) /* copied from geekbox to skip test power */
+	struct device_node *dev_node;
+#if 0 && TSAI
+	TSAI_BUSY_WAIT;
+#endif
+	dev_node = of_find_node_by_name(NULL, "test-power");
+
+	if (IS_ERR_OR_NULL(dev_node)) {
+		pr_info("not find %s dev node\n",  __func__);
+		return 0;
+	}
+	if (!of_device_is_available(dev_node)) {
+		pr_info("test power disabled\n");
+		return 0;
+	}
+#endif
 
 	for (i = 0; i < ARRAY_SIZE(test_power_supplies); i++) {
 		ret = power_supply_register(NULL, &test_power_supplies[i]);

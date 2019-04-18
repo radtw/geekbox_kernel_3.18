@@ -14,6 +14,8 @@
 #include <linux/rockchip/dvfs.h>
 #include <linux/workqueue.h>
 
+#include <linux/version.h> //TSAI
+
 #define GBOX_FAN_TRIG_TEMP		50	// 50 degree if not set
 #define GBOX_FAN_TRIG_MAXTEMP	80
 #define GBOX_FAN_LOOP_SECS 		30 * HZ	// 30 seconds
@@ -126,11 +128,24 @@ static ssize_t fan_temp_store(struct device *dev, struct device_attribute *attr,
 	return count;
 }
 
-static struct device_attribute fan_class_attrs[] = {
-	__ATTR(mode, S_IRUGO | S_IWUGO, fan_mode_show, fan_mode_store),
-	__ATTR(temp, S_IRUGO | S_IWUGO, fan_temp_show, fan_temp_store),
-	__ATTR_NULL,
-};
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI
+	static DEVICE_ATTR(mode, 0644, fan_mode_show, fan_mode_store);
+	static DEVICE_ATTR(temp, 0644, fan_temp_show, fan_temp_store);
+	static struct attribute *fan_class_attrs[] = {
+		&dev_attr_mode.attr,
+		&dev_attr_temp.attr,
+		NULL,
+	};
+	ATTRIBUTE_GROUPS(fan_class);
+
+#else
+	static struct device_attribute fan_class_attrs[] = {
+		__ATTR(mode, S_IRUGO | S_IWUGO, fan_mode_show, fan_mode_store),
+		__ATTR(temp, S_IRUGO | S_IWUGO, fan_temp_show, fan_temp_store),
+		__ATTR_NULL,
+	};
+
+#endif
 
 static int gbox_fan_probe(struct platform_device *pdev)
 {
@@ -165,7 +180,11 @@ static int gbox_fan_probe(struct platform_device *pdev)
 	fclass = class_create(THIS_MODULE, "fan");
 	if (IS_ERR(fclass))
 		return PTR_ERR(fclass);
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI
+	fclass->dev_groups = fan_class_groups;
+#else		
 	fclass->dev_attrs = fan_class_attrs;
+#endif
 	device_create(fclass, dev->parent, 0, fan_data, "ctrl");
 
 	dev_info(dev, "trigger temperature is %d.\n", fan_data->trig_temp);
