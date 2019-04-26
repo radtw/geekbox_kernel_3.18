@@ -659,6 +659,13 @@ try_again:
 	if (host->ops->init_card)
 		host->ops->init_card(host, card);
 
+#if TSAI && defined(CONFIG_ARCH_ROCKCHIP)
+    /* This clause is copied from geekbox 3.10, but not exist in andriod kernel 3.10 */
+	if (rocr & R4_18V_PRESENT)
+		rocr &= ~R4_18V_PRESENT;
+	else
+		ocr &= ~R4_18V_PRESENT;
+#endif
 	/*
 	 * If the host and card support UHS-I mode request the card
 	 * to switch to 1.8V signaling level.  No 1.8v signalling if
@@ -832,6 +839,9 @@ try_again:
 finish:
 	if (!oldcard)
 		host->card = card;
+#if TSAI
+	printk("TSAI: mmc_sdio_init_card()[out] ret=0 \n");
+#endif
 	return 0;
 
 remove:
@@ -1105,7 +1115,9 @@ int mmc_attach_sdio(struct mmc_host *host)
 
 	BUG_ON(!host);
 	WARN_ON(!host->claimed);
-
+#if TSAI
+	printk("TSAI: mmc_attach_sdio %s\n", mmc_hostname(host));
+#endif
 	err = mmc_send_io_op_cond(host, 0, &ocr);
 	if (err)
 		return err;
@@ -1130,7 +1142,14 @@ int mmc_attach_sdio(struct mmc_host *host)
 	 */
 	err = mmc_sdio_init_card(host, rocr, NULL, 0);
 	if (err)
+#if TSAI
+	{
+		printk("TSAI: mmc_sdio_init_card return %d @%s\n", err, __FILE__);
 		goto err;
+	}
+#else
+		goto err;
+#endif
 
 	card = host->card;
 

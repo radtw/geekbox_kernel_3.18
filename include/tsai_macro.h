@@ -14,10 +14,12 @@
 	#define BKPT __asm("bkpt")
 #endif
 
-#if defined(DEBUG)
-	#define ASSERT(x) if (!(x)) {BKPT;}
-#else
-	#define ASSERT(x)
+#if !defined(ASSERT)
+	#if defined(DEBUG)
+		#define ASSERT(x) if (!(x)) {BKPT;}
+	#else
+		#define ASSERT(x)
+	#endif
 #endif
 
 extern int tsai_move_on; /* instance in tsai_spy.c */

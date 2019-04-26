@@ -2380,8 +2380,8 @@ static int mmc_rescan_try_freq(struct mmc_host *host, unsigned freq)
 		mmc_hostname(host), __func__, host->f_init);
 #endif
 #if TSAI
-	printk("TSAI %s: %s: trying to init card at %u Hz %s\n",
-		mmc_hostname(host), __func__, host->f_init, __FILE__);
+	printk("TSAI %s: %s: trying to init card at %u Hz current %p %s @%s\n",
+		mmc_hostname(host), __func__, host->f_init, current, current->comm, __FILE__);
 	//TSAI_BUSY_WAIT;
 #endif
 	mmc_power_up(host, host->ocr_avail);

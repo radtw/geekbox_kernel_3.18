@@ -14,4 +14,5 @@ mmc_core-$(CONFIG_DEBUG_FS)	+= debugfs.o
 ifeq ($(TSAI_OPT),1) 
 CFLAGS_core.o += -O0
 CFLAGS_sdio_ops.o += -O0
+CFLAGS_sdio.o += -O0
 endif

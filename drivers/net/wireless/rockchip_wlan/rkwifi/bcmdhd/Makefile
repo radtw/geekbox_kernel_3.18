@@ -99,7 +99,11 @@ endif
 
 #TSAI
 ccflags-y += -Wno-date-time
-
+ifeq ($(TSAI_OPT),1) 
+	CFLAGS_dhd_linux.o += -O0
+	CFLAGS_dhd_linux_platdev.o += -O0
+	CFLAGS_bcmsdh_sdmmc_linux.o += -O0
+endif
 
 
 $(MODULE_NAME)-y += rkversion.o

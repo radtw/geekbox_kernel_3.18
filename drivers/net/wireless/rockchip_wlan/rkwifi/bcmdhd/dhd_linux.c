@@ -106,6 +106,7 @@
 #include <linux/time.h>
 #include <htsf.h>
 
+
 #define HTSF_MINLEN 200    /* min. packet length to timestamp */
 #define HTSF_BUS_DELAY 150 /* assume a fix propagation in us  */
 #define TSMAX  1000        /* max no. of timing record kept   */
@@ -174,6 +175,11 @@ extern bool ap_fw_loaded;
 #if defined(CUSTOMER_HW20) && defined(WLANAUDIO)
 #include <sdaudio.h>
 #endif /* CUSTOMER_HW20 && WLANAUDIO */
+
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 
 /* Maximum STA per radio */
 #define DHD_MAX_STA     32
@@ -7661,6 +7667,10 @@ dhd_module_init(void)
 		strncpy(nv_bak_path, nvram_path, MOD_PARAM_PATHLEN);
 		nv_bak_path[MOD_PARAM_PATHLEN-1] = '\0';
 	}
+#if TSAI
+	//TSAI_BUSY_WAIT;
+	printk("TSAI: dhd_module_init() current %p %s\n", current, current->comm);
+#endif
 
 	do {
 		err = dhd_wifi_platform_register_drv();

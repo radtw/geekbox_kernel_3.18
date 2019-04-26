@@ -10,6 +10,10 @@
 #include <asm/uaccess.h>
 #include <linux/rfkill-wlan.h>
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 extern int get_wifi_chip_type(void);
 
 static ssize_t wifi_chip_read(struct class *cls, struct class_attribute *attr, char *_buf)
@@ -175,6 +179,7 @@ static int wifi_init_exit_module(int enable)
 	if (type == WIFI_ESP8089) {
 #if TSAI
     	printk("TSAI: type == WIFI_ESP8089 %s %d\n", __FILE__,__LINE__);
+		TSAI_BUSY_WAIT;
 #else
 		if (enable > 0)
 			ret = rockchip_wifi_init_module_esp8089();
@@ -207,6 +212,7 @@ static int wifi_init_exit_module(int enable)
     if (type == WIFI_ESP8089) {
 #if TSAI
     	printk("TSAI: type == WIFI_ESP8089 %s %d\n", __FILE__,__LINE__);
+		TSAI_BUSY_WAIT;		
 #else
         if (enable > 0)
             ret = rockchip_wifi_init_module_esp8089();
@@ -226,6 +232,9 @@ static ssize_t wifi_driver_write(struct class *cls, struct class_attribute *attr
     
     down(&driver_sem);
     enable = simple_strtol(_buf, NULL, 10);
+#if TSAI
+    printk("TSAI wifi_driver_write enable=%d @%s\n", enable, __FILE__);
+#endif
     //printk("%s: enable = %d\n", __func__, enable);
     if (wifi_driver_insmod == enable) {
         printk("%s: wifi driver already %s\n", __func__, enable? "insmod":"rmmod");

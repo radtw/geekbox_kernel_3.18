@@ -1131,12 +1131,13 @@ static void dw_mci_setup_bus(struct dw_mci_slot *slot, bool force_clkinit)
 
 	host->current_speed = clock;
 
-	if(slot->ctype != slot->pre_ctype)
+	if(slot->ctype != slot->pre_ctype) {
 		MMC_DBG_BOOT_FUNC(host->mmc,
 				"Bus speed=%dHz,Bus width=%s.[%s]",
 				host->set_speed,
 				(slot->ctype == SDMMC_CTYPE_4BIT) ? "4bits" : "8bits",
 				mmc_hostname(host->mmc));
+	}
 
 	slot->pre_ctype = slot->ctype;
 
@@ -1330,16 +1331,16 @@ static void dw_mci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 	const struct dw_mci_rockchip_priv_data *priv = host->priv;
 	u32 regs;
 	
-        #ifdef SDMMC_WAIT_FOR_UNBUSY
+#ifdef SDMMC_WAIT_FOR_UNBUSY
 	unsigned long   time_loop;
 	bool ret = true;
 
 	time_loop = jiffies + msecs_to_jiffies(SDMMC_WAIT_FOR_UNBUSY);
 
-        #ifdef CONFIG_MMC_DW_ROCKCHIP_SWITCH_VOLTAGE
+#ifdef CONFIG_MMC_DW_ROCKCHIP_SWITCH_VOLTAGE
         if (host->svi_flags == 1)
                 time_loop = jiffies + msecs_to_jiffies(SDMMC_DATA_TIMEOUT_SD);
-	#endif
+#endif
         
 	if (!test_bit(DW_MMC_CARD_PRESENT, &slot->flags)) {
 		dev_info(host->dev, "%s:  no card. [%s]\n",
@@ -1359,13 +1360,14 @@ static void dw_mci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		dev_info(host->dev, "slot->flags = %lu ", slot->flags);
 		#ifdef CONFIG_MMC_DW_ROCKCHIP_SWITCH_VOLTAGE
                 if (host->svi_flags != 1)
-                #endif
+		#endif
 		dump_stack();
 		dev_err(host->dev,
 			"%s:  wait for unbusy timeout.. STATUS = 0x%x [%s]\n",
 			__FUNCTION__, regs, mmc_hostname(mmc));
+		BKPT;
 	}
-        #endif
+#endif
         
 	switch (ios->bus_width) {
 	case MMC_BUS_WIDTH_4:
@@ -3713,7 +3715,7 @@ static void dw_mci_init_dma(struct dw_mci *host)
 	return;
 
 no_dma:
-	dev_info(host->dev, "Using PIO mode.\n");
+	dev_info(host->dev, "Using PIO mode %s.\n", __FILE__);
 	host->use_dma = 0;
 	return;
 }
