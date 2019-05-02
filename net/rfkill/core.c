@@ -36,6 +36,10 @@
 
 #include "rfkill.h"
 
+#if TSAI
+    #include "tsai_macro.h"
+#endif
+
 #define POLL_INTERVAL		(5 * HZ)
 
 #define RFKILL_BLOCK_HW		BIT(0)
@@ -702,7 +706,10 @@ static ssize_t state_store(struct device *dev, struct device_attribute *attr,
 	struct rfkill *rfkill = to_rfkill(dev);
 	unsigned long state;
 	int err;
-
+#if TSAI
+	printk("TSAI: rfkill state_store %c %s\n", *buf, __FILE__);
+	//BKPT;
+#endif
 	if (!capable(CAP_NET_ADMIN))
 		return -EPERM;
 
