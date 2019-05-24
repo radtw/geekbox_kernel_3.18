@@ -863,7 +863,13 @@ u64 gator_get_time(void)
 
 static void gator_emit_perf_time(u64 time)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
+/* copy && LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0) from newer gator */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0)
+	/* TSAI:  local_clock() in different header  */
+	#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 14, 0)
+	#include <linux/sched/clock.h>
+	#endif
+	
 	if (time >= gator_sync_time) {
 		marshal_event_single64(0, -1, local_clock());
 		gator_sync_time += NSEC_PER_SEC;
@@ -877,6 +883,42 @@ static void gator_emit_perf_time(u64 time)
 /******************************************************************************
  * cpu hotplug and pm notifiers
  ******************************************************************************/
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0) /* TSAI: copied */
+
+static enum cpuhp_state gator_cpuhp_online;
+
+static int gator_cpuhp_notify_online(unsigned int cpu)
+{
+    gator_timer_online_dispatch(cpu, false);
+    smp_call_function_single(cpu, gator_timer_online, NULL, 1);
+    return 0;
+}
+
+static int gator_cpuhp_notify_offline(unsigned int cpu)
+{
+    smp_call_function_single(cpu, gator_timer_offline, NULL, 1);
+    gator_timer_offline_dispatch(cpu, false);
+    return 0;
+}
+
+static int gator_register_hotcpu_notifier(void)
+{
+    int retval;
+
+    retval = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "gator/cpuhotplug:online", gator_cpuhp_notify_online, gator_cpuhp_notify_offline);
+    if (retval >= 0) {
+        gator_cpuhp_online = retval;
+        retval = 0;
+    }
+    return retval;
+}
+
+static void gator_unregister_hotcpu_notifier(void)
+{
+    cpuhp_remove_state(gator_cpuhp_online);
+}
+
+#else
 static int __cpuinit gator_hotcpu_notify(struct notifier_block *self, unsigned long action, void *hcpu)
 {
 	int cpu = lcpu_to_pcpu((long)hcpu);
@@ -901,6 +943,7 @@ static struct notifier_block __refdata gator_hotcpu_notifier = {
 	.notifier_call = gator_hotcpu_notify,
 };
 
+#endif
 /* n.b. calling "on_each_cpu" only runs on those that are online.
  * Registered linux events are not disabled, so their counters will
  * continue to collect
@@ -913,7 +956,11 @@ static int gator_pm_notify(struct notifier_block *nb, unsigned long event, void 
 	switch (event) {
 	case PM_HIBERNATION_PREPARE:
 	case PM_SUSPEND_PREPARE:
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) /*TSAI: copied */
+        gator_unregister_hotcpu_notifier();
+#else
 		unregister_hotcpu_notifier(&gator_hotcpu_notifier);
+#endif
 		unregister_scheduler_tracepoints();
 		on_each_cpu(gator_timer_offline, NULL, 1);
 		for_each_online_cpu(cpu) {
@@ -938,7 +985,11 @@ static int gator_pm_notify(struct notifier_block *nb, unsigned long event, void 
 		}
 		on_each_cpu(gator_timer_online, NULL, 1);
 		register_scheduler_tracepoints();
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) /*TSAI: copied */
+        gator_register_hotcpu_notifier();
+#else		
 		register_hotcpu_notifier(&gator_hotcpu_notifier);
+#endif
 		break;
 	}
 
@@ -951,9 +1002,12 @@ static struct notifier_block gator_pm_notifier = {
 
 static int gator_notifier_start(void)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) /*TSAI: copied */
+    int retval = gator_register_hotcpu_notifier();
+#else
 	int retval;
-
 	retval = register_hotcpu_notifier(&gator_hotcpu_notifier);
+#endif
 	if (retval == 0)
 		retval = register_pm_notifier(&gator_pm_notifier);
 	return retval;
@@ -962,7 +1016,11 @@ static int gator_notifier_start(void)
 static void gator_notifier_stop(void)
 {
 	unregister_pm_notifier(&gator_pm_notifier);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) /*TSAI: copied */
+    gator_unregister_hotcpu_notifier();
+#else	
 	unregister_hotcpu_notifier(&gator_hotcpu_notifier);
+#endif	
 }
 
 /******************************************************************************

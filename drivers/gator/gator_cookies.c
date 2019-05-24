@@ -9,6 +9,22 @@
 
 #include <linux/mount.h>
 
+/* TSAI: copied*/
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
+/* Kernel version 4.10.0 adds locked argument
+   (See https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/include/linux/mm.h?id=5b56d49fc31dbb0487e14ead790fc81ca9fb2c99) */
+#   define get_user_pages_remote(tsk,mm,start,nr_pages,write,force,pages,vmas)  get_user_pages_remote(tsk,mm,start,nr_pages,((write) ? FOLL_WRITE : 0) | ((force) ? FOLL_FORCE : 0),pages,vmas,NULL)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0)
+/* Kernel version 4.9.0 removes write and force arguments from get_user_pages_remote and replaces with gup_flags instead
+   (See https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/include/linux/mm.h?id=9beae1ea89305a9667ceaab6d0bf46a045ad71e7) */
+#   define get_user_pages_remote(tsk,mm,start,nr_pages,write,force,pages,vmas)  get_user_pages_remote(tsk,mm,start,nr_pages,((write) ? FOLL_WRITE : 0) | ((force) ? FOLL_FORCE : 0),pages,vmas)
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(4, 6, 0)
+/* Kernel version 4.6.0 removes get_user_pages macro. We should use get_user_pages_remote anyway.
+   (See https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/include/linux/mm.h?id=c12d2da56d0e07d230968ee2305aaa86b93a6832) */
+#   define get_user_pages_remote(tsk,mm,start,nr_pages,write,force,pages,vmas)  get_user_pages(tsk,mm,start,nr_pages,write,force,pages,vmas)
+#endif
+/* end of TSAI */
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 3, 0)
 
 struct mount {
@@ -208,6 +224,10 @@ static void app_process_wake_up_handler(unsigned long unused_data)
 	/* had to delay scheduling work as attempting to schedule work during the context switch is illegal in kernel versions 3.5 and greater */
 	schedule_work(&cookie_work);
 }
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
+	/* TSAI: get_task_mm() now in different header */
+	#include <linux/sched/mm.h>
+#endif
 
 /* Retrieve full name from proc/pid/cmdline for java processes on Android */
 static int translate_app_process(const char **text, int cpu, struct task_struct *task, bool from_wq)
@@ -259,8 +279,13 @@ static int translate_app_process(const char **text, int cpu, struct task_struct 
 
 	down_read(&mm->mmap_sem);
 	while (len) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) /* TSAI: copied */
+        if (get_user_pages_remote(task, mm, addr, 1, 0, 1, &page, &page_vma) <= 0)
+            goto outsem;
+#else	
 		if (get_user_pages(task, mm, addr, 1, 0, 1, &page, &page_vma) <= 0)
 			goto outsem;
+#endif
 
 		maddr = kmap(page);
 		offset = addr & (PAGE_SIZE - 1);
@@ -383,6 +408,8 @@ static const char *gator_d_path(const struct path *path, char *buf, int buflen)
 		if (dentry == dentry->d_parent) {
 #if TSAI
 			/* TSAI: as far as I see it's quite normal for Android, eg "dev/ashmem/dalvik-main space" */
+            /* Normal operation, at least for ashmem */
+            /* pr_err("gator: parent is self\n"); */			
 #else
 			pr_err("gator: parent is self @%d\n", __LINE__);
 #endif

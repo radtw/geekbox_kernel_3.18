@@ -16,6 +16,26 @@
 #include <linux/pagemap.h>
 #include <linux/uaccess.h>
 
+
+/* TSAI: copied */
+/* Kernel version 4.6.0 removes page_cache_{get,release} and related defines. Add them back here.
+   (See https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit?id=1fa64f198b9f8d6ec0f7aec7c18dc94684391140) */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 6, 0)
+#   define PAGE_CACHE_SHIFT         PAGE_SHIFT
+#   define PAGE_CACHE_SIZE          PAGE_SIZE
+#   define PAGE_CACHE_MASK          PAGE_MASK
+#   define PAGE_CACHE_ALIGN(addr)   (((addr)+PAGE_CACHE_SIZE-1)&PAGE_CACHE_MASK)
+#   define page_cache_get(page)     get_page(page)
+#   define page_cache_release(page) put_page(page)
+#endif
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
+#define CURRENT_TIME		(current_kernel_time())
+#define CURRENT_TIME_SEC	((struct timespec) { get_seconds(), 0 })
+#endif
+/* end of TSAI */
+
+
 #define gatorfs_MAGIC 0x24051020
 #define TMPBUFSIZE 50
 static DEFINE_SPINLOCK(gatorfs_lock);

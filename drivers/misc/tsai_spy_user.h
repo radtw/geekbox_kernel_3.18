@@ -29,6 +29,7 @@ enum TsaiSpyCmd {
 	TSpyCmd_LD_Annotate_Relocate,
 	TSpyCmd_LD_Annotate_Lookup,
 	TSpyCmd_Printk,
+	TSpyCmd_FindION, /* given an array for FDs, find if any of them is ION and extract ION name from it */
 	TSpyCmd_User_Var01 = TSpyCmd_Base + 101,
 	TSpyCmdCount
 };
@@ -94,14 +95,21 @@ struct TSpy_Printk {
 	uint32_t msg_len; /* msg len in characters, excluding null terminator */
 };
 
-#ifdef __KERNEL__
-/* Kernel mode */
+struct TSpy_FindIon {
+	uint32_t num_fd;
+	uint32_t padding; /* padding for alignment*/
+	uint64_t ptr;
+};
 
 #if defined(__aarch64__)
 	typedef uint64_t NATIVE_UINT;
 #else
 	typedef uint32_t NATIVE_UINT;
 #endif
+
+
+#ifdef __KERNEL__
+/* Kernel mode */
 
 /* To avoid toolchain specifying -Wunused-function, I let static functions to be allowed unused */
 #define TSAI_STATIC static __attribute__((unused))
@@ -182,6 +190,14 @@ struct TSpy_Printk {
 
 	int tsai_spy_backtrace(void **buffer, int count);
 	int tsai_spy_printk(const char* fmt, ...);
+	int tsai_spy_find_ion(int num_fds, uint32_t* ptr);
+#ifdef ANDROID
+	struct native_handle;
+	int tsai_android_native_buffer_to_ion_name(const struct native_handle* hdl);
+
+#endif
+
+
 #ifdef __cplusplus
 	}
 #endif

@@ -32,9 +32,13 @@ static void gator_hrtimer_online(void)
 #if TSAI
 	printk("gator_hrtimer_online cpu[%d] \n", cpu);
 #endif
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) /* TSAO: tv64 deprecated */
+    if (per_cpu(hrtimer_is_active, cpu) || (ktime_to_ns(profiling_interval) == 0))
+        return;
+#else
 	if (per_cpu(hrtimer_is_active, cpu) || profiling_interval.tv64 == 0)
 		return;
+#endif
 
 	per_cpu(hrtimer_is_active, cpu) = 1;
 	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
@@ -72,7 +76,11 @@ static int gator_hrtimer_init(int interval, void (*func)(void))
 	if (interval > 0)
 		profiling_interval = ns_to_ktime(1000000000UL / interval);
 	else
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) /* TSAO: tv64 deprecated */
+        profiling_interval = ns_to_ktime(0);
+#else	
 		profiling_interval.tv64 = 0;
+#endif
 
 	return 0;
 }

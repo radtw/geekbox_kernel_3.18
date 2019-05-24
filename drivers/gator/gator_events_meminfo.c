@@ -13,6 +13,9 @@
 #include <linux/kthread.h>
 #include <linux/sched.h>
 #include <linux/semaphore.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) /* TSAI: copied */
+#include <linux/swap.h>
+#endif
 #include <linux/workqueue.h>
 #include <trace/events/kmem.h>
 
@@ -22,6 +25,10 @@ enum {
 	MEMINFO_MEMFREE,
 	MEMINFO_MEMUSED,
 	MEMINFO_BUFFERRAM,
+#if 1 /* TSAI: copied */
+    MEMINFO_CACHED,
+    MEMINFO_SLAB,
+#endif
 	MEMINFO_TOTAL,
 };
 
@@ -37,6 +44,10 @@ static const char * const meminfo_names[] = {
 	"Linux_meminfo_memfree",
 	"Linux_meminfo_memused",
 	"Linux_meminfo_bufferram",
+#if 1 /* TSAI: copied */
+    "Linux_meminfo_cached",
+    "Linux_meminfo_slab",
+#endif
 };
 
 static const char * const proc_names[] = {
@@ -263,6 +274,16 @@ static void do_read(void)
 			case MEMINFO_BUFFERRAM:
 				value = info.bufferram * PAGE_SIZE;
 				break;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0) /* TSAI: copied */
+			/* TSAI: global_page_state() appear deprecated after 4.7 */
+            case MEMINFO_CACHED:
+                // total_swapcache_pages is not exported so the result is slightly different, but hopefully not too much
+                value = (global_page_state(NR_FILE_PAGES) /*- total_swapcache_pages()*/ - info.bufferram) * PAGE_SIZE;
+                break;
+            case MEMINFO_SLAB:
+                value = (global_page_state(NR_SLAB_RECLAIMABLE) + global_page_state(NR_SLAB_UNRECLAIMABLE)) * PAGE_SIZE;
+                break;
+#endif				
 			default:
 				value = 0;
 				break;
@@ -387,6 +408,9 @@ static int gator_events_meminfo_read_proc(long long **buffer, struct task_struct
 
 	/* Derived from task_statm in fs/proc/task_mmu.c */
 	if (meminfo_enabled[MEMINFO_MEMUSED] || proc_enabled[PROC_SHARE]) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 0) /* TSAI: copied and merged */
+        share = get_mm_counter(mm, MM_FILEPAGES) + get_mm_counter(mm, MM_SHMEMPAGES);
+#else
 		share = get_mm_counter(mm,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 32) && LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 34)
 							   file_rss
@@ -394,6 +418,7 @@ static int gator_events_meminfo_read_proc(long long **buffer, struct task_struct
 							   MM_FILEPAGES
 #endif
 							   );
+#endif							   
 	}
 
 	/* key of 1 indicates a pid */
@@ -413,7 +438,11 @@ static int gator_events_meminfo_read_proc(long long **buffer, struct task_struct
 				value = (PAGE_ALIGN(mm->end_code) - (mm->start_code & PAGE_MASK)) >> PAGE_SHIFT;
 				break;
 			case PROC_DATA:
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0) /* TSAI: copied */
 				value = mm->total_vm - mm->shared_vm;
+#else
+                value = mm->total_vm - mm->stack_vm;
+#endif
 				break;
 			}
 

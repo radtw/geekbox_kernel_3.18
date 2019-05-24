@@ -15,11 +15,20 @@
 
 #define BLOCK_TOTAL		(BLOCK_RQ_RD+1)
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 8, 0) /* TSAI: copied and merged */
+#define GATOR_REQ_IS_OP_WRITE(rq)   (req_op(rq) & REQ_OP_WRITE)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)
+#define GATOR_REQ_IS_OP_WRITE(rq)   (rq->cmd_flags & REQ_WRITE)
+#else
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 36)
 #define EVENTWRITE REQ_RW
 #else
 #define EVENTWRITE REQ_WRITE
 #endif
+
+#endif
+
 
 static ulong block_rq_wr_enabled;
 static ulong block_rq_rd_enabled;
@@ -39,8 +48,12 @@ GATOR_DEFINE_PROBE(block_rq_complete, TP_PROTO(struct request_queue *q, struct r
 	unsigned int size;
 	if (!rq)
 		return;
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0) /* TSAI: copied and merged */
+    write = GATOR_REQ_IS_OP_WRITE(rq);
+#else
 	write = rq->cmd_flags & EVENTWRITE;
+#endif
+
 #if OLD_BLOCK_RQ_COMPLETE
 	size = rq->resid_len;
 #else

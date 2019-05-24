@@ -331,6 +331,27 @@ int tsai_spy_monitor_mmu_change(void* virtual_addr, struct mm_struct* mm) {
 
 EXPORT_SYMBOL(tsai_spy_monitor_mmu_change);
 
+extern int tsai_dmabuf_to_ion_buffer(struct dma_buf *dmabuf); /* defined in ion.c */
+TSAI_STATIC int tsai_find_ion_from_fd(int num_fds, uint32_t* ptr) {
+	int i;
+	int ret = 0;
+	for (i=0; i<num_fds; i++) {
+#ifdef ANDROID
+		struct dma_buf* d = dma_buf_get(ptr[i]);
+		if (IS_ERR(d))
+			continue;
+
+		ret = tsai_dmabuf_to_ion_buffer(d);
+
+		dma_buf_put(d);
+		if (ret)
+			break;
+#endif			
+	}
+	return ret;
+}
+
+
 /* ================ PROFILER SPECIFIC CODE =================================================================== */
 #if defined(DEBUG)
 	#define TSAI_PROFILER_LOG(fmt,...) 	tsai_spy_mem_log(&tsai_spy_data.pr.unwind_log, fmt, __VA_ARGS__);
@@ -1312,7 +1333,7 @@ TSAI_STATIC  void tsai_probe_sched_switch(void *data, PARAMS(TP_PROTO(struct tas
 		{
 			int timer_status;
 			int timer_pending;
-			int cpu = tsai_cpu_core_id();
+			int cpu = smp_processor_id();
 			unsigned int value = 1<<(tsai_24bit_value(next->pid)) | 1 << (24 + cpu);
 			pr->sche_mask |= value;
 			tnode = tsai_spy_profiling_find_task(pr, next->pid);
@@ -1350,7 +1371,7 @@ TSAI_STATIC  void tsai_probe_sched_switch(void *data, PARAMS(TP_PROTO(struct tas
 		if (pr->user_request.f_current_thread_only==0 ||
 				(pr->user_request.f_current_thread_only && pr->profiling_task==prev) )
 		{
-			int cpu = tsai_cpu_core_id();
+			int cpu = smp_processor_id();
 			tnode = tsai_spy_profiling_find_task(pr, prev->pid);
 			tnode->sched_away = 1;
 
@@ -3392,6 +3413,17 @@ TSAI_STATIC long tsai_spy_ioctl(struct file *file, unsigned int cmd,
 				kern_msg[p->msg_len] = 0;
 				printk("TSAI usermode %s\n", kern_msg);
 			}
+		}
+		break;
+	case TSpyCmd_FindION:
+		{
+			struct TSpy_FindIon* p = (struct TSpy_FindIon*)arg;
+			void* user_ptr = (void*)(NATIVE_UINT)p->ptr;
+			int ret2;
+			uint32_t fds[16];
+			ret2 = copy_from_user(fds, user_ptr, sizeof(uint32_t)*p->num_fd);
+			(void)ret2;
+			ret = tsai_find_ion_from_fd(p->num_fd, fds);
 		}
 		break;
 	default:
