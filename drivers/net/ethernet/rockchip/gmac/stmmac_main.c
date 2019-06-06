@@ -1584,6 +1584,9 @@ static void stmmac_check_ether_addr(struct stmmac_priv *priv)
 	}
 	pr_warn("%s: device MAC address %pM\n", priv->dev->name,
 		priv->dev->dev_addr);
+#if TSAI
+	printk("TSAI stmmac_check_ether_addr %s %d \n", __FILE__,__LINE__);
+#endif
 }
 
 /**

@@ -2262,4 +2262,13 @@ unsigned int ion_buffer_get_tsai_seqno(struct ion_buffer *buf) {
 	return buf->tsai_seqno;
 }
 
+int tsai_dmabuf_to_ion_buffer(struct dma_buf *dmabuf) {
+	int ret = 0;
+	if (dmabuf->ops==&dma_buf_ops) {
+		struct ion_buffer* i = (struct ion_buffer*)dmabuf->priv ;
+		ret = i->tsai_seqno;
+	}
+	return ret;
+}
+
 #endif

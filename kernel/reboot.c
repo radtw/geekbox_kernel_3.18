@@ -17,6 +17,9 @@
 #include <linux/syscore_ops.h>
 #include <linux/uaccess.h>
 
+#ifdef CONFIG_ARCH_ROCKCHIP /* TSAI: copied */
+#include <asm/system_misc.h>
+#endif
 /*
  * this indicates whether you can reboot with ctrl-alt-del: the default is yes
  */
@@ -264,6 +267,9 @@ void kernel_power_off(void)
 	pr_emerg("Power down\n");
 	kmsg_dump(KMSG_DUMP_POWEROFF);
 	machine_power_off();
+#ifdef CONFIG_ARCH_ROCKCHIP /* TSAI: copied */
+	arm_pm_restart('h', "charge");
+#endif
 }
 EXPORT_SYMBOL_GPL(kernel_power_off);
 
@@ -313,6 +319,10 @@ SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
 
 	mutex_lock(&reboot_mutex);
 	switch (cmd) {
+#ifdef CONFIG_ARCH_ROCKCHIP	
+	case LINUX_REBOOT_CMD_RESTART_RAMFS: /* TSAI: rk*/
+		kernel_restart("ramfs");
+#endif
 	case LINUX_REBOOT_CMD_RESTART:
 		kernel_restart(NULL);
 		break;

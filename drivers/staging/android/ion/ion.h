@@ -228,5 +228,6 @@ void ion_unmap_iommu(struct device *iommu_dev, struct ion_client *client,
 
 unsigned int ion_handle_get_tsai_seqno(struct ion_handle *handle);
 unsigned int ion_buffer_get_tsai_seqno(struct ion_buffer *buf);
+int tsai_dmabuf_to_ion_buffer(struct dma_buf *dmabuf);
 #endif
 #endif /* _LINUX_ION_H */

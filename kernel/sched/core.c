@@ -2014,8 +2014,7 @@ out:
 #if TSAI
 	if (tsai_debug_wake_up_task && p==tsai_debug_wake_up_task) {
 		tsai_spy_log("try_to_wake_up task %d %s result %d\n", p->pid, p->comm, success);
-		if (success)
-			tsai_debug_wake_up_task = 0;
+		/* don't clear just yet, when the task actually wake up for sleep, do another breakpoint and then clear */
 	}
 #endif
 	return success;
@@ -3376,6 +3375,12 @@ need_resched:
 			//show_stack(current, (unsigned long*)user_stack); /* this can only interpret kernel side stack */
 		}
 	}	
+#endif
+#if TSAI
+	if (tsai_debug_wake_up_task && tsai_debug_wake_up_task==current) {
+		BKPT;
+		tsai_debug_wake_up_task = 0;
+	}
 #endif
 #if 0 && TSAI_DS5
 		if (debug_shedule_duration > 15000 /* && (strcmp(current->comm, "volt-loader")==0 || strcmp(current->comm, "org.volt.apps")==0 ) */)

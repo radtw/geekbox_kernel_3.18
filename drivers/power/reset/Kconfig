@@ -101,6 +101,13 @@ config POWER_RESET_RESTART
 	  Instead they restart, and u-boot holds the SoC until the
 	  user presses a key. u-boot then boots into Linux.
 
+#TSAI: copied
+config POWER_RESET_ROCKCHIP
+	bool "Rockchip reset driver"
+	depends on POWER_RESET && MFD_SYSCON && ARCH_ROCKCHIP
+	help
+	  Restart support for Rockchip SoCs.
+
 config POWER_RESET_SUN6I
 	bool "Allwinner A31 SoC reset driver"
 	depends on ARCH_SUNXI
