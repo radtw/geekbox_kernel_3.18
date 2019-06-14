@@ -168,3 +168,5 @@ obj-$(CONFIG_CORESIGHT)		+= hwtracing/coresight/
 
 
 obj-$(CONFIG_GATOR)		+= gator/
+#TSAI:copied
+obj-$(CONFIG_RK_SFC)		+= rksfc/

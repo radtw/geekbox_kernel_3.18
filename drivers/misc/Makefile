@@ -54,8 +54,16 @@ obj-$(CONFIG_ALTERA_STAPL)	+=altera-stapl/
 obj-$(CONFIG_INTEL_MEI)		+= mei/
 obj-$(CONFIG_VMWARE_VMCI)	+= vmw_vmci/
 obj-$(CONFIG_LATTICE_ECP3_CONFIG)	+= lattice-ecp3-config.o
+#TSAI: copied
+obj-y += inv_mpu/
 obj-$(CONFIG_SRAM)		+= sram.o
 obj-y				+= mic/
+
+#TSAI:copied
+obj-$(CONFIG_5V_EN)	+= 5v_en.o
+obj-$(CONFIG_ROCKCHIP_SCR) += rk_scr.o
+
+
 obj-$(CONFIG_GENWQE)		+= genwqe/
 obj-$(CONFIG_ECHO)		+= echo/
 obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
