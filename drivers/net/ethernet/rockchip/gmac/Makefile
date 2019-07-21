@@ -6,6 +6,6 @@ stmmac-objs:= stmmac_main.o stmmac_ethtool.o stmmac_mdio.o ring_mode.o	\
 	      dwmac100_core.o dwmac100_dma.o enh_desc.o  norm_desc.o \
 	      mmc_core.o stmmac_hwtstamp.o stmmac_ptp.o $(stmmac-y)
 
-ifeq ($(TSAI_OPT),1) 
+ifeq ($(TSAI_OPT),0) 
 	CFLAGS_stmmac_main.o += -O0
 endif	      

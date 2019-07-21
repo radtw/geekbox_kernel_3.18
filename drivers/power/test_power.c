@@ -184,9 +184,6 @@ static int __init test_power_init(void)
 	int ret;
 #if defined(CONFIG_ARCH_ROCKCHIP) /* copied from geekbox to skip test power */
 	struct device_node *dev_node;
-#if 0 && TSAI
-	TSAI_BUSY_WAIT;
-#endif
 	dev_node = of_find_node_by_name(NULL, "test-power");
 
 	if (IS_ERR_OR_NULL(dev_node)) {

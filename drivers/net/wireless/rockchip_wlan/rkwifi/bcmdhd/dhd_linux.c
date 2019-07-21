@@ -7668,8 +7668,7 @@ dhd_module_init(void)
 		nv_bak_path[MOD_PARAM_PATHLEN-1] = '\0';
 	}
 #if TSAI
-	//TSAI_BUSY_WAIT;
-	printk("TSAI: dhd_module_init() current %p %s\n", current, current->comm);
+	pr_info("TSAI: dhd_module_init() current %p %s @%s\n", current, current->comm, __FILE__);
 #endif
 
 	do {

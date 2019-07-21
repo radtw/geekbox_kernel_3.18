@@ -56,7 +56,7 @@ static void rk3368_reboot(char str, const char *cmd)
 {
 	u32 flag, mode;
 #if TSAI
-    printk("TSAI rk3368_reboot %s \n", cmd?cmd:"");
+    pr_info("TSAI rk3368_reboot %s @%s\n", cmd?cmd:"", __FILE__);
 #endif
 
 	rockchip_restart_get_boot_mode(cmd, &flag, &mode);

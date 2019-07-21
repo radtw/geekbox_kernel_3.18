@@ -293,7 +293,7 @@ int rockchip_init_iovmm(struct device *iommu, struct rk_iovmm *vmm)
 {
 	int ret = 0;
 #if TSAI
-	printk("TSAI rockchip_init_iovmm[in] %s %d\n", __FILE__,__LINE__);
+	pr_info("TSAI rockchip_init_iovmm[in] %s %d\n", __FILE__,__LINE__);
 #endif
 
 	vmm->vmm_pool = gen_pool_create(PAGE_SHIFT, -1);

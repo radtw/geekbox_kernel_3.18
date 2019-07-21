@@ -269,7 +269,7 @@ int __init init_ramfs_fs(void)
 	static unsigned long once;
 	int err;
 #if TSAI
-	printk("TSAI init_rootfs in %s %d \n", __FILE__, __LINE__);
+	pr_info("TSAI init_rootfs in %s %d \n", __FILE__, __LINE__);
 #endif
 
 	if (test_and_set_bit(0, &once))

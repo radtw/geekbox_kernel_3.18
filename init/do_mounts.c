@@ -393,8 +393,7 @@ void __init mount_block_root(char *name, int flags)
 #endif
 
 #if TSAI
-	BKPT;
-	printk("TSAI mount_block_root in %s, name=%s \n", __FILE__, name);
+	pr_info("TSAI mount_block_root in %s, name=%s \n", __FILE__, name);
 #endif
 
 	get_fs_names(fs_names);
@@ -517,7 +516,7 @@ void __init change_floppy(char *fmt, ...)
 void __init mount_root(void)
 {
 #if TSAI
-printk("TSAI mount_root in %s %d \n", __FILE__, __LINE__);
+pr_info("TSAI mount_root in %s %d \n", __FILE__, __LINE__);
 #endif
 #ifdef CONFIG_ROOT_NFS
 	if (ROOT_DEV == Root_NFS) {
@@ -634,7 +633,7 @@ int __init init_rootfs(void)
 {
 	int err = register_filesystem(&rootfs_fs_type);
 #if TSAI
-	printk("TSAI init_rootfs() saved_root_name=%s root_fs_names=%s %s %d\n", saved_root_name, root_fs_names,
+	pr_info("TSAI init_rootfs() saved_root_name=%s root_fs_names=%s %s %d\n", saved_root_name, root_fs_names,
 		__FILE__, __LINE__);
 #endif
 

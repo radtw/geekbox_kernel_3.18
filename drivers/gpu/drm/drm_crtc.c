@@ -2559,8 +2559,7 @@ int drm_mode_setcrtc(struct drm_device *dev, void *data,
 	uint32_t __user *set_connectors_ptr;
 	int ret;
 	int i;
-	printk("TSAI drm_mode_setcrtc[enter] \n");
-	//BKPT;
+	pr_info("TSAI drm_mode_setcrtc[enter] @%s\n", __FILE__);
 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
 		return -EINVAL;
 

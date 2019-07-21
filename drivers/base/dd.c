@@ -31,7 +31,6 @@
 
 #if TSAI
 	#include "tsai_macro.h"
-	extern int tsai_move_on;
 #endif
 
 /*
@@ -417,7 +416,7 @@ static int __device_attach(struct device_driver *drv, void *data)
 	int match = driver_match_device(drv, dev);
 
 	if (tsai_bus_for_each_dev_fn == __device_attach) {
-		printk("TSAI __device_attach drv %s dev %s match %d \n",
+		pr_info("TSAI __device_attach drv %s dev %s match %d \n",
 				drv->name, dev->kobj.name, match );
 	}
 
@@ -449,13 +448,9 @@ int device_attach(struct device *dev)
 {
 	int ret = 0;
 #if 0 && TSAI
-	if (strcmp(dev->kobj.name, "ff900800.iep_mmu")==0) {
-		printk("TSAI: device_attach dev=%s bus=%s \n", dev->kobj.name, dev->bus->name);
+	if (strcmp(dev->kobj.name, "ff400000.nandc0")==0) {
+		pr_info("TSAI: device_attach dev=%s bus=%s \n", dev->kobj.name, dev->bus->name);
 		tsai_bus_for_each_dev_fn = __device_attach;
-
-		while(!tsai_move_on) {
-			cpu_relax();
-		}
 	}
 #endif
 	device_lock(dev);
@@ -500,24 +495,31 @@ static int __driver_attach(struct device *dev, void *data)
 #if 0 && TSAI
 	if (strcmp(drv->name, "pvrsrvkm")==0) {
 		if (strcmp(dev->kobj.name, "ffa30000.gpu")==0) {
-			printk("TSAI: __driver_attach driver=%s dev=%s \n", drv->name, dev->kobj.name);
+			pr_info("TSAI: __driver_attach driver=%s dev=%s \n", drv->name, dev->kobj.name);
 		}
 	}
 #endif
 
 
-	if (!driver_match_device(drv, dev))
+	if (!driver_match_device(drv, dev)) {
 		return 0;
+	}
 
 	if (dev->parent)	/* Needed for USB */
 		device_lock(dev->parent);
 	device_lock(dev);
-	if (!dev->driver)
+	if (!dev->driver) {
+#if 1 && TSAI
+		pr_info("TSAI __driver_attach dev %s drv %s \n", dev->kobj.name, drv->name);
+#endif
 		driver_probe_device(drv, dev);
+	}
 	device_unlock(dev);
 	if (dev->parent)
 		device_unlock(dev->parent);
-
+#if 0 && TSAI
+	pr_info("TSAI __driver_attach dev %s drv %s return 0\n", dev->kobj.name, drv->name);
+#endif
 	return 0;
 }
 
@@ -535,7 +537,7 @@ int driver_attach(struct device_driver *drv)
 #if 0 && TSAI
 	tsai_bus_for_each_dev_data = __driver_attach;
 	if (strcmp(drv->name, "pvrsrvkm")==0) {
-		printk("TSAI: driver_attach driver=%s  \n", drv->name);
+		pr_info("TSAI: driver_attach driver=%s  \n", drv->name);
 	}
 #endif
 	return bus_for_each_dev(drv->bus, NULL, drv, __driver_attach);

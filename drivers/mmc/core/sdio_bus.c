@@ -323,7 +323,7 @@ int sdio_add_func(struct sdio_func *func)
 
 	dev_set_name(&func->dev, "%s:%d", mmc_card_id(func->card), func->num);
 #if TSAI
-	printk("TSAI: sdio_add_func %s:%d\n", mmc_card_id(func->card), func->num);
+	pr_info("TSAI: sdio_add_func %s:%d @%s\n", mmc_card_id(func->card), func->num, __FILE__);
 #endif
 	sdio_acpi_set_handle(func);
 	ret = device_add(&func->dev);

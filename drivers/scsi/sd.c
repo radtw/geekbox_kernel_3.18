@@ -2882,6 +2882,9 @@ static int sd_format_disk_name(char *prefix, int index, char *buf, int buflen)
 	return 0;
 }
 
+#if TSAI
+    extern void rkpart_bootmode_fixup_UMS(void);
+#endif
 /*
  * The asynchronous part of sd_probe
  */
@@ -2938,6 +2941,9 @@ static void sd_probe_async(void *data, async_cookie_t cookie)
 		  sdp->removable ? "removable " : "");
 	scsi_autopm_put_device(sdp);
 	put_device(&sdkp->dev);
+#if TSAI
+	rkpart_bootmode_fixup_UMS();
+#endif
 }
 
 /**

@@ -301,7 +301,7 @@ static int dummy_probe(struct sdio_func *func,
                               const struct sdio_device_id *id)
 {
 #if TSAI
-	printk("TSAI dummy_probe num=%d @%s \n", func->num, __FILE__);
+	pr_info("TSAI dummy_probe num=%d @%s \n", func->num, __FILE__);
 #endif
 	if (func && (func->num != 2)) {
 		return 0;

@@ -1573,6 +1573,9 @@ static int stmmac_get_hw_features(struct stmmac_priv *priv)
  */
 static void stmmac_check_ether_addr(struct stmmac_priv *priv)
 {
+#if TSAI
+	pr_info("TSAI: stmmac_check_ether_addr[enter] mac addr = %pM @%s\n", priv->dev->dev_addr, __FILE__);
+#endif
 	if (!is_valid_ether_addr(priv->dev->dev_addr)) {
 		priv->hw->mac->get_umac_addr((void __iomem *)
 					     priv->dev->base_addr,
@@ -1581,12 +1584,15 @@ static void stmmac_check_ether_addr(struct stmmac_priv *priv)
 			eth_mac_idb(priv->dev->dev_addr);
 		if (!is_valid_ether_addr(priv->dev->dev_addr))
 			eth_hw_addr_random(priv->dev);
-	}
-	pr_warn("%s: device MAC address %pM\n", priv->dev->name,
-		priv->dev->dev_addr);
 #if TSAI
-	printk("TSAI stmmac_check_ether_addr %s %d \n", __FILE__,__LINE__);
+		priv->dev->dev_addr[0]= 0x5a;priv->dev->dev_addr[1]= 0x5b; priv->dev->dev_addr[2]= 0x5c;
+		priv->dev->dev_addr[3]= 0x5d;priv->dev->dev_addr[4]= 0x5e; priv->dev->dev_addr[5]= 0x5f;
+		pr_info("TSAI: mac addr invalid and re-generate %pM @%s\n", priv->dev->dev_addr, __FILE__);
 #endif
+
+	}
+	pr_warn("%s: device MAC address %pM @%s\n", priv->dev->name,
+		priv->dev->dev_addr, __FILE__);
 }
 
 /**

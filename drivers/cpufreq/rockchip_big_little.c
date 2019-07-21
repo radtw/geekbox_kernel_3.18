@@ -51,7 +51,6 @@
 
 #if TSAI
 #include "tsai_macro.h"
-extern int tsai_move_on;
 #endif
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
@@ -375,7 +374,7 @@ static int rockchip_bl_cpufreq_init(struct cpufreq_policy *policy)
 	static int cpu0_err;
 	u32 cur_cluster = cpu_to_cluster(policy->cpu);
 #if TSAI
-	printk("TSAI: rockchip_bl_cpufreq_init %s\n", __FILE__);
+	pr_info("TSAI: rockchip_bl_cpufreq_init %s\n", __FILE__);
 #endif
 
 	if (policy->cpu == 0)
@@ -674,7 +673,7 @@ static int __init rockchip_bl_cpufreq_probe(struct platform_device *pdev)
 	int ret, i;
 	int freq = 0;
 #if TSAI
-	printk("TSAI rockchip_bl_cpufreq_probe %s \n", __FILE__);
+	pr_info("TSAI rockchip_bl_cpufreq_probe %s \n", __FILE__);
 #endif
 	ret = of_property_read_u32_index(pdev->dev.of_node, "safe_freq_b",
 					 0, &freq);

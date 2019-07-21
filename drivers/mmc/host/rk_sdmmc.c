@@ -52,7 +52,6 @@
 #include <linux/rockchip/cru.h>
 #include <linux/reset.h>
 
-#include <linux/version.h> //TSAI
 #if defined(CONFIG_RK3368_SCPI_PROTOCOL) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI: use newer version
 #include <soc/rockchip/scpi.h>
 #else
@@ -67,7 +66,6 @@
 
 #if TSAI
 #include "tsai_macro.h"
-extern int tsai_move_on;
 extern int tsai_debug_smp_drain_local_pages;
 #endif
 
@@ -3672,10 +3670,6 @@ static void dw_mci_cleanup_slot(struct dw_mci_slot *slot, unsigned int id)
 
 static void dw_mci_init_dma(struct dw_mci *host)
 {
-#if 0 && TSAI
-	while(!tsai_move_on)
-		cpu_relax();
-#endif
 	/* Alloc memory for sg translation */
 	host->sg_cpu = dmam_alloc_coherent(host->dev, PAGE_SIZE,
 					  &host->sg_dma, GFP_KERNEL);
@@ -4140,10 +4134,6 @@ tsai_debug_smp_drain_local_pages = 0;
 		host->num_slots = host->pdata->num_slots;
 	else
 		host->num_slots = ((mci_readl(host, HCON) >> 1) & 0x1F) + 1;
-#if 0 && TSAI
-	while(!tsai_move_on)
-		cpu_relax();
-#endif
 	/* We need at least one slot to succeed */
 	for (i = 0; i < host->num_slots; i++) {
 		ret = dw_mci_init_slot(host, i);

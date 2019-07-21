@@ -6685,17 +6685,10 @@ struct dentry *tracing_init_dentry(void)
 	return NULL;
 }
 
-#if TSAI
-extern int tsai_move_on;
-#endif
 static __init int tracer_init_tracefs(void)
 {
 	struct dentry *d_tracer;
 
-#if 0 && TSAI
-	while(!tsai_move_on)
-		cpu_relax();
-#endif
 	trace_access_lock_init();
 
 	d_tracer = tracing_init_dentry();
@@ -7024,7 +7017,7 @@ out:
 void __init trace_init(void)
 {
 #if TSAI
-	printk("TSAI: trace_init %s \n", __FILE__);
+	pr_info("TSAI: trace_init %s \n", __FILE__);
 #endif
 	tracer_alloc_buffers();
 	init_ftrace_syscalls();

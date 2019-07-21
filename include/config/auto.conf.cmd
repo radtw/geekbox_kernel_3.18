@@ -6,6 +6,7 @@ deps_config := \
 	crypto/asymmetric_keys/Kconfig \
 	drivers/crypto/qat/Kconfig \
 	drivers/crypto/ccp/Kconfig \
+	drivers/crypto/rockchip/Kconfig \
 	drivers/crypto/ux500/Kconfig \
 	drivers/crypto/nx/Kconfig \
 	drivers/crypto/caam/Kconfig \
@@ -106,6 +107,7 @@ deps_config := \
 	drivers/firmware/efi/Kconfig \
 	drivers/firmware/google/Kconfig \
 	drivers/firmware/Kconfig \
+	drivers/rksfc/Kconfig \
 	drivers/gator/Kconfig \
 	drivers/thunderbolt/Kconfig \
 	drivers/ras/Kconfig \
@@ -437,6 +439,7 @@ deps_config := \
 	drivers/media/dvb-frontends/drx39xyj/Kconfig \
 	drivers/media/dvb-frontends/Kconfig \
 	drivers/media/tuners/Kconfig \
+	drivers/media/i2c/soc_camera/rockchip/Kconfig \
 	drivers/media/i2c/soc_camera/Kconfig \
 	drivers/media/i2c/smiapp/Kconfig \
 	drivers/media/i2c/m5mols/Kconfig \
@@ -455,6 +458,8 @@ deps_config := \
 	drivers/media/mmc/siano/Kconfig \
 	drivers/media/mmc/Kconfig \
 	drivers/media/platform/vivid/Kconfig \
+	drivers/media/platform/rk-isp11/Kconfig \
+	drivers/media/platform/rk-cif/Kconfig \
 	drivers/media/platform/s5p-tv/Kconfig \
 	drivers/media/platform/exynos4-is/Kconfig \
 	drivers/media/platform/soc_camera/Kconfig \
@@ -814,6 +819,10 @@ deps_config := \
 	drivers/misc/carma/Kconfig \
 	drivers/misc/lis3lv02d/Kconfig \
 	drivers/misc/ti-st/Kconfig \
+	drivers/misc/inv_mpu/pressure/Kconfig \
+	drivers/misc/inv_mpu/compass/Kconfig \
+	drivers/misc/inv_mpu/accel/Kconfig \
+	drivers/misc/inv_mpu/Kconfig \
 	drivers/misc/cb710/Kconfig \
 	drivers/misc/eeprom/Kconfig \
 	drivers/misc/c2port/Kconfig \

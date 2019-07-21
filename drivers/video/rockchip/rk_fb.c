@@ -63,7 +63,6 @@
 #endif
 #if TSAI
 #include "tsai_macro.h"
-extern int tsai_move_on;
 #endif
 
 #define H_USE_FENCE 1
@@ -2242,7 +2241,7 @@ static int rk_fb_set_win_buffer(struct fb_info *info,
 
 #if TSAI
 	if (tsai_rk_fb_set_win_buffer_seqno++==0) {
-		printk("TSAI: rk_fb_set_win_buffer called for first time, should see Android bootlogo \n");
+		pr_info("TSAI: rk_fb_set_win_buffer called for first time, should see Android bootlogo \n");
 	}
 #endif
 
@@ -4142,8 +4141,7 @@ static int init_lcdc_device_driver(struct rk_fb *rk_fb,
 	}
 	dev_drv->trsm_ops = rk_fb_trsm_ops_get(screen->type);
 #if TSAI
-	//BKPT;
-	printk("TSAI: dev_drv->trsm_ops = %p \n", dev_drv->trsm_ops);
+	pr_info("TSAI: dev_drv->trsm_ops = %p @%s\n", dev_drv->trsm_ops, __FILE__);
 #endif
 	if (dev_drv->prop != PRMRY)
 		rk_fb_get_extern_screen(screen);
@@ -4314,7 +4312,7 @@ int rk_fb_register(struct rk_lcdc_driver *dev_drv,
 		}
 	}
 #if TSAI
-	printk("TSAI: rk_fb_register() %s %d\n", __FILE__, __LINE__);
+	pr_info("TSAI: rk_fb_register() %s %d\n", __FILE__, __LINE__);
 #endif
 	/* show logo for primary display device */
 #if !defined(CONFIG_FRAMEBUFFER_CONSOLE)
@@ -4325,10 +4323,7 @@ int rk_fb_register(struct rk_lcdc_driver *dev_drv,
 		struct fb_info *main_fbi = rk_fb->fb[0];
 
 #if TSAI
-		printk("TSAI: rk_fb_register() PRMRY %s %d\n", __FILE__, __LINE__);
-		while(0 && !tsai_move_on)
-			cpu_relax();
-		//BKPT;
+		pr_info("TSAI: rk_fb_register() PRMRY %s %d\n", __FILE__, __LINE__);
 #endif
 		main_fbi->fbops->fb_open(main_fbi, 1);
 		main_fbi->var.pixclock = dev_drv->pixclock;

@@ -986,8 +986,7 @@ static int ddrfreq_scale_rate_for_dvfs(struct clk *clk, unsigned long rate)
 	unsigned long real_rate;
 #if TSAI
 	if (!ddr_change_freq) {
-		BKPT;
-		TSAI_BUSY_WAIT;
+		printk("TSAI: ddrfreq_scale_rate_for_dvfs @%s\n", __FILE__);
 	}
 #endif
 	real_rate = ddr_change_freq(rate/MHZ);

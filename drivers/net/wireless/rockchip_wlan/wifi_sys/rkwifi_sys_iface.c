@@ -178,8 +178,7 @@ static int wifi_init_exit_module(int enable)
 	type = get_wifi_chip_type();
 	if (type == WIFI_ESP8089) {
 #if TSAI
-    	printk("TSAI: type == WIFI_ESP8089 %s %d\n", __FILE__,__LINE__);
-		TSAI_BUSY_WAIT;
+    	pr_info("TSAI: type == WIFI_ESP8089 %s %d\n", __FILE__,__LINE__);
 #else
 		if (enable > 0)
 			ret = rockchip_wifi_init_module_esp8089();
@@ -211,8 +210,7 @@ static int wifi_init_exit_module(int enable)
 //#ifdef CONFIG_ESP8089
     if (type == WIFI_ESP8089) {
 #if TSAI
-    	printk("TSAI: type == WIFI_ESP8089 %s %d\n", __FILE__,__LINE__);
-		TSAI_BUSY_WAIT;		
+    	pr_info("TSAI: type == WIFI_ESP8089 %s %d\n", __FILE__,__LINE__);
 #else
         if (enable > 0)
             ret = rockchip_wifi_init_module_esp8089();
@@ -233,7 +231,7 @@ static ssize_t wifi_driver_write(struct class *cls, struct class_attribute *attr
     down(&driver_sem);
     enable = simple_strtol(_buf, NULL, 10);
 #if TSAI
-    printk("TSAI wifi_driver_write enable=%d @%s\n", enable, __FILE__);
+    pr_info("TSAI wifi_driver_write enable=%d @%s\n", enable, __FILE__);
 #endif
     //printk("%s: enable = %d\n", __func__, enable);
     if (wifi_driver_insmod == enable) {

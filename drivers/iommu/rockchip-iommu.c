@@ -33,7 +33,6 @@
 
 #if TSAI
 #include "tsai_macro.h"
-extern int tsai_move_on;
 #endif
 
 /* We does not consider super section mapping (16MB) */
@@ -1085,7 +1084,7 @@ err_pgtable:
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0 )) //TSAI
 static int rockchip_iommu_add_device(struct device *dev) {
-	printk("TSAI: rockchip_iommu_add_device dummy function\n");
+	pr_info("TSAI: rockchip_iommu_add_device dummy function\n");
 	return 0;
 }
 #endif
@@ -1125,9 +1124,7 @@ static int rockchip_iommu_probe(struct platform_device *pdev)
 	struct device *dev;
 	struct iommu_drvdata *data;
 #if TSAI
-	printk("TSAI rockchip_iommu_probe[in] %s %d\n", __FILE__,__LINE__);
-	while(0 && !tsai_move_on)
-		cpu_relax();
+	pr_info("TSAI rockchip_iommu_probe[in] %s %d\n", __FILE__,__LINE__);
 #endif
 	dev = &pdev->dev;
 
@@ -1263,9 +1260,7 @@ static int __init rockchip_iommu_init_driver(void)
 {
 	int ret;
 #if TSAI
-	printk("TSAI rockchip_iommu_init_driver[in] %s %d\n", __FILE__,__LINE__);
-	while(0 && !tsai_move_on)
-		cpu_relax();
+	pr_info("TSAI rockchip_iommu_init_driver[in] %s %d\n", __FILE__,__LINE__);
 #endif
 
 	lv2table_kmem_cache = kmem_cache_create("rk-iommu-lv2table",

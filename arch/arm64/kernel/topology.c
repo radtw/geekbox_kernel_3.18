@@ -181,19 +181,13 @@ static int __init parse_cluster(struct device_node *cluster, int depth)
 	return 0;
 }
 
-#if TSAI
-extern int tsai_move_on;
-#endif
-
 static int __init parse_dt_topology(void)
 {
 	struct device_node *cn, *map;
 	int ret = 0;
 	int cpu;
 #if 0 && TSAI
-	printk("TSAI parse_dt_topology %s \n", __FILE__);
-	while (!tsai_move_on)
-		cpu_relax();
+	pr_info("TSAI parse_dt_topology %s \n", __FILE__);
 #endif
 	cn = of_find_node_by_path("/cpus");
 	if (!cn) {

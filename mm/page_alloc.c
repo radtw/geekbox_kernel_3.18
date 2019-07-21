@@ -1367,7 +1367,7 @@ void drain_local_pages(void *arg)
 				(pret < tsai_ptr_smp_c.flush_smp_call_function_queue+0x400))
 		{
 			cpu = smp_processor_id();
-			printk("TSAI: drain_local_pages called by %p cpu %d\n", pret, cpu);
+			pr_info("TSAI: drain_local_pages called by %p cpu %d @%s\n", pret, cpu, __FILE__);
 			tsai_print = 0;
 		}
 	}
@@ -1375,7 +1375,7 @@ void drain_local_pages(void *arg)
 	drain_pages(smp_processor_id());
 #if TSAI
 	if (tsai_print)
-		printk("TSAI: drain_pages() done for %d\n", cpu);
+		pr_info("TSAI: drain_pages() done for %d @%s\n", cpu, __FILE__);
 #endif
 }
 

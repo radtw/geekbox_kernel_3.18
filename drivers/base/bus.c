@@ -324,7 +324,7 @@ int bus_for_each_dev(struct bus_type *bus, struct device *start,
 		struct device_driver *drv = (struct device_driver*)data;
 		if (strcmp(drv->name, "pvrsrvkm")==0) {
 			//tsai_print_dev_fn = 1;
-			printk("TSAI: bus_for_each_dev driver=%s  \n", drv->name);
+			pr_info("TSAI: bus_for_each_dev driver=%s  \n", drv->name);
 		}
 	}
 #endif
@@ -333,7 +333,7 @@ int bus_for_each_dev(struct bus_type *bus, struct device *start,
 		error = fn(dev, data);
 
 		if (tsai_bus_for_each_dev_fn == fn)
-			printk("TSAI: bus_for_each_dev %s error=%d \n", dev->kobj.name, error);
+			pr_info("TSAI: bus_for_each_dev %s error=%d \n", dev->kobj.name, error);
 	}
 #else
 	while ((dev = next_device(&i)) && !error)
@@ -710,10 +710,10 @@ int bus_add_driver(struct device_driver *drv)
 		uint64_t bus_name_u64 = *(uint64_t*)(bus->name);
 		if (bus_name_u64==0x6D726F6674616C70) { /* "platform" */
 			struct platform_driver* pd = container_of(drv, struct platform_driver, driver);
-			printk("TSAI  bus '%s': add driver %s probe %p %s\n", bus->name, drv->name, pd->probe, __FILE__);
+			pr_info("TSAI  bus '%s': add driver %s probe %p %s\n", bus->name, drv->name, pd->probe, __FILE__);
 		}
 		else
-			printk("TSAI  bus '%s': add driver %s %s\n", bus->name, drv->name, __FILE__);
+			pr_info("TSAI  bus '%s': add driver %s %s\n", bus->name, drv->name, __FILE__);
 	}
 #endif
 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
@@ -758,7 +758,9 @@ int bus_add_driver(struct device_driver *drv)
 				__func__, drv->name);
 		}
 	}
-
+#if 0 && TSAI
+	pr_info("bus_add_driver return 0\n");
+#endif
 	return 0;
 
 out_unregister:

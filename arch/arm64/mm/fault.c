@@ -598,7 +598,7 @@ asmlinkage int __exception do_debug_exception(unsigned long addr,
 			else {
 				regs->pc += 4;
 			}
-
+			pr_info("TSAI: handle BKPT instruction @%s\n", __FILE__);
 			return 0;
 		}
 	}

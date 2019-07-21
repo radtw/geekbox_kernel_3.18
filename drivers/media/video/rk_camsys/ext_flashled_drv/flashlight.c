@@ -536,6 +536,7 @@ static int __init flashlight_class_init(void)
 		return PTR_ERR(flashlight_class);
 	}
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI
+	pr_info("TSAI flashlight_class_init() 3.18 not implemented @%s\n", __FILE__);
 #else	
 	flashlight_class->dev_attrs = flashlight_device_attributes;
 #endif

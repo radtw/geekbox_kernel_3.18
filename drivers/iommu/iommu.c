@@ -34,7 +34,7 @@
 #include <trace/events/iommu.h>
 
 #if TSAI
-extern int tsai_move_on;
+
 #endif
 
 static struct kset *iommu_group_kset;
@@ -841,9 +841,7 @@ static int iommu_bus_init(struct bus_type *bus, const struct iommu_ops *ops)
 int bus_set_iommu(struct bus_type *bus, const struct iommu_ops *ops)
 {
 #if TSAI
-	printk("TSAI bus_set_iommu bus %s op %p \n", bus->name, ops);
-	while(0 && !tsai_move_on)
-		cpu_relax();
+	pr_info("TSAI bus_set_iommu bus %s op %p @%s\n", bus->name, ops, __FILE__);
 #endif
 	if (bus->iommu_ops != NULL)
 		return -EBUSY;

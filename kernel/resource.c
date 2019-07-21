@@ -1388,7 +1388,9 @@ struct resource * __devm_request_region(struct device *dev,
 {
 	struct region_devres *dr = NULL;
 	struct resource *res;
-
+#if 0 && TSAI
+	pr_info("TSAI __devm_request_region start %llx n %llx %s @%s\n", start, n, name, __FILE__);
+#endif
 	dr = devres_alloc(devm_region_release, sizeof(struct region_devres),
 			  GFP_KERNEL);
 	if (!dr)
@@ -1403,7 +1405,9 @@ struct resource * __devm_request_region(struct device *dev,
 		devres_add(dev, dr);
 	else
 		devres_free(dr);
-
+#if 0 && TSAI
+	pr_info("TSAI __devm_request_region res=%p @%s\n", res, __FILE__);
+#endif
 	return res;
 }
 EXPORT_SYMBOL(__devm_request_region);

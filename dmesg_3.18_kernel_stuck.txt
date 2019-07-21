@@ -1,0 +1,1750 @@
+B::TASK.DMESG
+ kernel ring buffer - Log level (0-7)*
+<6>[    0.000000] TSAI start_kernel init/main.c503
+<6>[    0.000000] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.000000] Initializing cgroup subsys cpu
+<6>[    0.000000] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.000000] Initializing cgroup subsys cpuacct
+<6>[    0.000000] TSAI: cannot use console @kernel/printk/printk.c:1545
+<5>[    0.000000] Linux version 3.18.48+ (julian@HPLaptop) (gcc version 4.9.x-google 20140827 (prerelease) (GCC) ) #65 SMP PREEMPT Sat Jul 27 22:05:21 BST 2019
+<6>[    0.000000] Boot CPU: AArch64 Processor [410fd033]
+<6>[    0.000000] TSAI register_console earlycon cnt:0@kernel/printk/printk.c
+<6>[    0.000000] TSAI console_lock lr=register_console+0x20c/0x384 @kernel/printk/printk.c
+<6>[    0.000000] TSAI: console earlycon is exclusive_console
+<6>[    0.000000] bootconsole [earlycon0] enabled @kernel/printk/printk.c
+<6>[    0.000000] rockchip_uboot_logo_setup: mem: 0x0000000002000000@0x000000007dc00000, offset:0x0000000000000000
+<6>[    0.000000] hdmi init vic is 1121
+<6>[    0.000000] rockchip_uboot_mem_reserve: reserve 0x0000000002000000@0x000000007dc00000 for uboot logo
+<7>[    0.000000] rockchip_ion_reserve
+<6>[    0.000000] ion heap(cma): base(0) size(0) align(0)
+<6>[    0.000000] ion heap(vmalloc): base(0) size(0) align(0)
+<6>[    0.000000] cma: Reserved 16 MiB at 0x000000007cc00000
+<7>[    0.000000] On node 0 totalpages: 523776
+<7>[    0.000000]   DMA zone: 7161 pages used for memmap
+<7>[    0.000000]   DMA zone: 0 pages reserved
+<7>[    0.000000]   DMA zone: 523776 pages, LIFO batch:31
+<6>[    0.000000] psci: probing for conduit method from DT.
+<6>[    0.000000] psci: PSCIv1.0 detected in firmware.
+<6>[    0.000000] psci: Using standard PSCI v0.2 function IDs
+<6>[    0.000000] PERCPU: Embedded 15 pages/cpu @ffffffc07fced000 s20800 r8192 d32448 u61440
+<7>[    0.000000] pcpu-alloc: s20800 r8192 d32448 u61440 alloc=15*4096
+<7>[    0.000000] pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 [0] 4 [0] 5 [0] 6 [0] 7
+<6>[    0.000000] Detected VIPT I-cache on CPU0
+<6>[    0.000000] CPU features: enabling workaround for ARM erratum 845719
+<7>[    0.000000] Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 516615
+<5>[    0.000000] Kernel command line: earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0x00038000(backup),0x00040000@0x00070000(cache),0x00002000@0x000B0000(kpanic),0x00200000@0x000B2000(system),0x00008000@0x002B2000(metadata),0x00002000@0x002BA000(baseparamer),0x00400000@0x002BC000(userdata),0x00010000@0x006BC000(ramfs),0x01134000@0x006CC000(user),-@0x01800000(linuxroot) storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<7>[    0.000000] rockchip jtag enabled
+<6>[    0.000000] uboot_storage_media media '=ums' @arch/arm64/mach-rockchip/../../arm/mach-rockchip/common.c
+<6>[    0.000000] [<ffffffc0004e6fe8>] tsai_printk_stack_trace+0x4c/0x60
+<6>[    0.000000] [<ffffffc0004e7018>] tsai_printk_stack_trace_current+0x1c/0x24
+<6>[    0.000000] [<ffffffc000ea34d0>] uboot_storage_media+0x4c/0x5c
+<6>[    0.000000] [<ffffffc000e9d42c>] unknown_bootoption+0xa8/0x1d0
+<6>[    0.000000] [<ffffffc0000ca78c>] parse_args+0x234/0x344
+<6>[    0.000000] [<ffffffc000e9d798>] start_kernel+0x1b8/0x3cc
+<6>[    0.000000] [<ffffffc00008027c>] 0xffffffc00008027c
+<6>[    0.000000] [<ffffffffffffffff>] 0xffffffffffffffff
+<6>[    0.000000] PID hash table entries: 4096 (order: 3, 32768 bytes)
+<6>[    0.000000] Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
+<6>[    0.000000] Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes)
+<7>[    0.000000] Memory: 1993900K/2095104K available (10243K kernel code, 1597K rwdata, 4176K rodata, 472K init, 1169K bss, 101204K reserved)
+<5>[    0.000000] Virtual kernel memory layout:
+<5>[    0.000000]     vmalloc : 0xffffff8000000000 - 0xffffffbdffff0000   (   247 GB)
+<5>[    0.000000]     vmemmap : 0xffffffbe00000000 - 0xffffffbfc0000000   (     7 GB maximum)
+<5>[    0.000000]               0xffffffbe00007000 - 0xffffffbe01c00000   (    27 MB actual)
+<5>[    0.000000]     PCI I/O : 0xffffffbffa000000 - 0xffffffbffb000000   (    16 MB)
+<5>[    0.000000]     fixed   : 0xffffffbffbdfd000 - 0xffffffbffbdff000   (     8 KB)
+<5>[    0.000000]     modules : 0xffffffbffc000000 - 0xffffffc000000000   (    64 MB)
+<5>[    0.000000]     memory  : 0xffffffc000000000 - 0xffffffc07fe00000   (  2046 MB)
+<5>[    0.000000]       .init : 0xffffffc000e9d000 - 0xffffffc000f13000   (   472 KB)
+<5>[    0.000000]       .text : 0xffffffc000080000 - 0xffffffc000a81ea0   ( 10248 KB)
+<6>[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=8, Nodes=1
+<6>[    0.000000] Preemptible hierarchical RCU implementation.
+<6>[    0.000000] *RCU dyntick-idle grace-period acceleration is enabled.
+<6>[    0.000000] TSAI: trace_init kernel/trace/trace.c
+<4>[    0.000000]
+<4>[    0.000000] **   NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE   **
+<4>[    0.000000] **                                                      **
+<4>[    0.000000] ** trace_printk() being used. Allocating extra memory.  **
+<4>[    0.000000] **                                                      **
+<4>[    0.000000] ** This means that this is a DEBUG kernel and it is     **
+<4>[    0.000000] ** unsafe for produciton use.                           **
+<4>[    0.000000] **                                                      **
+<4>[    0.000000] ** If you see this message and you are not debugging    **
+<4>[    0.000000] ** the kernel, report this immediately to your vendor!  **
+<4>[    0.000000] **                                                      **
+<4>[    0.000000] **   NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE   **
+<4>[    0.000000] **********************************************************
+<6>[    0.000000] NR_IRQS:64 nr_irqs:64 0
+<7>[    0.000000] rk_clk_tree_init start!
+<7>[    0.000000] rk_get_uboot_display_flag: uboot_logo_on = 1
+<7>[    0.000000] rkclk_init_clks: cnt_parent = 8
+<7>[    0.000000] rkclk_init_clks: cnt_rate = 30
+<6>[    0.000000] Architected cp15 timer(s) running at 24.00MHz (virt).
+<6>[    0.700000] sched_clock: 56 bits at 24MHz, resolution 41ns, wraps every 2863311519744ns
+<6>[    0.112930] Calibrating delay loop (skipped), value calculated using timer frequency.. 48.00 BogoMIPS (lpj=240000)
+<6>[    0.237990] pid_max: default: 32768 minimum: 301
+<6>[    0.308600] Security Framework initialized
+<6>[    0.371520] SELinux:  Initializing.
+<7>[    0.430520] SELinux:  Starting in permissive mode
+<6>[    0.431250] Mount-cache hash table entries: 4096 (order: 3, 32768 bytes)
+<6>[    0.520260] Mountpoint-cache hash table entries: 4096 (order: 3, 32768 bytes)
+<6>[    0.616130] TSAI init_rootfs() saved_root_name=LABEL=linuxroot root_fs_names=ext4 init/do_mounts.c 637
+<6>[    0.731040] TSAI init_rootfs in fs/ramfs/inode.c 272
+<6>[    0.804900] TSAI: vfs_kern_mount rootfs @fs/namespace.c 905
+<6>[    0.885170] TSAI: vfs_kern_mount bdev @fs/namespace.c 905
+<6>[    0.966300] Initializing cgroup subsys freezer
+<6>[    0.103280] Initializing cgroup subsys debug
+<6>[    0.109967] TSAI: vfs_kern_mount proc @fs/namespace.c 905
+<4>[    0.119163] sched-energy: CPU device node has no sched-energy-costs
+<4>[    0.127638] Invalid sched_group_energy for CPU0
+<6>[    0.134468] CPU0: update cpu_capacity 1024
+<6>[    0.140924] hw perfevents: enabled with arm/armv8-pmuv3 PMU driver, 7 counters available
+<6>[    0.151335] ASID allocator initialised with 65536 entries
+<6>[    0.160600] last_log: 0x000000007aa80000 map to 0xffffff80000aa000 and copy to 0xffffff800012c000, size 0x80000 early 0x2000 (version 3.1)
+<6>[    0.331729] Detected VIPT I-cache on CPU1
+<6>[    0.331753] TSAI: cannot use console @kernel/printk/printk.c:1545
+<4>[    0.331822] Invalid sched_group_energy for CPU1
+<6>[    0.331838] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.331853] CPU1: update cpu_capacity 1024
+<6>[    0.331868] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.331883] CPU1: Booted secondary processor [410fd033]
+<6>[    0.331898] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.391675] Detected VIPT I-cache on CPU2
+<6>[    0.391696] TSAI: cannot use console @kernel/printk/printk.c:1545
+<4>[    0.391755] Invalid sched_group_energy for CPU2
+<6>[    0.391771] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.391786] CPU2: update cpu_capacity 1024
+<6>[    0.391801] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.391816] CPU2: Booted secondary processor [410fd033]
+<6>[    0.391831] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.451701] Detected VIPT I-cache on CPU3
+<6>[    0.451722] TSAI: cannot use console @kernel/printk/printk.c:1545
+<4>[    0.451778] Invalid sched_group_energy for CPU3
+<6>[    0.451793] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.451809] CPU3: update cpu_capacity 1024
+<6>[    0.451824] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.451839] CPU3: Booted secondary processor [410fd033]
+<6>[    0.451854] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.511702] Detected VIPT I-cache on CPU4
+<6>[    0.511722] TSAI: cannot use console @kernel/printk/printk.c:1545
+<4>[    0.511782] Invalid sched_group_energy for CPU4
+<6>[    0.511794] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.511806] CPU4: update cpu_capacity 1024
+<6>[    0.511817] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.511829] CPU4: Booted secondary processor [410fd033]
+<6>[    0.511840] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.571687] Detected VIPT I-cache on CPU5
+<6>[    0.571701] TSAI: cannot use console @kernel/printk/printk.c:1545
+<4>[    0.571737] Invalid sched_group_energy for CPU5
+<6>[    0.571748] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.571760] CPU5: update cpu_capacity 1024
+<6>[    0.571771] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.571783] CPU5: Booted secondary processor [410fd033]
+<6>[    0.571794] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.631677] Detected VIPT I-cache on CPU6
+<6>[    0.631690] TSAI: cannot use console @kernel/printk/printk.c:1545
+<4>[    0.631726] Invalid sched_group_energy for CPU6
+<6>[    0.631738] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.631749] CPU6: update cpu_capacity 1024
+<6>[    0.631760] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.631772] CPU6: Booted secondary processor [410fd033]
+<6>[    0.631783] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.691689] Detected VIPT I-cache on CPU7
+<6>[    0.691702] TSAI: cannot use console @kernel/printk/printk.c:1545
+<4>[    0.691739] Invalid sched_group_energy for CPU7
+<6>[    0.691751] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.691762] CPU7: update cpu_capacity 1024
+<6>[    0.691773] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.691785] CPU7: Booted secondary processor [410fd033]
+<6>[    0.691796] TSAI: cannot use console @kernel/printk/printk.c:1545
+<6>[    0.691920] Brought up 8 CPUs
+<6>[    1.122361] SMP: Total of 8 processors activated.
+<6>[    1.129445] alternatives: patching kernel code
+<4>[    1.136296] Invalid sched_group_energy for CPU7
+<6>[    1.143024] CPU7: update max cpu_capacity 1024
+<4>[    1.149766] Invalid sched_group_energy for Cluster7
+<4>[    1.156972] Invalid sched_group_energy for CPU6
+<4>[    1.163819] Invalid sched_group_energy for Cluster6
+<4>[    1.171011] Invalid sched_group_energy for CPU5
+<4>[    1.177847] Invalid sched_group_energy for Cluster5
+<4>[    1.185051] Invalid sched_group_energy for CPU4
+<4>[    1.191899] Invalid sched_group_energy for Cluster4
+<4>[    1.199079] Invalid sched_group_energy for CPU3
+<4>[    1.205939] Invalid sched_group_energy for Cluster3
+<4>[    1.213131] Invalid sched_group_energy for CPU2
+<4>[    1.219966] Invalid sched_group_energy for Cluster2
+<4>[    1.227171] Invalid sched_group_energy for CPU1
+<4>[    1.234018] Invalid sched_group_energy for Cluster1
+<4>[    1.241211] Invalid sched_group_energy for CPU0
+<4>[    1.248046] Invalid sched_group_energy for Cluster0
+<6>[    1.255920] CPU2: update max cpu_capacity 1024
+<6>[    1.262610] TSAI: vfs_kern_mount tmpfs @fs/namespace.c 905
+<6>[    1.270739] TSAI: vfs_kern_mount devtmpfs @fs/namespace.c 905
+<6>[    1.278825] TSAI mount devtmpfs / devtmpfs ret=0 from kdevtmpfs @fs/namespace.c
+<6>[    1.288353] devtmpfs: initialized
+<6>[    1.305210] pinctrl core: initialized pinctrl subsystem
+<6>[    1.312670] TSAI: vfs_kern_mount debugfs @fs/namespace.c 905
+<6>[    1.320933] TSAI  bus 'platform': add driver reg-dummy probe ffffffc000434c70 drivers/base/bus.c
+<6>[    1.331929] TSAI __driver_attach dev reg-dummy drv reg-dummy
+<6>[    1.340086] regulator-dummy: no parameters
+<6>[    1.376382] TSAI rockchip_iommu_init_driver[in] drivers/iommu/rockchip-iommu.c 1263
+<6>[    1.386266] bus_set_iommu: TSAI bus_set_iommu bus platform op ffffffc00106a650 @drivers/iommu/iommu.c
+<6>[    1.397764] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.405566] TSAI  bus 'platform': add driver rk_iommu probe ffffffc0007e5060 drivers/base/bus.c
+<6>[    1.416682] TSAI: vfs_kern_mount sockfs @fs/namespace.c 905
+<6>[    1.424942] NET: Registered protocol family 16
+<6>[    1.432751] TSAI  bus 'platform': add driver rk3368-pinctrl probe ffffffc0003c8128 drivers/base/bus.c
+<6>[    1.444439] TSAI  bus 'platform': add driver sram probe ffffffc0004f7cd0 drivers/base/bus.c
+<6>[    1.455031] TSAI  bus 'platform': add driver syscon probe ffffffc0004fa878 drivers/base/bus.c
+<6>[    1.466011] TSAI  bus 'i2c': add driver dummy drivers/base/bus.c
+<6>[    1.500508] cpuidle: using governor ladder
+<6>[    1.528840] cpuidle: using governor menu
+<6>[    1.534996] ion_snapshot: 0x79440000 map to 0xffffff80001af000 and copy to 0xffffffc00118aeb8 (version 0.1)
+<6>[    1.548357] vdso: 2 pages (1 code @ ffffffc000a87000, 1 data @ ffffffc000f24000)
+<6>[    1.558013] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+<6>[    1.568588] software IO TLB [mem 0x79000000-0x79400000] (4MB) mapped at [ffffffc078e00000-ffffffc0791fffff]
+<6>[    1.583572] DMA: preallocated 256 KiB pool for atomic allocations
+<6>[    1.593036] TSAI of_platform_populate drivers/of/platform.c 498
+<6>[    1.601221] TSAI child memory memory @drivers/of/platform.c
+<6>[    1.609127] TSAI child clocks <NULL> @drivers/of/platform.c
+<6>[    1.617118] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.624873] TSAI child ddr_timing <NULL> @drivers/of/platform.c
+<6>[    1.633125] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.640884] TSAI child aliases <NULL> @drivers/of/platform.c
+<6>[    1.648803] TSAI child cpus <NULL> @drivers/of/platform.c
+<6>[    1.656526] TSAI child psci <NULL> @drivers/of/platform.c
+<6>[    1.664326] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.672079] TSAI child interrupt-controller <NULL> @drivers/of/platform.c
+<6>[    1.681252] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.688980] TSAI child syscon <NULL> @drivers/of/platform.c
+<6>[    1.696920] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.704864] TSAI child syscon <NULL> @drivers/of/platform.c
+<6>[    1.712731] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.720581] TSAI child syscon <NULL> @drivers/of/platform.c
+<6>[    1.728439] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.736293] TSAI child syscon <NULL> @drivers/of/platform.c
+<6>[    1.744157] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.752004] TSAI child syscon <NULL> @drivers/of/platform.c
+<6>[    1.759860] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.767751] TSAI child syscon <NULL> @drivers/of/platform.c
+<6>[    1.775609] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.783476] TSAI child syscon <NULL> @drivers/of/platform.c
+<6>[    1.791343] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.799188] TSAI child arm-pmu <NULL> @drivers/of/platform.c
+<6>[    1.807593] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.815313] TSAI child cpu_axi_bus <NULL> @drivers/of/platform.c
+<6>[    1.823671] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.831435] TSAI child efuse_256 <NULL> @drivers/of/platform.c
+<6>[    1.839627] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.847381] TSAI child timer <NULL> @drivers/of/platform.c
+<6>[    1.855441] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.863161] TSAI child timer <NULL> @drivers/of/platform.c
+<6>[    1.871096] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.878819] TSAI child timer <NULL> @drivers/of/platform.c
+<6>[    1.886740] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.894460] TSAI child sram <NULL> @drivers/of/platform.c
+<6>[    1.902227] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.910048] TSAI child wdt <NULL> @drivers/of/platform.c
+<6>[    1.917549] TSAI child amba <NULL> @drivers/of/platform.c
+<6>[    1.925366] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.933880] TSAI child reset <NULL> @drivers/of/platform.c
+<6>[    1.941666] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.949388] TSAI child nandc <NULL> @drivers/of/platform.c
+<6>[    1.957344] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.965052] TSAI child nandc0 <NULL> @drivers/of/platform.c
+<6>[    1.973037] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.980738] TSAI child rksdmmc <NULL> @drivers/of/platform.c
+<6>[    1.988881] TSAI: rockchip_iommu_add_device dummy function
+<6>[    1.996600] TSAI child rksdmmc <NULL> @drivers/of/platform.c
+<6>[    2.473400] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.124510] TSAI child rksdmmc <NULL> @drivers/of/platform.c
+<6>[    2.205880] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.283070] TSAI child spi <NULL> @drivers/of/platform.c
+<6>[    2.358980] TSAI child spi <NULL> @drivers/of/platform.c
+<6>[    2.435110] TSAI child spi <NULL> @drivers/of/platform.c
+<6>[    2.511600] TSAI child serial <NULL> @drivers/of/platform.c
+<6>[    2.592090] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.669320] TSAI child serial <NULL> @drivers/of/platform.c
+<6>[    2.747640] TSAI child serial <NULL> @drivers/of/platform.c
+<6>[    2.828460] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.905550] TSAI child serial <NULL> @drivers/of/platform.c
+<6>[    2.984140] TSAI child serial <NULL> @drivers/of/platform.c
+<6>[    2.106289] TSAI child fiq-debugger <NULL> @drivers/of/platform.c
+<6>[    2.114705] TSAI child mbox <NULL> @drivers/of/platform.c
+<6>[    2.122754] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.130477] TSAI child mbox-scpi <NULL> @drivers/of/platform.c
+<6>[    2.138651] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.146421] TSAI child ddr <NULL> @drivers/of/platform.c
+<6>[    2.154080] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.161849] TSAI child clocks-init <NULL> @drivers/of/platform.c
+<6>[    2.170206] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.177969] TSAI child clocks-enable <NULL> @drivers/of/platform.c
+<6>[    2.186490] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.194261] TSAI child i2c <NULL> @drivers/of/platform.c
+<6>[    2.202034] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.209759] TSAI child i2c <NULL> @drivers/of/platform.c
+<6>[    2.217330] TSAI child i2c <NULL> @drivers/of/platform.c
+<6>[    2.224969] TSAI child i2c <NULL> @drivers/of/platform.c
+<6>[    2.232582] TSAI child i2c <NULL> @drivers/of/platform.c
+<6>[    2.240221] TSAI child i2c <NULL> @drivers/of/platform.c
+<6>[    2.247836] TSAI child fb <NULL> @drivers/of/platform.c
+<6>[    2.255467] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.263214] TSAI child rk_screen <NULL> @drivers/of/platform.c
+<6>[    2.271416] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.279160] TSAI child mipi <NULL> @drivers/of/platform.c
+<6>[    2.286849] TSAI child lvds <NULL> @drivers/of/platform.c
+<6>[    2.294549] TSAI child edp <NULL> @drivers/of/platform.c
+<6>[    2.302186] TSAI child hdmi <NULL> @drivers/of/platform.c
+<6>[    2.310085] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.317818] TSAI child hdmi_hdcp2 <NULL> @drivers/of/platform.c
+<6>[    2.325987] TSAI child lcdc <NULL> @drivers/of/platform.c
+<6>[    2.333911] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.341621] TSAI child adc <NULL> @drivers/of/platform.c
+<6>[    2.349403] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.357113] TSAI child rga <NULL> @drivers/of/platform.c
+<6>[    2.364895] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.372603] TSAI child i2s0 <NULL> @drivers/of/platform.c
+<6>[    2.380474] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.388182] TSAI child i2s1 <NULL> @drivers/of/platform.c
+<6>[    2.396051] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.403758] TSAI child spdif <NULL> @drivers/of/platform.c
+<6>[    2.411722] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.419429] TSAI child pwm <NULL> @drivers/of/platform.c
+<6>[    2.427031] TSAI child pwm <NULL> @drivers/of/platform.c
+<6>[    2.434644] TSAI child pwm <NULL> @drivers/of/platform.c
+<6>[    2.442281] TSAI child pwm <NULL> @drivers/of/platform.c
+<6>[    2.450084] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.457814] TSAI child pwm <NULL> @drivers/of/platform.c
+<6>[    2.465378] TSAI child pvtm <NULL> @drivers/of/platform.c
+<6>[    2.473188] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.480931] TSAI child cpufreq <NULL> @drivers/of/platform.c
+<6>[    2.488967] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.496705] TSAI child dvfs <NULL> @drivers/of/platform.c
+<6>[    2.504389] TSAI child ion <NULL> @drivers/of/platform.c
+<6>[    2.512087] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.519856] TSAI child vpu_service <NULL> @drivers/of/platform.c
+<6>[    2.528342] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.536064] TSAI child hevc_service <NULL> @drivers/of/platform.c
+<6>[    2.544586] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.552308] TSAI child vpu_combo <NULL> @drivers/of/platform.c
+<6>[    2.560507] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.568254] TSAI child iep <NULL> @drivers/of/platform.c
+<6>[    2.576015] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.583747] TSAI child eth <NULL> @drivers/of/platform.c
+<6>[    2.591496] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.599218] TSAI child gpu <NULL> @drivers/of/platform.c
+<6>[    2.606969] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.614693] TSAI child iep_mmu <NULL> @drivers/of/platform.c
+<6>[    2.622793] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.630582] TSAI rockchip_iommu_probe[in] drivers/iommu/rockchip-iommu.c 1127
+<6>[    2.639912] rk_iommu ff900800.iep_mmu: (iep) Enter
+<6>[    2.647116] TSAI rockchip_init_iovmm[in] drivers/iommu/rockchip-iovmm.c 296
+<6>[    2.656343] rk_iommu ff900800.iep_mmu: IOVMM: Created 0x3ffff000 B IOVMM from 0x10000000.
+<6>[    2.666787] rk_iommu ff900800.iep_mmu: (iep) Initialized
+<6>[    2.674410] TSAI child vip_mmu <NULL> @drivers/of/platform.c
+<6>[    2.682584] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.690312] TSAI rockchip_iommu_probe[in] drivers/iommu/rockchip-iommu.c 1127
+<6>[    2.699714] rk_iommu ff950800.vip_mmu: (vip) Enter
+<6>[    2.706866] TSAI rockchip_init_iovmm[in] drivers/iommu/rockchip-iovmm.c 296
+<6>[    2.716139] rk_iommu ff950800.vip_mmu: IOVMM: Created 0x3ffff000 B IOVMM from 0x10000000.
+<6>[    2.726575] rk_iommu ff950800.vip_mmu: (vip) Initialized
+<6>[    2.734198] TSAI child vop_mmu <NULL> @drivers/of/platform.c
+<6>[    2.742366] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.750092] TSAI rockchip_iommu_probe[in] drivers/iommu/rockchip-iommu.c 1127
+<6>[    2.759496] rk_iommu ff930300.vop_mmu: (vop) Enter
+<6>[    2.766639] TSAI rockchip_init_iovmm[in] drivers/iommu/rockchip-iovmm.c 296
+<6>[    2.775922] rk_iommu ff930300.vop_mmu: IOVMM: Created 0x3ffff000 B IOVMM from 0x10000000.
+<6>[    2.786357] rk_iommu ff930300.vop_mmu: (vop) Initialized
+<6>[    2.793981] TSAI child isp_mmu <NULL> @drivers/of/platform.c
+<6>[    2.802160] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.809886] TSAI rockchip_iommu_probe[in] drivers/iommu/rockchip-iommu.c 1127
+<6>[    2.819291] rk_iommu ff914000.isp_mmu: (isp_mmu) Enter
+<6>[    2.826784] TSAI rockchip_init_iovmm[in] drivers/iommu/rockchip-iovmm.c 296
+<6>[    2.836061] rk_iommu ff914000.isp_mmu: IOVMM: Created 0x3ffff000 B IOVMM from 0x10000000.
+<6>[    2.846509] rk_iommu ff914000.isp_mmu: (isp_mmu) Initialized
+<6>[    2.854468] TSAI child hdcp_mmu <NULL> @drivers/of/platform.c
+<6>[    2.862719] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.870429] TSAI child hevc_mmu <NULL> @drivers/of/platform.c
+<6>[    2.878659] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.886396] TSAI rockchip_iommu_probe[in] drivers/iommu/rockchip-iommu.c 1127
+<6>[    2.895789] rk_iommu ff9a0440.hevc_mmu: (hevc) Enter
+<6>[    2.903111] TSAI rockchip_init_iovmm[in] drivers/iommu/rockchip-iovmm.c 296
+<6>[    2.912390] rk_iommu ff9a0440.hevc_mmu: IOVMM: Created 0x3ffff000 B IOVMM from 0x10000000.
+<6>[    2.922910] rk_iommu ff9a0440.hevc_mmu: (hevc) Initialized
+<6>[    2.930707] TSAI child vpu_mmu <NULL> @drivers/of/platform.c
+<6>[    2.938916] TSAI: rockchip_iommu_add_device dummy function
+<6>[    2.946643] TSAI rockchip_iommu_probe[in] drivers/iommu/rockchip-iommu.c 1127
+<6>[    2.956046] rk_iommu ff9a0800.vpu_mmu: (vpu) Enter
+<6>[    2.963229] TSAI rockchip_init_iovmm[in] drivers/iommu/rockchip-iovmm.c 296
+<6>[    2.972472] rk_iommu ff9a0800.vpu_mmu: IOVMM: Created 0x3ffff000 B IOVMM from 0x10000000.
+<6>[    2.982908] rk_iommu ff9a0800.vpu_mmu: (vpu) Initialized
+<6>[    2.990531] TSAI child rockchip_suspend <NULL> @drivers/of/platform.c
+<6>[    2.999286] TSAI child isp <NULL> @drivers/of/platform.c
+<6>[    3.710200] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.148250] TSAI child cif <NULL> @drivers/of/platform.c
+<6>[    3.225840] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.303060] TSAI child tsadc <NULL> @drivers/of/platform.c
+<6>[    3.382390] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.459600] TSAI child tsp <NULL> @drivers/of/platform.c
+<6>[    3.537190] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.614410] TSAI child crypto <NULL> @drivers/of/platform.c
+<6>[    3.692740] TSAI child dwc-control-usb <NULL> @drivers/of/platform.c
+<6>[    3.782790] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.859880] TSAI child phy <NULL> @drivers/of/platform.c
+<6>[    3.936720] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.101413] TSAI child usb <NULL> @drivers/of/platform.c
+<6>[    3.109222] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.116931] TSAI child usb <NULL> @drivers/of/platform.c
+<6>[    3.124711] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.132414] TSAI child usb <NULL> @drivers/of/platform.c
+<6>[    3.140196] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.147900] TSAI child usb <NULL> @drivers/of/platform.c
+<6>[    3.155504] TSAI child pinctrl <NULL> @drivers/of/platform.c
+<6>[    3.163556] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.184714] TSAI child reboot <NULL> @drivers/of/platform.c
+<6>[    3.192622] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.200346] TSAI child power_ctr <NULL> @drivers/of/platform.c
+<6>[    3.208447] TSAI child display-timings <NULL> @drivers/of/platform.c
+<6>[    3.217101] TSAI child chosen <NULL> @drivers/of/platform.c
+<6>[    3.224998] TSAI child wireless-wlan <NULL> @drivers/of/platform.c
+<6>[    3.233578] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.241332] TSAI child wireless-bluetooth <NULL> @drivers/of/platform.c
+<6>[    3.250300] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.258059] TSAI child codec-hdmi-i2s <NULL> @drivers/of/platform.c
+<6>[    3.266682] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.274438] TSAI child codec-hdmi-spdif <NULL> @drivers/of/platform.c
+<6>[    3.283229] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.290992] TSAI child rockchip-hdmi-i2s <NULL> @drivers/of/platform.c
+<6>[    3.299866] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.307635] TSAI child rockchip-hdmi-spdif <NULL> @drivers/of/platform.c
+<6>[    3.316688] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.324449] TSAI child fan <NULL> @drivers/of/platform.c
+<6>[    3.332114] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.339870] TSAI child power-led <NULL> @drivers/of/platform.c
+<6>[    3.348052] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.355819] TSAI child io-domains <NULL> @drivers/of/platform.c
+<6>[    3.364105] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.371899] TSAI  bus 'platform': add driver efuse probe ffffffc000ea38f0 drivers/base/bus.c
+<6>[    3.382633] TSAI __driver_attach dev ffb00000.efuse_256 drv efuse
+<6>[    3.391976] process version: 0
+<6>[    3.397307] channel:0, lkg:35
+<6>[    3.402506] target-temp:80
+<6>[    3.407578] channel:0, lkg:35
+<6>[    3.412819] target-temp:80
+<6>[    3.417889] channel:2, lkg:13
+<6>[    3.423151] channel:1, lkg:0
+<6>[    3.500086] Rockchip hdmi driver version 2.0
+<6>[    3.506786] TSAI  bus 'platform': add driver reg-fixed-voltage probe ffffffc000435fb0 drivers/base/bus.c
+<5>[    3.519447] SCSI subsystem initialized
+<6>[    3.525460] TSAI  bus 'mdio_bus': add driver Generic PHY drivers/base/bus.c
+<6>[    3.534717] TSAI  bus 'mdio_bus': add driver Generic 10G PHY drivers/base/bus.c
+<6>[    3.544410] TSAI  bus 'usb': add driver usbfs drivers/base/bus.c
+<6>[    3.552691] usbcore: registered new interface driver usbfs
+<6>[    3.560399] TSAI  bus 'usb': add driver hub drivers/base/bus.c
+<6>[    3.568615] usbcore: registered new interface driver hub
+<6>[    3.576303] TSAI  bus 'usb': add driver usb drivers/base/bus.c
+<6>[    3.584364] usbcore: registered new device driver usb
+<6>[    3.591699] TSAI  bus 'platform': add driver rk3368-dwc-control-usb probe ffffffc0006b4624 drivers/base/bus.c
+<6>[    3.604166] TSAI __driver_attach dev dwc-control-usb drv rk3368-dwc-control-usb
+<6>[    3.614381] TSAI  bus 'platform': add driver rockchip_i2c probe ffffffc0006eeeec drivers/base/bus.c
+<6>[    3.625758] TSAI __driver_attach dev ff650000.i2c drv rockchip_i2c
+<6>[    3.636161] rockchip_i2c ff650000.i2c: i2c-0: Rockchip I2C adapter
+<6>[    3.644754] media: Linux media interface: v0.10
+<6>[    3.651563] Linux video capture interface: v2.00
+<6>[    3.658479] TSAI flashlight_class_init() 3.18 not implemented @drivers/media/video/rk_camsys/ext_flashled_drv/flashlight.c
+<6>[    3.671791] pps_core: LinuxPPS API ver. 1 registered
+<6>[    3.679024] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+<6>[    3.690506] PTP clock support registered
+<6>[    3.696745] TSAI  bus 'i2c': add driver bq24296 drivers/base/bus.c
+<4>[    3.705258] i2c-core: driver [bq24296] using legacy suspend method
+<4>[    3.713690] i2c-core: driver [bq24296] using legacy resume method
+<6>[    3.722198] TSAI  bus 'platform': add driver rk30-adc-battery probe ffffffc00072aab8 drivers/base/bus.c
+<6>[    3.734455] TSAI  bus 'platform': add driver rockchip-reboot probe ffffffc000ed2734 drivers/base/bus.c
+<6>[    3.746147] TSAI __driver_attach dev reboot drv rockchip-reboot
+<6>[    3.754766] TSAI  bus 'platform': add driver ion-rockchip probe ffffffc0007c3e0c drivers/base/bus.c
+<6>[    3.766168] TSAI __driver_attach dev ion drv ion-rockchip
+<6>[    3.774442] Rockchip ion module is successfully loaded (v1.1)
+<6>[    3.782569] TSAI  bus 'platform': add driver rockchip-mailbox probe ffffffc0007dd18c drivers/base/bus.c
+<6>[    3.794264] TSAI __driver_attach dev ff6b0000.mbox drv rockchip-mailbox
+<6>[    3.803197] rockchip-mailbox ff6b0000.mbox: Rockchip mailbox initialize, version: V1.00
+<6>[    3.813828] TSAI rk mailbox[0] IRQ 178 ret=0 @drivers/mailbox/rockchip_mailbox.c
+<6>[    3.823561] TSAI rk mailbox[1] IRQ 179 ret=0 @drivers/mailbox/rockchip_mailbox.c
+<6>[    3.833274] TSAI rk mailbox[2] IRQ 180 ret=0 @drivers/mailbox/rockchip_mailbox.c
+<6>[    3.843004] TSAI rk mailbox[3] IRQ 181 ret=0 @drivers/mailbox/rockchip_mailbox.c
+<6>[    3.852837] TSAI  bus 'platform': add driver mbox-scpi probe ffffffc0007dec20 drivers/base/bus.c
+<6>[    3.863947] TSAI __driver_attach dev mbox-scpi drv mbox-scpi
+<6>[    3.872059] mbox-scpi mbox-scpi: Scpi initialize, version: 0x1000002, chan nums: 3
+<6>[    3.881823] mbox-scpi mbox-scpi: MCU version: V2.13 20160119
+<6>[    3.890349] Advanced Linux Sound Architecture Driver Initialized.
+<6>[    3.899442] Bluetooth: Core ver 2.19
+<6>[    3.905245] NET: Registered protocol family 31
+<6>[    3.911977] Bluetooth: HCI device and connection manager initialized
+<6>[    3.920636] Bluetooth: HCI socket layer initialized
+<6>[    3.927839] Bluetooth: L2CAP socket layer initialized
+<6>[    3.935224] Bluetooth: SCO socket layer initialized
+<6>[    3.942705] TSAI: rockchip_iommu_add_device dummy function
+<6>[    3.950454] cfg80211: Calling CRDA to update world regulatory domain
+<6>[    3.959527] TSAI  bus 'platform': add driver rockchip-reset probe ffffffc000ec8af0 drivers/base/bus.c
+<6>[    3.971041] TSAI __driver_attach dev ff760300.reset drv rockchip-reset
+<6>[    3.979892] TSAI rockchip_reset_probe drivers/reset/reset-rockchip.c
+<6>[    3.988902] TSAI rk808_module_init drivers/mfd/rk808.c
+<6>[    3.996310] TSAI  bus 'i2c': add driver rk808 drivers/base/bus.c
+<6>[    4.466100] TSAI __driver_attach dev 0-001b drv rk808
+<6>[    4.121120] TSAI rk808_i2c_probe drivers/mfd/rk808.c
+<6>[    4.194600] rk808_i2c_probe,line=1357
+<7>[    4.260550] rk808_pre_init,line=1224
+<6>[    4.365490] rk808_i2c_probe: rk808_pmic_sleep=0
+<6>[    4.451380] vdd_arm: 712 <--> 1500 mV at 1100 mV
+<6>[    4.544390] vdd_logic: 712 <--> 1200 mV at 1100 mV
+<6>[    4.638700] vcc_ddr: 1200 mV
+<6>[    4.713740] vccio: 3300 mV
+<6>[    4.787500] vcc_flash: 1800 mV
+<6>[    4.864080] vcca_33: 3300 mV
+<6>[    4.938950] vdd_10: 1000 mV
+<6>[    4.101330] vcca_18: 1800 mV
+<6>[    4.108809] vccio_sd: 1800 <--> 3300 mV at 3300 mV
+<6>[    4.118227] vdd10_lcd: 1100 mV
+<6>[    4.125966] vcc_18: 1800 mV
+<6>[    4.133425] vccio18_lcd: 1800 mV
+<6>[    4.141328] vcc_sd: 1800 <--> 3300 mV at 3300 mV
+<6>[    4.150576] vcc_lan: 3300 mV
+<6>[    4.158720] rk808_irq_init: rk808_pmic_irq=0
+<6>[    4.165562] TSAI: rockchip_iommu_add_device dummy function
+<6>[    4.173408] TSAI  bus 'platform': add driver rockchip-i2s probe ffffffc000849364 drivers/base/bus.c
+<6>[    4.184809] TSAI __driver_attach dev ff898000.i2s0 drv rockchip-i2s
+<3>[    4.194693] rockchip-i2s ff898000.i2s0: Could not register PCM: -517
+<6>[    4.203587] platform ff898000.i2s0: Driver rockchip-i2s requests probe deferral
+<6>[    4.213127] TSAI __driver_attach dev ff890000.i2s1 drv rockchip-i2s
+<6>[    4.221957] rockchip-i2s ff890000.i2s1: i2s1 has no mclk
+<3>[    4.229688] rockchip-i2s ff890000.i2s1: Could not register PCM: -517
+<6>[    4.238426] platform ff890000.i2s1: Driver rockchip-i2s requests probe deferral
+<6>[    4.249214] Switched to clocksource arch_sys_counter
+<6>[    4.256419] TSAI: vfs_kern_mount tracefs @fs/namespace.c 905
+<6>[    4.349273] TSAI: vfs_kern_mount pipefs @fs/namespace.c 905
+<6>[    4.357145] TSAI: vfs_kern_mount anon_inodefs @fs/namespace.c 905
+<6>[    4.365718] TSAI init_rootfs in fs/ramfs/inode.c 272
+<6>[    4.373009] TSAI  bus 'platform': add driver rk-fb probe ffffffc0003dc9f4 drivers/base/bus.c
+<6>[    4.383879] TSAI __driver_attach dev fb drv rk-fb
+<6>[    4.390923] fb disp policy is box
+<6>[    4.396482] uboot-logo-on:1
+<6>[    4.401654] rk-fb rockchip-fb: rk fb ion client create success!
+<6>[    4.409864] rk-fb rockchip-fb: rockchip framebuffer driver probe
+<6>[    4.418378] TSAI  bus 'platform': add driver rk-screen probe ffffffc0003df39c drivers/base/bus.c
+<6>[    4.429476] TSAI __driver_attach dev rk_screen drv rk-screen
+<6>[    4.437922] rk-screen rk_screen: rockchip screen probe success
+<6>[    4.446169] TSAI  bus 'platform': add driver rk3368-lcdc probe ffffffc0003fc658 drivers/base/bus.c
+<6>[    4.457484] TSAI __driver_attach dev ff930000.lcdc drv rk3368-lcdc
+<6>[    4.466485] TSAI rk3368_lcdc_probe[in] drivers/video/rockchip/lcdc/rk3368_lcdc.c 5021
+<6>[    4.476591] rk3368-lcdc ff930000.lcdc: lcdc_dev->regs=0xffffff8000280000
+<6>[    4.485755] TSAI: dev_drv->trsm_ops =           (null) @drivers/video/rockchip/rk_fb.c
+<6>[    4.496223] TSAI console_lock lr=register_framebuffer+0x1f8/0x25c @kernel/printk/printk.c
+<6>[    4.506721] graphics fb0: rockchip framebuffer registerd:fb0
+<6>[    4.515163] TSAI console_lock lr=register_framebuffer+0x1f8/0x25c @kernel/printk/printk.c
+<6>[    4.525647] graphics fb1: rockchip framebuffer registerd:fb1
+<6>[    4.533750] TSAI console_lock lr=register_framebuffer+0x1f8/0x25c @kernel/printk/printk.c
+<6>[    4.544233] graphics fb2: rockchip framebuffer registerd:fb2
+<6>[    4.552331] TSAI console_lock lr=register_framebuffer+0x1f8/0x25c @kernel/printk/printk.c
+<6>[    4.562812] graphics fb3: rockchip framebuffer registerd:fb3
+<6>[    4.570906] TSAI console_lock lr=register_framebuffer+0x1f8/0x25c @kernel/printk/printk.c
+<6>[    4.581376] graphics fb4: rockchip framebuffer registerd:fb4
+<6>[    4.589248] TSAI: rk_fb_register() drivers/video/rockchip/rk_fb.c 4315
+<6>[    4.598071] TSAI: rk_fb_register() PRMRY drivers/video/rockchip/rk_fb.c 4326
+<6>[    4.608356] rk3368-lcdc lcdc0: lcdc0: dclk:594000000>>fps:65
+<6>[    4.633265] alloc_buffer:ion_phy_addr=0x10000000
+<6>[    4.644575] fb0:phy:10000000>>vir:ffffff8000291000>>len:0x1000000
+<6>[    4.734558] rk_iommu ff930300.vop_mmu: rockchip_iommu_attach_device: Attached new IOMMU with pgtable 0x7941a000
+<6>[    4.746843] rk3368-lcdc lcdc0: lcdc0 probe ok, iommu enabled
+<6>[    4.755095] TSAI  bus 'platform': add driver rk_io_vol_domain probe ffffffc0004364bc drivers/base/bus.c
+<6>[    4.769354] NET: Registered protocol family 2
+<6>[    4.776780] TCP established hash table entries: 16384 (order: 5, 131072 bytes)
+<6>[    4.786527] TCP bind hash table entries: 16384 (order: 7, 524288 bytes)
+<6>[    4.795940] TCP: Hash tables configured (established 16384 bind 16384)
+<6>[    4.804778] TCP: reno registered
+<6>[    4.810252] UDP hash table entries: 1024 (order: 4, 98304 bytes)
+<6>[    4.818638] UDP-Lite hash table entries: 1024 (order: 4, 98304 bytes)
+<6>[    4.827727] NET: Registered protocol family 1
+<6>[    4.834800] RPC: Registered named UNIX socket transport module.
+<6>[    4.842925] RPC: Registered udp transport module.
+<6>[    4.849956] RPC: Registered tcp transport module.
+<6>[    4.856940] RPC: Registered tcp NFSv4.1 backchannel transport module.
+<6>[    4.866027] Unpacking initramfs...
+<6>[    4.976421] Freeing initrd memory: 1304K (ffffffc0059f0000 - ffffffc005b36000)
+<6>[    4.986931] TSAI  bus 'platform': add driver arm-pmu probe ffffffc000095850 drivers/base/bus.c
+<6>[    4.997832] TSAI __driver_attach dev arm-pmu drv arm-pmu
+<6>[    5.579100] rknandbase v1.0 2014-03-31
+<6>[    5.117770] TSAI  bus 'platform': add driver rknand probe ffffffc0000a687c drivers/base/bus.c
+<6>[    5.226590] TSAI __driver_attach dev ff400000.nandc drv rknand
+<6>[    5.308500] TSAI rknand_probe @arch/arm64/mach-rockchip/../../arm/mach-rockchip/rknandbase.c
+<6>[    5.416360] nandc_id = 0
+<6>[    5.465000] nand_idb_data[0] = 44535953 [8] = 20
+<6>[    5.535110] TSAI: rknand_boot_media==20 boot from emmc or SATA HD, return -1 (expected) arch/arm64/mach-rockchip/../../arm/mach-rockchip/rknandbase.c
+<4>[    5.692270] rknand: probe of ff400000.nandc failed with error -1
+<6>[    5.775090] TSAI __driver_attach dev ff400000.nandc0 drv rknand
+<6>[    5.858700] TSAI rknand_probe @arch/arm64/mach-rockchip/../../arm/mach-rockchip/rknandbase.c
+<6>[    5.965860] TSAI:rknand_probe enter 2nd time, skip devm_ioremap_resource @arch/arm64/mach-rockchip/../../arm/mach-rockchip/rknandbase.c
+<6>[    5.111056] nandc_id = 0
+<6>[    5.116006] nand_idb_data[0] = 44535953 [8] = 20
+<6>[    5.123017] TSAI: rknand_boot_media==20 boot from emmc or SATA HD, return -1 (expected) arch/arm64/mach-rockchip/../../arm/mach-rockchip/rknandbase.c
+<4>[    5.138707] rknand: probe of ff400000.nandc0 failed with error -1
+<6>[    5.147348] rknand_driver:ret = 0
+<6>[    5.152971] TSAI  bus 'platform': add driver vcodec probe ffffffc0000ab1b0 drivers/base/bus.c
+<6>[    5.164069] TSAI __driver_attach dev ff9a0000.vpu_combo drv vcodec
+<6>[    5.173121] vcodec_service: probe device vpu_service
+<6>[    5.180344] vcodec_service: checking hw id 4831
+<6>[    5.188500] vcodec_service: probe device hevc_service
+<6>[    5.195799] vcodec_service: checking hw id 6867
+<6>[    5.203662] vcodec_service: init success
+<6>[    5.210076] TSAI  bus 'platform': add driver rk_cif probe ffffffc0000ad6d8 drivers/base/bus.c
+<6>[    5.221015] TSAI __driver_attach dev ff950000.cif drv rk_cif
+<6>[    5.229799] TSAI  bus 'platform': add driver rk_sensor probe ffffffc0000acc48 drivers/base/bus.c
+<6>[    5.241582] TSAI  bus 'platform': add driver alarmtimer probe           (null) drivers/base/bus.c
+<6>[    5.252878] TSAI: rockchip_iommu_add_device dummy function
+<6>[    5.261552] futex hash table entries: 2048 (order: 5, 131072 bytes)
+<6>[    5.270168] audit: initializing netlink subsys (disabled)
+<5>[    5.277794] audit: type=2000 audit(5.250:1): initialized
+<6>[    5.294281] TSAI: vfs_kern_mount aio @fs/namespace.c 905
+<6>[    5.302539] TSAI: vfs_kern_mount devpts @fs/namespace.c 905
+<5>[    5.313811] NFS: Registering the id_resolver key type
+<5>[    5.321110] Key type id_resolver registered
+<5>[    5.327545] Key type id_legacy registered
+<6>[    5.333919] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+<6>[    5.343680] fuse init (API version 7.23)
+<6>[    5.350534] msgmni has been set to 3928
+<7>[    5.356634] SELinux:  Registering netfilter hooks
+<6>[    5.356689] TSAI: vfs_kern_mount selinuxfs @fs/namespace.c 905
+<6>[    5.368567] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 247)
+<6>[    5.378199] io scheduler noop registered
+<6>[    5.384577] io scheduler cfq registered (default)
+<6>[    5.391647] TSAI  bus 'platform': add driver rockchip-usb-phy probe ffffffc0003c22b0 drivers/base/bus.c
+<6>[    5.403564] TSAI __driver_attach dev phy drv rockchip-usb-phy
+<6>[    5.412156] TSAI  bus 'platform': add driver rockchip-pwm probe ffffffc0003ce330 drivers/base/bus.c
+<6>[    5.423876] TSAI  bus 'platform': add driver rockchip-hdmiv2 probe ffffffc000403e08 drivers/base/bus.c
+<6>[    5.435616] TSAI __driver_attach dev ff980000.hdmi drv rockchip-hdmiv2
+<6>[    5.445040] hdmi phy_table not exist
+<6>[    5.451328] TSAI hdmi_register_display_sysfs drivers/video/rockchip/hdmi/rockchip-hdmi-sysfs.c 619
+<6>[    5.462493] TSAI hdmi_display_probe drivers/video/rockchip/hdmi/rockchip-hdmi-sysfs.c 605
+<6>[    5.473923] rockchip-hdmiv2 ff980000.hdmi: rockchip hdmiv2 probe sucess.
+<6>[    5.483184] TSAI  bus 'platform': add driver rk-hdmi probe ffffffc00040a500 drivers/base/bus.c
+<6>[    5.494387] TSAI  bus 'platform': add driver iep probe ffffffc00040e958 drivers/base/bus.c
+<6>[    5.504988] TSAI __driver_attach dev ff900000.iep drv iep
+<7>[    5.513391] iep ion client create success!
+<7>[    5.513429] IEP Power ON
+<6>[    5.514051] rk_iommu ff900800.iep_mmu: rockchip_iommu_attach_device: Attached new IOMMU with pgtable 0x79a9c000
+<7>[    5.526344] IEP Power OFF
+<7>[    5.526391] IEP Driver loaded succesfully
+<7>[    5.526606] Module initialized.
+<6>[    5.526707] TSAI  bus 'platform': add driver pwm-backlight probe ffffffc0004172b8 drivers/base/bus.c
+<6>[    5.538305] TSAI  bus 'amba': add driver dma-pl330 drivers/base/bus.c
+<6>[    5.546953] TSAI __driver_attach dev ff600000.pdma drv dma-pl330
+<6>[    5.557681] dma-pl330 ff600000.pdma: Loaded driver for PL330 DMAC-2364208
+<6>[    5.566685] dma-pl330 ff600000.pdma: *DBUFF-32x8bytes Num_Chans-6 Num_Peri-12 Num_Events-12
+<6>[    5.570322] rockchip_hdmi_cec_set_pa 2000
+<6>[    5.570373] hdmi output corlor mode is 5
+<6>[    5.570394] hdmi connect to lcdc0
+<6>[    5.570410] switch:en=1,lcdc_id=0,screen type=6,cur type=1
+<6>[    5.570470] rk3368-lcdc lcdc0: lcdc0: dclk:594000000>>fps:60
+<6>[    5.570521] pixel clk is 594000000 tmds clk is 297000000
+<6>[    5.570574] rockchip-hdmiv2 ff980000.hdmi: [hdmi_dev_config_video] sucess output HDMI.
+<6>[    5.629248] TSAI __driver_attach dev ff250000.pdma drv dma-pl330
+<6>[    5.640140] dma-pl330 ff250000.pdma: Loaded driver for PL330 DMAC-2364208
+<6>[    5.649113] dma-pl330 ff250000.pdma: *DBUFF-128x8bytes Num_Chans-8 Num_Peri-20 Num_Events-16
+<6>[    5.659956] TSAI  bus 'platform': add driver pwm-voltage-regulator probe ffffffc000ec85b8 drivers/base/bus.c
+<7>[    5.672709] rk_serial.c v1.8 2014-03-04
+<6>[    5.672772] TSAI  bus 'platform': add driver serial probe ffffffc000447e94 drivers/base/bus.c
+<6>[    5.683606] TSAI __driver_attach dev ff180000.serial drv serial
+<6>[    5.692347] ff180000.serial: ttyS0 at MMIO 0xff180000 (irq = 87, base_baud = 1500000) is a rk29_serial.0
+<6>[    5.704033] TSAI register_console ttyS cnt:1@kernel/printk/printk.c
+<6>[    5.712991] serial ff180000.serial: membase ffffff800189e000
+<6>[    5.720871] TSAI __driver_attach dev ff690000.serial drv serial
+<6>[    5.729375] ff690000.serial: ttyS2 at MMIO 0xff690000 (irq = 89, base_baud = 1500000) is a rk29_serial.2
+<6>[    5.741052] TSAI register_console ttyS cnt:2@kernel/printk/printk.c
+<6>[    5.749783] TSAI console_lock lr=register_console+0x20c/0x384 @kernel/printk/printk.c
+<6>[    5.759845] console [ttyS2] enabled @kernel/printk/printk.c
+<6>[    5.759872] TSAI console name=ttyS
+<6>[    5.759905] [<ffffffc0004e6fe8>] tsai_printk_stack_trace+0x4c/0x60
+<6>[    5.759925] [<ffffffc0004e7018>] tsai_printk_stack_trace_current+0x1c/0x24
+<6>[    5.759948] [<ffffffc000447618>] console_write+0x130/0x1f0
+<6>[    5.759970] [<ffffffc0000f5170>] call_console_drivers+0x114/0x168
+<6>[    5.759990] [<ffffffc0000f6634>] console_unlock+0x1cc/0x264
+<6>[    5.760010] [<ffffffc0000f6b04>] vprintk_emit+0x438/0x4b4
+<6>[    5.760030] [<ffffffc000a73a1c>] printk+0x70/0x78
+<6>[    5.760050] [<ffffffc0000f792c>] register_console+0x2ec/0x384
+<6>[    5.760071] [<ffffffc0004456d0>] uart_add_one_port+0x2f0/0x3f4
+<6>[    5.760091] [<ffffffc0004482c8>] serial_rk_probe+0x434/0x474
+<6>[    5.760111] [<ffffffc0004c857c>] platform_drv_probe+0x8c/0xe8
+<6>[    5.760134] [<ffffffc0004c5b68>] really_probe+0x1e0/0x3b4
+<6>[    5.760152] [<ffffffc0004c5ea8>] driver_probe_device+0x80/0xa4
+<6>[    5.760170] [<ffffffc0004c6164>] __driver_attach+0xe0/0x128
+<6>[    5.760190] [<ffffffc0004c333c>] bus_for_each_dev+0x8c/0xf8
+<6>[    5.760208] [<ffffffc0004c61d8>] driver_attach+0x2c/0x38
+<6>[    5.760228] [<ffffffc0004c40ec>] bus_add_driver+0x1e8/0x314
+<6>[    5.760246] [<ffffffc0004c6ee8>] driver_register+0x12c/0x190
+<6>[    5.760265] [<ffffffc0004c8744>] __platform_driver_register+0x98/0xa4
+<6>[    5.760286] [<ffffffc000ec9334>] serial_rk_init+0x4c/0x74
+<6>[    5.760306] [<ffffffc0000818d8>] do_one_initcall+0xf0/0x17c
+<6>[    5.760327] [<ffffffc000e9dae8>] kernel_init_freeable+0x13c/0x1d8
+<6>[    5.760345] [<ffffffc000a72110>] kernel_init+0x10/0xe0
+<6>[    5.760365] [<ffffffc0000855a0>] ret_from_fork+0x10/0x30
+<6>[    5.760382] [<ffffffffffffffff>] 0xffffffffffffffff
+<6>[    6.185445] bootconsole [earlycon0] disabled
+<6>[    6.198629] TSAI console_lock lr=unregister_console+0x44/0xe8 @kernel/printk/printk.c
+<6>[    6.219341] serial ff690000.serial: membase ffffff80018a0000
+<6>[    6.224225] loop: module loaded
+<6>[    6.224892] zram: Created 1 device(s)
+<6>[    6.225446] TSAI Spy initialized
+<6>[    6.225513] TSAI  bus 'platform': add driver gbox-fan probe ffffffc0004ef8c8 drivers/base/bus.c
+<6>[    6.225832] TSAI __driver_attach dev fan drv gbox-fan
+<6>[    6.226828] gbox-fan fan: trigger temperature is 60.
+<6>[    6.226966] TSAI  bus 'i2c': add driver mpu6050B1 drivers/base/bus.c
+<4>[    6.227053] i2c-core: driver [mpu6050B1] using legacy suspend method
+<4>[    6.227084] i2c-core: driver [mpu6050B1] using legacy resume method
+<6>[    6.227117] mpu_init: Probe name mpu6050B1
+<6>[    6.227388] TSAI  bus 'i2c': add driver ak8963_mod drivers/base/bus.c
+<6>[    6.227473] ak8963_mod_init: Probe name ak8963_mod
+<6>[    6.227529] TSAI  bus 'platform': add driver five_v_en probe ffffffc0004f8024 drivers/base/bus.c
+<6>[    6.227959] TSAI  bus 'scsi': add driver sd drivers/base/bus.c
+<6>[    6.228116] SCSI Media Changer driver v0.25
+<6>[    6.228176] TSAI  bus 'scsi': add driver ch drivers/base/bus.c
+<6>[    6.228261] TSAI  bus 'platform': add driver rockchip-spi probe ffffffc000520834 drivers/base/bus.c
+<6>[    6.228735] tun: Universal TUN/TAP device driver, 1.6
+<6>[    6.228766] tun: (C) 1999-2004 Max Krasnyansky <maxk@qualcomm.com>
+<6>[    6.229079] TSAI  bus 'platform': add driver stmmaceth probe ffffffc000530a08 drivers/base/bus.c
+<6>[    6.229412] TSAI __driver_attach dev ff290000.eth drv stmmaceth
+<3>[    6.230194] stmmac_probe_config_dt: Can not read property: pmu_regulator.
+<6>[    6.230231] stmmac_probe_config_dt: clock input/output? (input).
+<6>[    6.230264] stmmac_probe_config_dt: TX delay(0x28).
+<6>[    6.230294] stmmac_probe_config_dt: RX delay(0x10).
+<6>[    6.230414] stmmac_probe_config_dt: is rockchip,rk3368-gmac
+<6>[    6.230444] stmmc_pltfr_init:
+<3>[    6.230471] stmmc_pltfr_init: ERROR: Get power-gpio failed.
+<3>[    6.230500] stmmc_pltfr_init: ERROR: Get reset-gpio failed.
+<6>[    6.230528] stmmc_pltfr_init: init for RGMII
+<6>[    6.230557] tx delay=0x28
+<6>[    6.231044] stmmac - user ID: 0x10, Synopsys ID: 0x35
+<6>[    6.231073]  Normal descriptors
+<6>[    6.231101]  Ring mode enabled
+<6>[    6.231128]  DMA HW capability register supported
+<6>[    6.231155]  RX Checksum Offload Engine supported (type 2)
+<6>[    6.231183]  TX Checksum insertion supported
+<6>[    6.231210]  Wake-Up On Lan supported
+<6>[    6.231304]  Enable RX Mitigation via HW Watchdog Timer
+<6>[    6.232221] PPP generic driver version 2.4.2
+<6>[    6.232600] PPP BSD Compression module registered
+<6>[    6.232639] PPP Deflate Compression module registered
+<6>[    6.232691] PPP MPPE Compression module registered
+<6>[    6.232737] NET: Registered protocol family 24
+<6>[    6.232832] SLIP: version 0.8.4-NET3.019-NEWTTY (dynamic channels, max=256) (6 bit encapsulation enabled).
+<6>[    6.232864] CSLIP: code copyright 1989 Regents of the University of California.
+<7>[    6.232908] Rockchip WiFi SYS interface (V1.00) ...
+<6>[    6.232994] TSAI  bus 'usb': add driver catc drivers/base/bus.c
+<6>[    6.233107] usbcore: registered new interface driver catc
+<6>[    6.233151] TSAI  bus 'usb': add driver kaweth drivers/base/bus.c
+<6>[    6.233233] usbcore: registered new interface driver kaweth
+<6>[    6.233273] pegasus: v0.9.3 (2013/04/25), Pegasus/Pegasus II USB Ethernet driver
+<6>[    6.233306] TSAI  bus 'usb': add driver pegasus drivers/base/bus.c
+<6>[    6.233386] usbcore: registered new interface driver pegasus
+<6>[    6.233428] TSAI  bus 'usb': add driver rtl8150 drivers/base/bus.c
+<6>[    6.233510] usbcore: registered new interface driver rtl8150
+<6>[    6.233553] TSAI  bus 'usb': add driver r8152 drivers/base/bus.c
+<6>[    6.233634] usbcore: registered new interface driver r8152
+<6>[    6.233672] hso: drivers/net/usb/hso.c: Option Wireless
+<6>[    6.233747] TSAI  bus 'usb': add driver hso drivers/base/bus.c
+<6>[    6.233867] usbcore: registered new interface driver hso
+<6>[    6.233911] TSAI  bus 'usb': add driver asix drivers/base/bus.c
+<6>[    6.234007] usbcore: registered new interface driver asix
+<6>[    6.234050] TSAI  bus 'usb': add driver ax88179_178a drivers/base/bus.c
+<6>[    6.234132] usbcore: registered new interface driver ax88179_178a
+<6>[    6.234175] TSAI  bus 'usb': add driver cdc_ether drivers/base/bus.c
+<6>[    6.234258] usbcore: registered new interface driver cdc_ether
+<6>[    6.234302] TSAI  bus 'usb': add driver cdc_eem drivers/base/bus.c
+<6>[    6.234382] usbcore: registered new interface driver cdc_eem
+<6>[    6.234425] TSAI  bus 'usb': add driver dm9601 drivers/base/bus.c
+<6>[    6.234512] usbcore: registered new interface driver dm9601
+<6>[    6.234555] TSAI  bus 'usb': add driver smsc75xx drivers/base/bus.c
+<6>[    6.234658] usbcore: registered new interface driver smsc75xx
+<6>[    6.234701] TSAI  bus 'usb': add driver smsc95xx drivers/base/bus.c
+<6>[    6.234801] usbcore: registered new interface driver smsc95xx
+<6>[    6.234845] TSAI  bus 'usb': add driver gl620a drivers/base/bus.c
+<6>[    6.234924] usbcore: registered new interface driver gl620a
+<6>[    6.234967] TSAI  bus 'usb': add driver net1080 drivers/base/bus.c
+<6>[    6.235047] usbcore: registered new interface driver net1080
+<6>[    6.235090] TSAI  bus 'usb': add driver plusb drivers/base/bus.c
+<6>[    6.235177] usbcore: registered new interface driver plusb
+<6>[    6.235221] TSAI  bus 'usb': add driver rndis_host drivers/base/bus.c
+<6>[    6.235302] usbcore: registered new interface driver rndis_host
+<6>[    6.235346] TSAI  bus 'usb': add driver cdc_subset drivers/base/bus.c
+<6>[    6.235434] usbcore: registered new interface driver cdc_subset
+<6>[    6.235478] TSAI  bus 'usb': add driver zaurus drivers/base/bus.c
+<6>[    6.235562] usbcore: registered new interface driver zaurus
+<6>[    6.235606] TSAI  bus 'usb': add driver MOSCHIP usb-ethernet driver drivers/base/bus.c
+<6>[    6.235689] usbcore: registered new interface driver MOSCHIP usb-ethernet driver
+<6>[    6.235759] TSAI  bus 'usb': add driver int51x1 drivers/base/bus.c
+<6>[    6.235874] usbcore: registered new interface driver int51x1
+<6>[    6.235919] TSAI  bus 'usb': add driver kalmia drivers/base/bus.c
+<6>[    6.236000] usbcore: registered new interface driver kalmia
+<6>[    6.236043] TSAI  bus 'usb': add driver ipheth drivers/base/bus.c
+<6>[    6.236125] usbcore: registered new interface driver ipheth
+<6>[    6.236170] TSAI  bus 'usb': add driver sierra_net drivers/base/bus.c
+<6>[    6.236259] usbcore: registered new interface driver sierra_net
+<6>[    6.236303] TSAI  bus 'usb': add driver cx82310_eth drivers/base/bus.c
+<6>[    6.236385] usbcore: registered new interface driver cx82310_eth
+<6>[    6.236430] TSAI  bus 'usb': add driver cdc_ncm drivers/base/bus.c
+<6>[    6.236549] usbcore: registered new interface driver cdc_ncm
+<6>[    6.236595] TSAI  bus 'usb': add driver qmi_wwan drivers/base/bus.c
+<6>[    6.236677] usbcore: registered new interface driver qmi_wwan
+<6>[    6.236722] TSAI  bus 'usb': add driver cdc_mbim drivers/base/bus.c
+<6>[    6.236806] usbcore: registered new interface driver cdc_mbim
+<6>[    6.236846] ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+<6>[    6.236886] ehci-platform: EHCI generic platform driver
+<6>[    6.236936] TSAI  bus 'platform': add driver ehci-platform probe ffffffc000677780 drivers/base/bus.c
+<6>[    6.237292] TSAI __driver_attach dev ff500000.usb drv ehci-platform
+<6>[    6.237751] ehci-platform ff500000.usb: EHCI Host Controller
+<6>[    6.237811] ehci-platform ff500000.usb: new USB bus registered, assigned bus number 1
+<6>[    6.238224] ehci-platform ff500000.usb: irq 56, io mem 0xff500000
+<6>[    6.249250] ehci-platform ff500000.usb: USB 2.0 started, EHCI 1.00
+<6>[    6.249542] usb usb1: New USB device found, idVendor=1d6b, idProduct=0002
+<6>[    6.249581] usb usb1: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+<6>[    6.249615] usb usb1: Product: EHCI Host Controller
+<6>[    6.249648] usb usb1: Manufacturer: Linux 3.18.48+ ehci_hcd
+<6>[    6.249681] usb usb1: SerialNumber: ff500000.usb
+<6>[    6.250563] hub 1-0:1.0: USB hub found
+<6>[    6.250647] hub 1-0:1.0: 1 port detected
+<6>[    6.251248] TSAI  bus 'usb': add driver cdc_acm drivers/base/bus.c
+<6>[    6.251372] usbcore: registered new interface driver cdc_acm
+<6>[    6.251403] cdc_acm: USB Abstract Control Model driver for USB modems and ISDN adapters
+<6>[    6.251451] TSAI  bus 'usb': add driver usblp drivers/base/bus.c
+<6>[    6.251569] usbcore: registered new interface driver usblp
+<6>[    6.251615] TSAI  bus 'usb': add driver cdc_wdm drivers/base/bus.c
+<6>[    6.251701] usbcore: registered new interface driver cdc_wdm
+<6>[    6.251747] TSAI  bus 'usb': add driver usb-storage drivers/base/bus.c
+<6>[    6.251872] usbcore: registered new interface driver usb-storage
+<6>[    6.251917] TSAI  bus 'usb': add driver ums-alauda drivers/base/bus.c
+<6>[    6.252000] usbcore: registered new interface driver ums-alauda
+<6>[    6.252046] TSAI  bus 'usb': add driver ums-cypress drivers/base/bus.c
+<6>[    6.252123] usbcore: registered new interface driver ums-cypress
+<6>[    6.252168] TSAI  bus 'usb': add driver ums-datafab drivers/base/bus.c
+<6>[    6.252243] usbcore: registered new interface driver ums-datafab
+<6>[    6.252289] TSAI  bus 'usb': add driver ums_eneub6250 drivers/base/bus.c
+<6>[    6.252363] usbcore: registered new interface driver ums_eneub6250
+<6>[    6.252408] TSAI  bus 'usb': add driver ums-freecom drivers/base/bus.c
+<6>[    6.252482] usbcore: registered new interface driver ums-freecom
+<6>[    6.252528] TSAI  bus 'usb': add driver ums-isd200 drivers/base/bus.c
+<6>[    6.252604] usbcore: registered new interface driver ums-isd200
+<6>[    6.252649] TSAI  bus 'usb': add driver ums-jumpshot drivers/base/bus.c
+<6>[    6.252725] usbcore: registered new interface driver ums-jumpshot
+<6>[    6.252771] TSAI  bus 'usb': add driver ums-karma drivers/base/bus.c
+<6>[    6.252845] usbcore: registered new interface driver ums-karma
+<6>[    6.252891] TSAI  bus 'usb': add driver ums-onetouch drivers/base/bus.c
+<6>[    6.252971] usbcore: registered new interface driver ums-onetouch
+<6>[    6.253018] TSAI  bus 'usb': add driver ums-sddr09 drivers/base/bus.c
+<6>[    6.253095] usbcore: registered new interface driver ums-sddr09
+<6>[    6.253141] TSAI  bus 'usb': add driver ums-sddr55 drivers/base/bus.c
+<6>[    6.253216] usbcore: registered new interface driver ums-sddr55
+<6>[    6.253261] TSAI  bus 'usb': add driver ums-usbat drivers/base/bus.c
+<6>[    6.253336] usbcore: registered new interface driver ums-usbat
+<6>[    6.253501] TSAI  bus 'usb': add driver usbserial drivers/base/bus.c
+<6>[    6.253578] usbcore: registered new interface driver usbserial
+<6>[    6.253616] TSAI  bus 'usb': add driver usbserial_generic drivers/base/bus.c
+<6>[    6.253691] usbcore: registered new interface driver usbserial_generic
+<6>[    6.253725] TSAI  bus 'usb-serial': add driver generic drivers/base/bus.c
+<6>[    6.253794] usbserial: USB Serial support registered for generic
+<6>[    6.253844] TSAI  bus 'usb': add driver option drivers/base/bus.c
+<6>[    6.253930] usbcore: registered new interface driver option
+<6>[    6.253963] TSAI  bus 'usb-serial': add driver option1 drivers/base/bus.c
+<6>[    6.254031] usbserial: USB Serial support registered for GSM modem (1-port)
+<6>[    6.254151] TSAI  bus 'usb': add driver trancevibrator drivers/base/bus.c
+<6>[    6.254238] usbcore: registered new interface driver trancevibrator
+<6>[    6.254279] usb20_otg: version 3.10a 21-DEC-2012
+<6>[    6.254327] TSAI  bus 'platform': add driver usb20_otg probe ffffffc00068f5f8 drivers/base/bus.c
+<6>[    6.254628] TSAI __driver_attach dev ff580000.usb drv usb20_otg
+<7>[    6.255122] ffffff8001a00040
+<7>[    6.255153] Core Release: 3.10a
+<7>[    6.255179] Setting default values for core params
+<7>[    6.255493] Using Buffer DMA mode
+<7>[    6.255521] Periodic Transfer Interrupt Enhancement - disabled
+<7>[    6.255546] Multiprocessor Interrupt Enhancement - disabled
+<7>[    6.255573] OTG VER PARAM: 0, OTG VER FLAG: 0
+<7>[    6.255597] ^^^^^^^^^^^^^^^^^Device Mode
+<7>[    6.255629] Dedicated Tx FIFOs mode
+<7>[    6.255673] pcd_init otg_dev = ffffffc0773c1f40
+<6>[    6.256103] usb20_otg ff580000.usb: DWC OTG Controller
+<6>[    6.256161] usb20_otg ff580000.usb: new USB bus registered, assigned bus number 2
+<6>[    6.256223] usb20_otg ff580000.usb: irq 55, io mem 0x00000000
+<6>[    6.256475] usb usb2: New USB device found, idVendor=1d6b, idProduct=0002
+<6>[    6.256513] usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+<6>[    6.256549] usb usb2: Product: DWC OTG Controller
+<6>[    6.256582] usb usb2: Manufacturer: Linux 3.18.48+ dwc_otg_hcd
+<6>[    6.256616] usb usb2: SerialNumber: ff580000.usb
+<6>[    6.257422] hub 2-0:1.0: USB hub found
+<6>[    6.257502] hub 2-0:1.0: 1 port detected
+<6>[    6.258101] usb20_host: version 3.10a 21-DEC-2012
+<6>[    6.258155] TSAI  bus 'platform': add driver usb20_host probe ffffffc00068ef60 drivers/base/bus.c
+<6>[    6.258420] TSAI: vfs_kern_mount configfs @fs/namespace.c 905
+<6>[    6.258863] TSAI: ffsmod_init ret = 0 @drivers/usb/gadget/function/f_fs.c
+<6>[    6.258957] TSAI  bus 'platform': add driver rk-keypad probe ffffffc0006d8844 drivers/base/bus.c
+<6>[    6.259389] TSAI  bus 'usb': add driver xpad drivers/base/bus.c
+<6>[    6.259523] usbcore: registered new interface driver xpad
+<6>[    6.259573] TSAI  bus 'usb': add driver usb_acecad drivers/base/bus.c
+<6>[    6.259668] usbcore: registered new interface driver usb_acecad
+<6>[    6.259714] TSAI  bus 'usb': add driver aiptek drivers/base/bus.c
+<6>[    6.259803] usbcore: registered new interface driver aiptek
+<6>[    6.259851] TSAI  bus 'usb': add driver gtco drivers/base/bus.c
+<6>[    6.259945] usbcore: registered new interface driver gtco
+<6>[    6.259993] TSAI  bus 'usb': add driver hanwang drivers/base/bus.c
+<6>[    6.260081] usbcore: registered new interface driver hanwang
+<6>[    6.260129] TSAI  bus 'usb': add driver kbtab drivers/base/bus.c
+<6>[    6.260215] usbcore: registered new interface driver kbtab
+<7>[    6.260259] sensor_register_slave:mma8452,id=17
+<6>[    6.260312] TSAI  bus 'platform': add driver gpio-event probe ffffffc0006e1708 drivers/base/bus.c
+<6>[    6.260904] TSAI  bus 'platform': add driver keyreset probe ffffffc0006e5314 drivers/base/bus.c
+<6>[    6.261080] TSAI  bus 'platform': add driver keycombo probe ffffffc0006e5830 drivers/base/bus.c
+<6>[    6.261234] TSAI  bus 'platform': add driver rk808-rtc probe ffffffc0006e8cd0 drivers/base/bus.c
+<6>[    6.261340] TSAI __driver_attach dev rk808-rtc drv rk808-rtc
+<3>[    6.261440] rk808-rtc rk808-rtc: Failed to update RTC control: -5
+<4>[    6.261484] rk808-rtc: probe of rk808-rtc failed with error -5
+<6>[    6.261556] i2c /dev entries driver
+<6>[    6.261999] TSAI  bus 'i2c': add driver ir-kbd-i2c drivers/base/bus.c
+<6>[    6.262821] IR NEC protocol handler initialized
+<6>[    6.262860] IR RC5(x/sz) protocol handler initialized
+<6>[    6.262896] IR RC6 protocol handler initialized
+<6>[    6.262932] IR JVC protocol handler initialized
+<6>[    6.262967] IR Sony protocol handler initialized
+<6>[    6.263003] IR SANYO protocol handler initialized
+<6>[    6.263039] IR Sharp protocol handler initialized
+<6>[    6.263076] IR MCE Keyboard/mouse protocol handler initialized
+<6>[    6.263124] TSAI  bus 'platform': add driver soc-camera-pdrv probe ffffffc000712af4 drivers/base/bus.c
+<6>[    6.263320] TSAI  bus 'usb': add driver uvcvideo drivers/base/bus.c
+<6>[    6.263442] usbcore: registered new interface driver uvcvideo
+<6>[    6.263471] USB Video Class driver (1.1.1)
+<7>[    6.263513] CamSys driver version: v0.33.0,  CamSys head file version: v0.11.0
+<3>[    6.263541] E:camsys_soc_init(30): camsys_soc_init exit!
+<6>[    6.263578] TSAI  bus 'platform': add driver RockChip-CamSys probe ffffffc00071e6f0 drivers/base/bus.c
+<6>[    6.263958] TSAI __driver_attach dev ff910000.isp drv RockChip-CamSys
+<7>[    6.266195] D1:camsys_mipiphy_probe_cb(115): compatible is rockchip,rk3368
+<7>[    6.266290] D1:camsys_mipiphy_probe_cb(186): ff910000.isp mipi phy0 probe success(reg_phy: 0x0  reg_vir: 0x0  size: 0x0)
+<7>[    6.266433] D1:camsys_mipiphy_probe_cb(183): ff910000.isp mipi phy1 probe success(reg_phy: 0xff964000  reg_vir: 0xffffff80018a8000  size: 0x4000)
+<7>[    6.266470] D1:camsys_mipiphy_probe_cb(201): csiphy vir addr=0xffffff80018b0000
+<7>[    6.266537] D1:camsys_mipiphy_probe_cb(210): rk_cru_base=0xffffff80018ae000
+<7>[    6.266596] D1:camsys_mipiphy_probe_cb(214): rk_grf_base=0xffffff80018b6000
+<7>[    6.267509] D1:camsys_platform_probe(1394): ff910000.isp memory:
+<7>[    6.267543] D1:camsys_platform_probe(1404):     Register memory (phy: 0xff910000 vir: 0xffffff80019a0000 size: 0x10000)
+<7>[    6.267573] D1:camsys_platform_probe(1399):     I2c memory (phy: 0x775f7000 vir: 0xffffffc0773f7000 size: 0x1000)
+<7>[    6.267601] D1:camsys_init_ext_fsh_module(20): init external flash module
+<7>[    6.267628] D1:camsys_platform_probe(1419): Probe ff910000.isp device success
+<6>[    6.268018] not find test_power_init dev node
+<6>[    6.268070] TSAI  bus 'i2c': add driver bq27320 drivers/base/bus.c
+<4>[    6.268155] i2c-core: driver [bq27320] using legacy suspend method
+<4>[    6.268186] i2c-core: driver [bq27320] using legacy resume method
+<6>[    6.268271] TSAI  bus 'platform': add driver rockchip-iodomain probe ffffffc00072935c drivers/base/bus.c
+<6>[    6.268717] TSAI  bus 'platform': add driver poweroff-gpio probe ffffffc00072c284 drivers/base/bus.c
+<6>[    6.269335] device-mapper: uevent: version 1.0.3
+<6>[    6.269819] device-mapper: ioctl: 4.28.0-ioctl (2014-09-17) initialised: dm-devel@redhat.com
+<6>[    6.270054] Bluetooth: HCI UART driver ver 2.2
+<6>[    6.270089] Bluetooth: HCI H4 protocol initialized
+<6>[    6.270118] Bluetooth: HCILL protocol initialized
+<6>[    6.270261] TSAI  bus 'platform': add driver rockchip-bl-cpufreq probe ffffffc000ed3fa4 drivers/base/bus.c
+<6>[    6.270479] TSAI __driver_attach dev cpufreq drv rockchip-bl-cpufreq
+<6>[    6.270581] rockchip_big_little: TSAI rockchip_bl_cpufreq_probe drivers/cpufreq/rockchip_big_little.c
+<6>[    6.270629] rockchip_big_little: TSAI: rockchip_bl_cpufreq_init drivers/cpufreq/rockchip_big_little.c
+<7>[    6.271684] TSAI clk_enable_dvfs_regulator_check vd_logic cur_volt 1100000 arch/arm64/mach-rockchip/../../arm/mach-rockchip/dvfs.c 657
+<6>[    6.271774] TSAI clk_enable_dvfs cur_volt 1100000 arch/arm64/mach-rockchip/../../arm/mach-rockchip/dvfs.c 1791
+<7>[    6.283626] TSAI clk_enable_dvfs_regulator_check vd_logic cur_volt 1200000 arch/arm64/mach-rockchip/../../arm/mach-rockchip/dvfs.c 657
+<6>[    6.283675] TSAI clk_enable_dvfs cur_volt 1200000 arch/arm64/mach-rockchip/../../arm/mach-rockchip/dvfs.c 1791
+<7>[    6.284685] TSAI clk_enable_dvfs_regulator_check vd_arm cur_volt 1100000 arch/arm64/mach-rockchip/../../arm/mach-rockchip/dvfs.c 657
+<6>[    6.284791] TSAI clk_enable_dvfs cur_volt 1100000 arch/arm64/mach-rockchip/../../arm/mach-rockchip/dvfs.c 1791
+<7>[    6.287849] TSAI clk_enable_dvfs_regulator_check vd_arm cur_volt 1000000 arch/arm64/mach-rockchip/../../arm/mach-rockchip/dvfs.c 657
+<6>[    6.287908] TSAI clk_enable_dvfs cur_volt 1000000 arch/arm64/mach-rockchip/../../arm/mach-rockchip/dvfs.c 1791
+<6>[    6.287956] rockchip_big_little: version 1.0, suspend freq 1008 1008 MHz
+<6>[    6.288474] rockchip_big_little: TSAI: rockchip_bl_cpufreq_init drivers/cpufreq/rockchip_big_little.c
+<6>[    6.290367] TSAI  bus 'mmc': add driver mmcblk drivers/base/bus.c
+<6>[    6.290461] Synopsys Designware Multimedia Card Interface Driver
+<6>[    6.290491] MHSC version = Ver 2.00 2015-06-10
+<6>[    6.290554] TSAI  bus 'platform': add driver dw_mmc probe ffffffc000777c10 drivers/base/bus.c
+<6>[    6.290957] TSAI  bus 'platform': add driver dwmmc_rockchip probe ffffffc000778a3c drivers/base/bus.c
+<6>[    6.291066] TSAI __driver_attach dev ff0f0000.rksdmmc drv dwmmc_rockchip
+<6>[    6.291172] TSAI: dw_mci_rockchip_probe[in] drivers/mmc/host/dw_mmc-rockchip.c
+<6>[    6.291323] TSAI: dw_mci_rockchip_priv_init host->priv ffffffc077415318 @drivers/mmc/host/dw_mmc-rockchip.c
+<6>[    6.291400] dwmmc_rockchip ff0f0000.rksdmmc: Version ID is 270a
+<6>[    6.291738] dwmmc_rockchip ff0f0000.rksdmmc: Using internal DMA controller.
+<6>[    6.292104] TSAI: mmc_alloc_host issue mmc_rescan ff0f0000.rksdmmc mmc0 @drivers/mmc/core/host.c
+<6>[    6.292155] dwmmc_rockchip ff0f0000.rksdmmc: dw_mci_init_slot: fmin=400000, fmax=150000000 [mmc0]
+<6>[    6.292585] dwmmc_rockchip ff0f0000.rksdmmc: dw_mci_set_ios:  no card. [mmc0]
+<6>[    6.309269] dwmmc_rockchip ff0f0000.rksdmmc: dw_mci_set_ios:  no card. [mmc0]
+<6>[    6.329272] TSAI: mmc_rescan ff0f0000.rksdmmc mmc0 @drivers/mmc/core/core.c
+<6>[    6.329320] TSAI mmc0: mmc_rescan_try_freq: trying to init card at 400000 Hz current ffffffc07a82b700 kworker/u16:0 @drivers/mmc/core/core.c
+<6>[    6.329341] dwmmc_rockchip ff0f0000.rksdmmc: DW MMC controller at irq 67, 32 bit host data width, 256 deep fifo
+<6>[    6.329369] dwmmc_rockchip ff0f0000.rksdmmc: 1 slots initialized
+<6>[    6.329416] TSAI __driver_attach dev ff0c0000.rksdmmc drv dwmmc_rockchip
+<7>[    6.329431] rk_sdmmc: BOOT dw_mci_setup_bus: argue clk_mmc workaround out 800000Hz for init[mmc0]
+<6>[    6.330564] TSAI: dw_mci_rockchip_probe[in] drivers/mmc/host/dw_mmc-rockchip.c
+<6>[    6.330716] TSAI: dw_mci_rockchip_priv_init host->priv ffffffc077417618 @drivers/mmc/host/dw_mmc-rockchip.c
+<6>[    6.330796] dwmmc_rockchip ff0c0000.rksdmmc: Version ID is 270a
+<6>[    6.331164] dwmmc_rockchip ff0c0000.rksdmmc: Using internal DMA controller.
+<6>[    6.333137] TSAI: mmc_alloc_host issue mmc_rescan ff0c0000.rksdmmc mmc1 @drivers/mmc/core/host.c
+<6>[    6.333190] dwmmc_rockchip ff0c0000.rksdmmc: dw_mci_init_slot: fmin=400000, fmax=50000000 [mmc1]
+<6>[    6.334407] dwmmc_rockchip ff0c0000.rksdmmc: dw_mci_set_ios:  no card. [mmc1]
+<7>[    6.349637] dwc_otg_hcd_suspend, usb device mode
+<6>[    6.359250] dwmmc_rockchip ff0c0000.rksdmmc: dw_mci_set_ios:  no card. [mmc1]
+<6>[    6.362073] mmc0: BKOPS_EN bit is not set
+<7>[    6.363432] rk_sdmmc: BOOT Bus speed=0Hz,Bus width=8bits.[mmc0]
+<6>[    6.365824] mmc_host mmc0: Bus speed (slot 0) = 150000000Hz (slot req 150000000Hz, actual 150000000HZ div = 0)
+<7>[    6.365871] rk_sdmmc: BOOT dw_mci_setup_bus: argue clk_mmc workaround out normal clock [mmc0]
+<6>[    6.365925] [mmc0] tuning regsbase addr 0x418.
+<3>[    6.367182] dwmmc_rockchip ff0f0000.rksdmmc: Good phase range 0-259 (24 len)
+<3>[    6.367220] dwmmc_rockchip ff0f0000.rksdmmc: Best phase range 0-259 (24 len)
+<3>[    6.367255] dwmmc_rockchip ff0f0000.rksdmmc: Successfully tuned phase to 135
+<6>[    6.367402] mmc0: new HS200 MMC card at address 0001
+<6>[    6.367529] TSAI mmc_add_card card->dev mmc0:0001 @drivers/mmc/core/bus.c
+<6>[    6.368098] mmcblk0: mmc0:0001 AWPD3R 14.5 GiB
+<6>[    6.368278] mmcblk0rpmb: mmc0:0001 AWPD3R partition 3 4.00 MiB
+<6>[    6.368312] TSAI mmc_add_disk mmcblk0 card mmc0:0001 @drivers/mmc/card/block.c
+<6>[    6.368935] TSAI: check_partition major=179 emmc=1 @block/partitions/check.c
+<6>[    6.369032]      uboot: 0x000400000 -- 0x000800000 (4 MB)
+<6>[    6.369066]      trust: 0x000800000 -- 0x000c00000 (4 MB)
+<6>[    6.369099]       misc: 0x000c00000 -- 0x001000000 (4 MB)
+<6>[    6.369131]   resource: 0x001000000 -- 0x002000000 (16 MB)
+<6>[    6.369163]     kernel: 0x002000000 -- 0x003000000 (16 MB)
+<6>[    6.369267]       boot: 0x003000000 -- 0x005000000 (32 MB)
+<6>[    6.369302]   recovery: 0x005000000 -- 0x007000000 (32 MB)
+<6>[    6.369334]     backup: 0x007000000 -- 0x00e000000 (112 MB)
+<6>[    6.369367]      cache: 0x00e000000 -- 0x016000000 (128 MB)
+<6>[    6.369400]     kpanic: 0x016000000 -- 0x016400000 (4 MB)
+<6>[    6.369432]     system: 0x016400000 -- 0x056400000 (1024 MB)
+<6>[    6.369465]   metadata: 0x056400000 -- 0x057400000 (16 MB)
+<6>[    6.369498] baseparamer: 0x057400000 -- 0x057800000 (4 MB)
+<6>[    6.369530]   userdata: 0x057800000 -- 0x0d7800000 (2048 MB)
+<6>[    6.369563]      ramfs: 0x0d7800000 -- 0x0d9800000 (32 MB)
+<6>[    6.369596]       user: 0x0d9800000 -- 0x300000000 (8808 MB)
+<6>[    6.369628]  linuxroot: 0x300000000 -- 0x3a3a00000 (2618 MB)
+<6>[    6.369659] TSAI: rkpart_bootmode_fixup storagemedia=ums @block/partitions/rk.c:293
+<6>[    6.369690] TSAI: BOOT from UMS, don't set androidboot.mode here @block/partitions/rk.c
+<6>[    6.369719]  mmcblk0: p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 p12 p13 p14 p15 p16 p17
+<6>[    6.373619] TSAI mmc_add_disk mmcblk0rpmb card mmc0:0001 @drivers/mmc/card/block.c
+<6>[    6.379361] dwmmc_rockchip ff0c0000.rksdmmc: DW MMC controller at irq 64, 32 bit host data width, 256 deep fifo
+<6>[    6.379393] TSAI: mmc_rescan ff0c0000.rksdmmc mmc1 @drivers/mmc/core/core.c
+<6>[    6.379429] dwmmc_rockchip ff0c0000.rksdmmc: 1 slots initialized
+<6>[    6.379445] dwmmc_rockchip ff0c0000.rksdmmc: dw_mci_set_ios:  no card. [mmc1]
+<6>[    6.379510] TSAI __driver_attach dev ff0d0000.rksdmmc drv dwmmc_rockchip
+<6>[    6.380695] TSAI: dw_mci_rockchip_probe[in] drivers/mmc/host/dw_mmc-rockchip.c
+<6>[    6.380855] TSAI: dw_mci_rockchip_priv_init host->priv ffffffc077426898 @drivers/mmc/host/dw_mmc-rockchip.c
+<6>[    6.380931] dwmmc_rockchip ff0d0000.rksdmmc: Version ID is 270a
+<6>[    6.381312] dwmmc_rockchip ff0d0000.rksdmmc: Using internal DMA controller.
+<6>[    6.381654] TSAI: mmc_alloc_host issue mmc_rescan ff0d0000.rksdmmc mmc2 @drivers/mmc/core/host.c
+<6>[    6.381706] dwmmc_rockchip ff0d0000.rksdmmc: dw_mci_init_slot: fmin=200000, fmax=150000000 [mmc2]
+<6>[    6.382295] dwmmc_rockchip ff0d0000.rksdmmc: dw_mci_set_ios:  no card. [mmc2]
+<6>[    6.399259] dwmmc_rockchip ff0d0000.rksdmmc: dw_mci_set_ios:  no card. [mmc2]
+<6>[    6.419265] TSAI: mmc_rescan ff0d0000.rksdmmc mmc2 @drivers/mmc/core/core.c
+<6>[    6.419312] dwmmc_rockchip ff0d0000.rksdmmc: dw_mci_set_ios:  no card. [mmc2]
+<6>[    6.419331] dwmmc_rockchip ff0d0000.rksdmmc: DW MMC controller at irq 65, 32 bit host data width, 256 deep fifo
+<6>[    6.419358] dwmmc_rockchip ff0d0000.rksdmmc: 1 slots initialized
+<6>[    6.419688] TSAI  bus 'platform': add driver leds-gpio probe ffffffc00077a004 drivers/base/bus.c
+<6>[    6.419948] TSAI __driver_attach dev power-led drv leds-gpio
+<6>[    6.420758] TSAI  bus 'platform': add driver rockchip-crypto probe ffffffc00077b4e0 drivers/base/bus.c
+<6>[    6.421243] hidraw: raw HID events driver (C) Jiri Kosina
+<6>[    6.421554] TSAI  bus 'hid': add driver hid-generic drivers/base/bus.c
+<6>[    6.421665] TSAI  bus 'hid': add driver a4tech drivers/base/bus.c
+<6>[    6.421768] TSAI  bus 'hid': add driver acrux drivers/base/bus.c
+<6>[    6.421857] TSAI  bus 'hid': add driver apple drivers/base/bus.c
+<6>[    6.421970] TSAI  bus 'hid': add driver appleir drivers/base/bus.c
+<6>[    6.422059] TSAI  bus 'hid': add driver aureal drivers/base/bus.c
+<6>[    6.422147] TSAI  bus 'hid': add driver belkin drivers/base/bus.c
+<6>[    6.422243] TSAI  bus 'hid': add driver cherry drivers/base/bus.c
+<6>[    6.422341] TSAI  bus 'hid': add driver chicony drivers/base/bus.c
+<6>[    6.422431] TSAI  bus 'hid': add driver cypress drivers/base/bus.c
+<6>[    6.422522] TSAI  bus 'hid': add driver dragonrise drivers/base/bus.c
+<6>[    6.422613] TSAI  bus 'hid': add driver hkems drivers/base/bus.c
+<6>[    6.422701] TSAI  bus 'hid': add driver elecom drivers/base/bus.c
+<6>[    6.422790] TSAI  bus 'hid': add driver ezkey drivers/base/bus.c
+<6>[    6.422879] TSAI  bus 'hid': add driver gyration drivers/base/bus.c
+<6>[    6.422979] TSAI  bus 'hid': add driver holtek_kbd drivers/base/bus.c
+<6>[    6.423072] TSAI  bus 'hid': add driver holtek_mouse drivers/base/bus.c
+<6>[    6.423172] TSAI  bus 'hid': add driver holtek drivers/base/bus.c
+<6>[    6.423264] TSAI  bus 'hid': add driver icade drivers/base/bus.c
+<6>[    6.423354] TSAI  bus 'hid': add driver kensington drivers/base/bus.c
+<6>[    6.423445] TSAI  bus 'hid': add driver keytouch drivers/base/bus.c
+<6>[    6.423542] TSAI  bus 'hid': add driver kye drivers/base/bus.c
+<6>[    6.423631] TSAI  bus 'hid': add driver LC RC1000MCE drivers/base/bus.c
+<6>[    6.423724] TSAI  bus 'hid': add driver logitech drivers/base/bus.c
+<6>[    6.423816] TSAI  bus 'hid': add driver logitech-djreceiver drivers/base/bus.c
+<6>[    6.423901] TSAI  bus 'hid': add driver logitech-djdevice drivers/base/bus.c
+<6>[    6.423994] TSAI  bus 'hid': add driver magicmouse drivers/base/bus.c
+<6>[    6.424109] TSAI  bus 'hid': add driver microsoft drivers/base/bus.c
+<6>[    6.424213] TSAI  bus 'hid': add driver monterey drivers/base/bus.c
+<6>[    6.424306] TSAI  bus 'hid': add driver hid-multitouch drivers/base/bus.c
+<6>[    6.424401] TSAI  bus 'hid': add driver ntrig drivers/base/bus.c
+<6>[    6.424514] TSAI  bus 'hid': add driver ortek drivers/base/bus.c
+<6>[    6.424608] TSAI  bus 'hid': add driver prodikeys drivers/base/bus.c
+<6>[    6.424728] TSAI  bus 'hid': add driver pantherlord drivers/base/bus.c
+<6>[    6.424821] TSAI  bus 'hid': add driver petalynx drivers/base/bus.c
+<6>[    6.424914] TSAI  bus 'hid': add driver hid-picolcd drivers/base/bus.c
+<6>[    6.425009] TSAI  bus 'hid': add driver primax drivers/base/bus.c
+<6>[    6.425143] TSAI  bus 'hid': add driver arvo drivers/base/bus.c
+<6>[    6.425255] TSAI  bus 'hid': add driver isku drivers/base/bus.c
+<6>[    6.425380] TSAI  bus 'hid': add driver kone drivers/base/bus.c
+<6>[    6.425493] TSAI  bus 'hid': add driver koneplus drivers/base/bus.c
+<6>[    6.425605] TSAI  bus 'hid': add driver konepure drivers/base/bus.c
+<6>[    6.425719] TSAI  bus 'hid': add driver kovaplus drivers/base/bus.c
+<6>[    6.425811] TSAI  bus 'hid': add driver lua drivers/base/bus.c
+<6>[    6.425920] TSAI  bus 'hid': add driver pyra drivers/base/bus.c
+<6>[    6.426035] TSAI  bus 'hid': add driver ryos drivers/base/bus.c
+<6>[    6.426145] TSAI  bus 'hid': add driver savu drivers/base/bus.c
+<6>[    6.426240] TSAI  bus 'hid': add driver saitek drivers/base/bus.c
+<6>[    6.426333] TSAI  bus 'hid': add driver samsung drivers/base/bus.c
+<6>[    6.426432] TSAI  bus 'hid': add driver smartjoyplus drivers/base/bus.c
+<6>[    6.426528] TSAI  bus 'hid': add driver sony drivers/base/bus.c
+<6>[    6.426622] TSAI  bus 'hid': add driver speedlink drivers/base/bus.c
+<6>[    6.426724] TSAI  bus 'hid': add driver steelseries_srws1 drivers/base/bus.c
+<6>[    6.426819] TSAI  bus 'hid': add driver sunplus drivers/base/bus.c
+<6>[    6.426914] TSAI  bus 'hid': add driver greenasia drivers/base/bus.c
+<6>[    6.427009] TSAI  bus 'hid': add driver thingm drivers/base/bus.c
+<6>[    6.427103] TSAI  bus 'hid': add driver thrustmaster drivers/base/bus.c
+<6>[    6.427197] TSAI  bus 'hid': add driver tivo_slide drivers/base/bus.c
+<6>[    6.427289] TSAI  bus 'hid': add driver topseed drivers/base/bus.c
+<6>[    6.427389] TSAI  bus 'hid': add driver twinhan drivers/base/bus.c
+<6>[    6.427483] TSAI  bus 'hid': add driver uclogic drivers/base/bus.c
+<6>[    6.427579] TSAI  bus 'hid': add driver zeroplus drivers/base/bus.c
+<6>[    6.427675] TSAI  bus 'hid': add driver zydacron drivers/base/bus.c
+<6>[    6.427768] TSAI  bus 'hid': add driver wacom drivers/base/bus.c
+<6>[    6.427888] TSAI  bus 'hid': add driver waltop drivers/base/bus.c
+<6>[    6.427991] TSAI  bus 'hid': add driver wiimote drivers/base/bus.c
+<6>[    6.428097] TSAI  bus 'usb': add driver usbhid drivers/base/bus.c
+<6>[    6.428215] usbcore: registered new interface driver usbhid
+<6>[    6.428245] usbhid: USB HID core driver
+<6>[    6.429612] ashmem: initialized
+<6>[    6.429726] TSAI  bus 'platform': add driver timed-gpio probe ffffffc0007cfb78 drivers/base/bus.c
+<6>[    6.430121] TSAI  bus 'platform': add driver rockchip_ddr probe ffffffc000edbd74 drivers/base/bus.c
+<6>[    6.430279] TSAI __driver_attach dev ddr drv rockchip_ddr
+<6>[    6.430389] ddr_rk3368: Rockchip DDR Initialize, verision: V1.03 20150910
+<7>[    6.430793] ddr_rk3368: In Func:ddr_init,dram_speed_bin:21,freq:0,lcdc_type:6
+<7>[    6.451565] ddr_rk3368: ddr_init out
+<6>[    6.451593] ddr_rk3368: rockchip_ddr_probe: success
+<7>[    6.453203] symobl does not exist tsai_sdp_unzip_start
+<7>[    6.453233] symobl does not exist tsai_sdp_unzip_isr
+<7>[    6.453261] symobl does not exist tsai_sdp_mmch_request
+<7>[    6.453288] symobl does not exist tsai_sdp_mmch_isr
+<7>[    6.453321] symobl does not exist cpu_migrate_begin
+<7>[    6.453349] symobl does not exist cpu_migrate_current
+<7>[    6.453377] symobl does not exist cpu_migrate_finish
+<7>[    6.453406] symobl does not exist mali_job_slots_event
+<7>[    6.453433] symobl does not exist mali_mmu_as_in_use
+<7>[    6.453460] symobl does not exist mali_mmu_as_released
+<7>[    6.453488] symobl does not exist mali_page_fault_insert_pages
+<7>[    6.453515] symobl does not exist mali_pm_status
+<7>[    6.453543] symobl does not exist mali_sw_counter
+<7>[    6.453571] symobl does not exist mali_timeline_event
+<7>[    6.453599] symobl does not exist mali_total_alloc_pages_change
+<5>[    6.454340] gator: Adding cpu counters (based on cpuid) for ARMv8_Cortex_A53
+<6>[    6.454930] TSAI  bus 'usb': add driver snd-usb-audio drivers/base/bus.c
+<6>[    6.455115] usbcore: registered new interface driver snd-usb-audio
+<6>[    6.455323] TSAI: rockchip_iommu_add_device dummy function
+<6>[    6.455501] TSAI  bus 'platform': add driver snd-soc-dummy probe ffffffc00083caec drivers/base/bus.c
+<6>[    6.455675] TSAI __driver_attach dev snd-soc-dummy drv snd-soc-dummy
+<6>[    6.455843] TSAI  bus 'platform': add driver soc-audio probe ffffffc0008367d0 drivers/base/bus.c
+<6>[    6.455997] TSAI es8316_init @sound/soc/codecs/es8316.c
+<7>[    6.456028] --es8316_init--start--sound/soc/codecs/es8316.c
+<7>[    6.456053] i2c_add_driver sound/soc/codecs/es8316.c
+<6>[    6.456083] TSAI  bus 'i2c': add driver es8316 drivers/base/bus.c
+<6>[    6.456185] TSAI  bus 'platform': add driver hdmi-i2s probe ffffffc000848820 drivers/base/bus.c
+<6>[    6.456440] TSAI __driver_attach dev codec-hdmi-i2s drv hdmi-i2s
+<6>[    6.456603] TSAI  bus 'platform': add driver hdmi-spdif probe ffffffc000848898 drivers/base/bus.c
+<6>[    6.456803] TSAI __driver_attach dev codec-hdmi-spdif drv hdmi-spdif
+<6>[    6.456952] TSAI  bus 'platform': add driver rockchip-spdif probe ffffffc000849bb0 drivers/base/bus.c
+<6>[    6.457098] TSAI __driver_attach dev ff880000.spdif drv rockchip-spdif
+<6>[    6.457713] rockchip-spdif ff880000.spdif: spdif ready.
+<6>[    6.457938] TSAI  bus 'platform': add driver rockchip-es8316 probe ffffffc000849f68 drivers/base/bus.c
+<6>[    6.458248] TSAI  bus 'platform': add driver rockchip-hdmi-i2s probe ffffffc00084a278 drivers/base/bus.c
+<6>[    6.458459] TSAI __driver_attach dev rockchip-hdmi-i2s drv rockchip-hdmi-i2s
+<3>[    6.458791] rockchip-hdmi-i2s rockchip-hdmi-i2s: ASoC: CPU DAI (null) not registered
+<3>[    6.458865] rockchip_hdmi_i2s_audio_probe() register card failed: -517
+<6>[    6.458917] platform rockchip-hdmi-i2s: Driver rockchip-hdmi-i2s requests probe deferral
+<6>[    6.459098] u32 classifier
+<6>[    6.459127]     Actions configured
+<6>[    6.459280] Netfilter messages via NETLINK v0.30.
+<6>[    6.459420] nf_conntrack version 0.5.0 (16384 buckets, 65536 max)
+<6>[    6.460105] ctnetlink v0.93: registering with nfnetlink.
+<6>[    6.461293] xt_time: kernel timezone is -0000
+<6>[    6.461820] ip_tables: (C) 2000-2006 Netfilter Core Team
+<6>[    6.462071] arp_tables: (C) 2002 David S. Miller
+<6>[    6.462183] TCP: cubic registered
+<6>[    6.462220] Initializing XFRM netlink socket
+<6>[    6.463012] NET: Registered protocol family 10
+<6>[    6.464623] mip6: Mobile IPv6
+<6>[    6.464704] ip6_tables: (C) 2000-2006 Netfilter Core Team
+<6>[    6.465011] sit: IPv6 over IPv4 tunneling driver
+<6>[    6.465832] NET: Registered protocol family 17
+<6>[    6.465911] NET: Registered protocol family 15
+<6>[    6.466009] bridge: automatic filtering via arp/ip/ip6tables has been deprecated. Update your scripts to load br_netfilter if you need this.
+<5>[    6.466075] Bridge firewalling registered
+<6>[    6.466113] Ebtables v2.0 registered
+<6>[    6.466391] Bluetooth: RFCOMM TTY layer initialized
+<6>[    6.466456] Bluetooth: RFCOMM socket layer initialized
+<6>[    6.466513] Bluetooth: RFCOMM ver 1.11
+<6>[    6.466563] Bluetooth: BNEP (Ethernet Emulation) ver 1.3
+<6>[    6.466594] Bluetooth: BNEP filters: protocol multicast
+<6>[    6.466633] Bluetooth: BNEP socket layer initialized
+<6>[    6.466671] Bluetooth: HIDP (Human Interface Emulation) ver 1.2
+<6>[    6.466710] Bluetooth: HIDP socket layer initialized
+<6>[    6.466860] l2tp_core: L2TP core driver, V2.0
+<6>[    6.466913] l2tp_ppp: PPPoL2TP kernel driver, V2.0
+<6>[    6.466953] [WLAN_RFKILL]: Enter rfkill_wlan_init
+<6>[    6.467017] TSAI  bus 'platform': add driver wlan-platdata probe ffffffc000a6e18c drivers/base/bus.c
+<6>[    6.467334] TSAI __driver_attach dev wireless-wlan drv wlan-platdata
+<6>[    6.467453] [WLAN_RFKILL]: Enter rfkill_wlan_probe
+<6>[    6.467606] [WLAN_RFKILL]: wlan_platdata_parse_dt: wifi_chip_type = ap6354
+<6>[    6.467641] [WLAN_RFKILL]: wlan_platdata_parse_dt: enable wifi power control.
+<6>[    6.467672] [WLAN_RFKILL]: wlan_platdata_parse_dt: disable wifi io reference voltage control.
+<6>[    6.467704] [WLAN_RFKILL]: wlan_platdata_parse_dt: wifi power controled by gpio.
+<6>[    6.467824] [WLAN_RFKILL]: wlan_platdata_parse_dt: get property: WIFI,poweren_gpio = 100, flags = 0.
+<6>[    6.467893] [WLAN_RFKILL]: wlan_platdata_parse_dt: get property: WIFI,host_wake_irq = 102, flags = 0.
+<6>[    6.467925] [WLAN_RFKILL]: rfkill_wlan_probe: init gpio
+<6>[    6.467997] [WLAN_RFKILL]: rockchip_wifi_voltage_select: wifi & sdio reference voltage: 1.8V
+<6>[    6.468030] [WLAN_RFKILL]: Exit rfkill_wlan_probe
+<6>[    6.468155] [BT_RFKILL]: Enter rfkill_rk_init
+<6>[    6.468216] TSAI  bus 'platform': add driver rfkill_bt probe ffffffc000a6efb4 drivers/base/bus.c
+<6>[    6.468492] TSAI __driver_attach dev wireless-bluetooth drv rfkill_bt
+<6>[    6.468846] [BT_RFKILL]: bluetooth_platdata_parse_dt: get property: uart_rts_gpios = 91.
+<6>[    6.468918] [BT_RFKILL]: bluetooth_platdata_parse_dt: get property: BT,power_gpio = 101.
+<6>[    6.468983] [BT_RFKILL]: bluetooth_platdata_parse_dt: get property: BT,wake_gpio = 98.
+<6>[    6.469046] [BT_RFKILL]: bluetooth_platdata_parse_dt: get property: BT,wake_host_irq = 103.
+<6>[    6.469153] [BT_RFKILL]: Request irq for bt wakeup host
+<6>[    6.469412] [BT_RFKILL]: ** disable irq
+<6>[    6.469624] [BT_RFKILL]: ap6335 device registered.
+<6>[    6.469772] TSAI  bus 'platform': add driver gps_rfkill_gpio probe ffffffc000a6f7f4 drivers/base/bus.c
+<5>[    6.470964] Registered cp15_barrier emulation handler
+<5>[    6.471004] Registered setend emulation handler
+<6>[    6.471062] rockchip_uboot_mem_late_init: Freeing uboot logo memory: 0x0000000002000000@0x000000007dc00000
+<7>[    6.492389] TSAI struct cpufreq_frequency_table no longer exist arch/arm64/mach-rockchip/../../arm/mach-rockchip/ddr_freq.c 880
+<6>[    6.492786] ddrfreq: verion 1.2 20140526
+<7>[    6.492806] ddr_rk3368: In func _ddr_change_freq,freq=792MHz
+<7>[    6.492819] ddr_rk3368: lcdc type:6
+<6>[    6.492835] ddrfreq: normal 792MHz video_1080p 0MHz video_4k 0MHz dualview 0MHz idle 0MHz suspend 0MHz reboot 792MHz video_4k_10b 0MHz
+<6>[    6.492851] ddrfreq: auto-freq=0
+<6>[    6.492865] ddrfreq: auto-freq-table[0] 240MHz
+<6>[    6.492880] ddrfreq: auto-freq-table[1] 324MHz
+<6>[    6.492893] ddrfreq: auto-freq-table[2] 396MHz
+<6>[    6.492908] ddrfreq: auto-freq-table[3] 528MHz
+<7>[    6.501431] ddr_rk3368: Func _ddr_change_freq out,freq=792MHz
+<6>[    6.502638] TSAI  bus 'platform': add driver pvrsrvkm probe ffffffc00044e8b0 drivers/base/bus.c
+<6>[    6.502814] TSAI __driver_attach dev ffa30000.gpu drv pvrsrvkm
+<7>[    6.502889] PVR_K: sys.gpvr.version=Rogue M 1.31+
+<7>[    6.502908] raw version=0x10008,rk_tf_version=1.8
+<7>[    6.502989] rgx_dvfs_infotbl[0].clock=288,min_threshold=0,max_threshold=40,coef=100
+<7>[    6.503004] rgx_dvfs_infotbl[1].clock=400,min_threshold=58,max_threshold=70,coef=95
+<7>[    6.503019] rgx_dvfs_infotbl[2].clock=576,min_threshold=85,max_threshold=100,coef=90
+<6>[    6.505209] rockchip-i2s ff890000.i2s1: i2s1 has no mclk
+<6>[    6.507479] rockchip-hdmi-i2s rockchip-hdmi-i2s: rk-hdmi-i2s-hifi <-> ff898000.i2s0 mapping ok
+<6>[    6.508151] TSAI register_console netcon cnt:3@kernel/printk/printk.c
+<6>[    6.508181] TSAI console_lock lr=register_console+0x20c/0x384 @kernel/printk/printk.c
+<6>[    6.508221] console [netcon0] enabled @kernel/printk/printk.c
+<6>[    6.508236] netconsole: network logging started
+<7>[    6.508270] =======================================================
+<7>[    6.508282] ==== Launching Wi-Fi driver! (Powered by Rockchip) ====
+<7>[    6.508295] =======================================================
+<7>[    6.508308]  WiFi driver (Powered by Rockchip,Ver 5.10.WFD.OOB.64bit) init.
+<7>[    6.508401] dhd_module_init: in
+<3>[    6.508410] otg_wakelock_init: No USB transceiver found
+<6>[    6.508424] TSAI: dhd_module_init() current ffffffc07f261600 wifi_init_threa @drivers/net/wireless/rockchip_wlan/rkwifi/bcmdhd/dhd_linux.c
+<7>[    6.508444] ======== bcm_wlan_set_plat_data ========
+<6>[    6.508457] [WLAN_RFKILL]: rockchip_wifi_get_oob_irq: Enter
+<6>[    6.508485] TSAI  bus 'i2c': add driver sensors drivers/base/bus.c
+<7>[    6.508492] host_oob_irq: 6
+<7>[    6.508504] host_oob_irq_flags=0x4
+<7>[    6.508522] dhd_wifi_platform_load: Enter
+<6>[    6.508554] TSAI dhd_wifi_platform_load_sdio @drivers/net/wireless/rockchip_wlan/rkwifi/bcmdhd/dhd_linux_platdev.c
+<7>[    6.508572] Power-up adapter 'DHD generic adapter'
+<6>[    6.508588] TSAI  bus 'sdio': add driver dummy_sdmmc drivers/base/bus.c
+<6>[    6.508596] sensor_init: Probe name sensors
+<7>[    6.508618] sensor-dev.c v1.4 add angle calculation support between two gsensors 2013-09-01
+<3>[    6.508640] drivers/rtc/hctosys.c: unable to open rtc device (rtc0)
+<7>[    6.508648] wifi_platform_set_power = 1
+<7>[    6.508660] ======== PULL WL_REG_ON HIGH! ========
+<6>[    6.508677] [WLAN_RFKILL]: rockchip_wifi_power: 1
+<6>[    6.508690] [WLAN_RFKILL]: rockchip_wifi_ref_voltage: 1
+<6>[    6.508702] [WLAN_RFKILL]: rockchip_wifi_ref_voltage: wifi io reference voltage control is disabled.
+<6>[    6.519276] TSAI  bus 'platform': add driver rockchip-spdif-card probe ffffffc000849e38 drivers/base/bus.c
+<6>[    6.519752] rk3688_suspend_init: pm_ctrbits =0x80104
+<6>[    6.520257] vcca_18: disabling
+<6>[    6.521676] ALSA device list:
+<6>[    6.521692]   #0: RK-HDMI-I2S
+<6>[    6.521774] TSAI console_lock lr=console_device+0x14/0x5c @kernel/printk/printk.c
+<6>[    6.522288] Freeing unused kernel memory: 472K (ffffffc000e9d000 - ffffffc000f13000)
+<6>[    6.522328] Freeing alternatives memory: 32K (ffffffc000f13000 - ffffffc000f1b000)
+<4>[    6.522349] This architecture does not have kernel memory protection.
+<3>[    6.523251] init: error to open scaling_available_frequencies
+<6>[    6.523338] TSAI: vfs_kern_mount tmpfs @fs/namespace.c 905
+<6>[    6.523440] TSAI mount tmpfs /dev tmpfs ret=0 from init @fs/namespace.c
+<6>[    6.523492] TSAI: vfs_kern_mount devpts @fs/namespace.c 905
+<6>[    6.523527] TSAI mount devpts /dev/pts devpts ret=0 from init @fs/namespace.c
+<6>[    6.523549] TSAI: vfs_kern_mount proc @fs/namespace.c 905
+<6>[    6.523576] TSAI mount proc /proc proc ret=0 from init @fs/namespace.c
+<6>[    6.523596] TSAI: vfs_kern_mount sysfs @fs/namespace.c 905
+<6>[    6.523645] TSAI mount sysfs /sys sysfs ret=0 from init @fs/namespace.c
+<6>[    6.569232] usb 1-1: new high-speed USB device number 2 using ehci-platform
+<6>[    6.609229] [WLAN_RFKILL]: wifi turn on power. 100
+<6>[    6.637554] TSAI: vfs_kern_mount selinuxfs @fs/namespace.c 905
+<6>[    6.637587] TSAI mount selinuxfs /sys/fs/selinux selinuxfs ret=0 from init @fs/namespace.c
+<7>[    6.640948] SELinux: 2048 avtab hash slots, 5077 rules.
+<6>[    6.641052] SELinux:  Android master kernel running Android M policy in compatibility mode.
+<7>[    6.642727] SELinux: 2048 avtab hash slots, 5077 rules.
+<7>[    6.642746] SELinux:  1 users, 2 roles, 557 types, 0 bools, 1 sens, 1024 cats
+<7>[    6.642760] SELinux:  92 classes, 5077 rules
+<6>[    6.643870] SELinux:  Permission audit_read in class capability2 not defined in policy.
+<6>[    6.643913] SELinux: the above unknown classes and permissions will be denied
+<7>[    6.643950] SELinux:  Completing initialization.
+<7>[    6.643960] SELinux:  Setting up existing superblocks.
+<7>[    6.643987] SELinux: initialized (dev rootfs, type rootfs), uses genfs_contexts
+<7>[    6.644063] SELinux: initialized (dev bdev, type bdev), not configured for labeling
+<7>[    6.644083] SELinux: initialized (dev proc, type proc), uses genfs_contexts
+<7>[    6.644115] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
+<7>[    6.644140] SELinux: initialized (dev devtmpfs, type devtmpfs), uses transition SIDs
+<7>[    6.644339] SELinux: initialized (dev debugfs, type debugfs), uses genfs_contexts
+<7>[    6.652978] SELinux: initialized (dev sockfs, type sockfs), uses task SIDs
+<7>[    6.653003] SELinux: initialized (dev tracefs, type tracefs), uses genfs_contexts
+<7>[    6.661779] SELinux: initialized (dev pipefs, type pipefs), uses task SIDs
+<7>[    6.661800] SELinux: initialized (dev anon_inodefs, type anon_inodefs), not configured for labeling
+<7>[    6.661815] SELinux: initialized (dev aio, type aio), not configured for labeling
+<7>[    6.661832] SELinux: initialized (dev devpts, type devpts), uses transition SIDs
+<7>[    6.661861] SELinux: initialized (dev selinuxfs, type selinuxfs), uses genfs_contexts
+<7>[    6.661936] SELinux: initialized (dev configfs, type configfs), uses genfs_contexts
+<7>[    6.661952] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
+<7>[    6.661980] SELinux: initialized (dev sysfs, type sysfs), uses genfs_contexts
+<6>[    6.720045] usb 1-1: New USB device found, idVendor=1a40, idProduct=0801
+<6>[    6.720139] usb 1-1: New USB device strings: Mfr=0, Product=1, SerialNumber=0
+<6>[    6.720216] usb 1-1: Product: USB 2.0 Hub
+<6>[    6.721921] hub 1-1:1.0: USB hub found
+<6>[    6.722155] hub 1-1:1.0: 4 ports detected
+<5>[    6.734602] audit: type=1403 audit(6.710:2): policy loaded auid=4294967295 ses=4294967295
+<3>[    6.746014] init: TSAI: UMS boot try count 0 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0xinit: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[    6.746090] init: TSAI: s2=(null)
+<3>[    6.746118] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=0
+<7>[    6.819224] wifi_platform_bus_enumerate device present 1
+<7>[    6.819241] ======== Card detection to detect SDIO card! ========
+<6>[    6.819255] mmc2:mmc host rescan start!
+<6>[    6.999224] usb 1-1.2: new high-speed USB device number 3 using ehci-platform
+<6>[    7.192210] TSAI: mmc_rescan ff0d0000.rksdmmc mmc2 @drivers/mmc/core/core.c
+<6>[    7.192520] TSAI mmc2: mmc_rescan_try_freq: trying to init card at 400000 Hz current ffffffc07a82b700 kworker/u16:0 @drivers/mmc/core/core.c
+<7>[    7.392190] rk_sdmmc: BOOT dw_mci_setup_bus: argue clk_mmc workaround out 800000Hz for init[mmc2]
+<6>[    7.650740] TSAI: mmc_attach_sdio mmc2 @drivers/mmc/core/sdio.c
+<4>[    7.746870] mmc2: queuing unknown CIS tuple 0x80 (2 bytes)
+<4>[    7.762590] mmc2: queuing unknown CIS tuple 0x80 (3 bytes)
+<4>[    7.778300] mmc2: queuing unknown CIS tuple 0x80 (3 bytes)
+<4>[    7.806290] mmc2: queuing unknown CIS tuple 0x80 (7 bytes)
+<6>[    7.110111] usb 1-1.2: New USB device found, idVendor=152d, idProduct=2329
+<6>[    7.110137] usb 1-1.2: New USB device strings: Mfr=1, Product=2, SerialNumber=5
+<6>[    7.110159] usb 1-1.2: Product: USB to ATA/ATAPI bridge
+<6>[    7.110179] usb 1-1.2: Manufacturer: JMicron
+<6>[    7.110199] usb 1-1.2: SerialNumber: 59084972C568
+<6>[    7.111261] usb-storage 1-1.2:1.0: USB Mass Storage device detected
+<6>[    7.112213] usb-storage 1-1.2:1.0: Quirks match for vid 152d pid 2329: 8020
+<6>[    7.112303] scsi host0: usb-storage 1-1.2:1.0
+<6>[    7.134851] mmc_host mmc2: Bus speed (slot 0) = 150000000Hz (slot req 50000000Hz, actual 37500000HZ div = 2)
+<7>[    7.134889] rk_sdmmc: BOOT dw_mci_setup_bus: argue clk_mmc workaround out normal clock [mmc2]
+<7>[    7.134903] rk_sdmmc: ERROR dw_mci_setup_bus: div SHOULD NOT LARGER THAN ONE! [mmc2]
+<7>[    7.134918] rk_sdmmc: BOOT dw_mci_setup_bus: workaround div = 1, host->bus_hz = 75000000 [mmc2]
+<7>[    7.134986] rk_sdmmc: BOOT Bus speed=37500000Hz,Bus width=4bits.[mmc2]
+<6>[    7.135001] TSAI: mmc_sdio_init_card()[out] ret=0 @drivers/mmc/core/sdio.c
+<4>[    7.137743] mmc2: queuing unknown CIS tuple 0x91 (3 bytes)
+<6>[    7.137786] mmc2: new high speed SDIO card at address 0001
+<6>[    7.137879] TSAI mmc_add_card card->dev mmc2:0001 @drivers/mmc/core/bus.c
+<6>[    7.138026] TSAI: sdio_add_func mmc2:0001:1 @drivers/mmc/core/sdio_bus.c
+<6>[    7.138178] TSAI dummy_probe num=1 @drivers/net/wireless/rockchip_wlan/rkwifi/bcmdhd/bcmsdh_sdmmc_linux.c
+<6>[    7.138213] TSAI: sdio_add_func mmc2:0001:2 @drivers/mmc/core/sdio_bus.c
+<6>[    7.138339] TSAI dummy_probe num=2 @drivers/net/wireless/rockchip_wlan/rkwifi/bcmdhd/bcmsdh_sdmmc_linux.c
+<6>[    7.138379] TSAI: sdio_add_func mmc2:0001:3 @drivers/mmc/core/sdio_bus.c
+<7>[    7.154437] bcmsdh_register: register client driver
+<6>[    7.154455] TSAI  bus 'sdio': add driver bcmsdh_sdmmc drivers/base/bus.c
+<6>[    7.154488] TSAI __driver_attach dev mmc2:0001:1 drv bcmsdh_sdmmc
+<7>[    7.154589] bcmsdh_sdmmc: bcmsdh_sdmmc_probe Enter
+<6>[    7.154615] TSAI __driver_attach dev mmc2:0001:2 drv bcmsdh_sdmmc
+<7>[    7.154695] bcmsdh_sdmmc: bcmsdh_sdmmc_probe Enter
+<7>[    7.154710] bus num (host idx)=2, slot num (rca)=1
+<7>[    7.154724] found adapter info 'DHD generic adapter'
+<7>[    7.154776] sdioh_attach: set sd_f2_blocksize 128
+<7>[    7.155156] F1 signature read @0x18000000=0x17214354
+<7>[    7.158289] F1 signature OK, socitype:0x1 chip:0x4354 rev:0x1 pkg:0x2
+<7>[    7.158722] DHD: dongle ram size is set to 786432(orig 786432) at 0x180000
+<7>[    7.158792] wifi_platform_get_mac_addr
+<7>[    7.158806] ======== bcm_wlan_get_mac_address ========
+<6>[    7.158820] [WLAN_RFKILL]: rockchip_wifi_mac_addr: enter.
+<6>[    7.158845] [WLAN_RFKILL]: falsh wifi_custom_mac_addr=[65:7a:d1:17:3a:98]
+<6>[    7.158863] [WLAN_RFKILL]: This mac address is not valid, ignored...
+<7>[    7.158887] dhd_conf_set_chiprev: chip=0x4354, chiprev=1
+<7>[    7.158946] dhd_conf_set_conf_path_by_nv_path: config_path=/system/etc/firmware/config.txt
+<7>[    7.159436] wl_create_event_handler(): thread:wl_event_handler:84 started
+<7>[    7.159448] tsk Enter, tsk = 0xffffffc07f4e1ab0
+<7>[    7.159603] dhd_attach(): thread:dhd_watchdog_thread:85 started
+<7>[    7.159671] dhd_attach(): thread:dhd_dpc:86 started
+<7>[    7.159694] dhd_dpc_thread: set dpc_cpucore 0 from config.txt
+<7>[    7.159759] dhd_attach(): thread:dhd_rxf:87 started
+<7>[    7.159783] dhd_deferred_work_init: work queue initialized
+<7>[    7.168430] Dongle Host Driver, version 1.201.59.6 (r506368)
+<7>[    7.168947] Register interface [wlan0]  MAC: 04:e6:76:c3:96:5f
+<7>[    7.168973] dhd_prot_ioctl : bus is down. we have nothing to do
+<7>[    7.169035] bcmsdh_oob_intr_unregister: Enter
+<7>[    7.169049] bcmsdh_oob_intr_unregister: irq is not registered
+<7>[    7.169068] dhd_txglom_enable: enable 0
+<7>[    7.169082] dhd_conf_set_txglom_params: swtxglom=0, txglom_ext=0
+<7>[    7.169095] dhd_conf_set_txglom_params: txglom_bucket_size=0
+<7>[    7.169108] dhd_conf_set_txglom_params: txglomsize=0, deferred_tx_len=0, bus_txglom=0
+<7>[    7.169121] dhd_conf_set_txglom_params: tx_in_rx=1, tx_max_offset=0
+<7>[    7.169134] dhd_bus_devreset:  WLAN OFF DONE
+<7>[    7.169187] wifi_platform_set_power = 0
+<7>[    7.169224] ======== PULL WL_REG_ON LOW! ========
+<6>[    7.169238] [WLAN_RFKILL]: rockchip_wifi_power: 0
+<6>[    7.279217] [WLAN_RFKILL]: wifi shut off power.
+<6>[    7.279239] [WLAN_RFKILL]: rockchip_wifi_ref_voltage: 0
+<6>[    7.279258] [WLAN_RFKILL]: rockchip_wifi_ref_voltage: wifi io reference voltage control is disabled.
+<7>[    7.279335] dhd_module_init: Exit err=0
+<3>[    7.746359] init: TSAI: UMS boot try count 1 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0xinit: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[    7.746433] init: TSAI: s2=(null)
+<3>[    7.746463] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=1
+<5>[    8.109919] scsi 0:0:0:0: Direct-Access     FUJITSU  MJA2250BH G2     0000 PQ: 0 ANSI: 2 CCS
+<5>[    8.110764] sd 0:0:0:0: Attached scsi generic sg0 type 0
+<5>[    8.110893] audit: type=1400 audit(8.090:3): avc:  denied  { create } for  pid=40 comm="kdevtmpfs" name="bsg" scontext=u:r:kernel:s0 tcontext=u:object_r:device:s0 tclass=dir permissive=1
+<5>[    8.111155] sd 0:0:0:0: [sda] 488397168 512-byte logical blocks: (250 GB/232 GiB)
+<5>[    8.112263] sd 0:0:0:0: [sda] Write Protect is off
+<7>[    8.112288] sd 0:0:0:0: [sda] Mode Sense: 28 00 00 00
+<3>[    8.113379] sd 0:0:0:0: [sda] No Caching mode page found
+<3>[    8.113403] sd 0:0:0:0: [sda] Assuming drive cache: write through
+<6>[    8.116534] TSAI: check_partition major=8 emmc=0 @block/partitions/check.c
+<4>[    8.228587] GPT:Primary header thinks Alt. header is not at the end of the disk.
+<4>[    8.228621] GPT:488397166 != 488397167
+<4>[    8.228638] GPT:Alternate GPT header not at the end of the disk.
+<4>[    8.228656] GPT:488397166 != 488397167
+<4>[    8.228672] GPT: Use GNU Parted to correct GPT errors.
+<6>[    8.228750]  sda: sda1 sda2 sda3 sda4 sda5 sda6 sda7 sda8 sda9 sda10 sda11 sda12 sda13 sda14 sda15 sda16 sda17 sda18
+<5>[    8.234263] sd 0:0:0:0: [sda] Attached SCSI disk
+<3>[    8.746705] init: TSAI: UMS boot try count 2 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0xinit: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[    8.746782] init: TSAI: s2=(null)
+<3>[    8.746811] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=2
+<7>[    9.519230] iep dpi mode inactivity
+<3>[    9.747025] init: TSAI: UMS boot try count 3 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0xinit: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[    9.747091] init: TSAI: s2=(null)
+<3>[    9.747121] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=3
+<3>[   10.747326] init: TSAI: UMS boot try count 4 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0xinit: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   10.747393] init: TSAI: s2=(null)
+<3>[   10.747423] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=4
+<3>[   11.747620] init: TSAI: UMS boot try count 5 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0xinit: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   11.747687] init: TSAI: s2=(null)
+<3>[   11.747717] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=5
+<3>[   12.747911] init: TSAI: UMS boot try count 6 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0xinit: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   12.747979] init: TSAI: s2=(null)
+<3>[   12.748008] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=6
+<3>[   13.748204] init: TSAI: UMS boot try count 7 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0xinit: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   13.748272] init: TSAI: s2=(null)
+<3>[   13.748302] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=7
+<6>[   14.269225] [otg id chg] last id -1 current id 67108864
+<7>[   14.269266] PortPower off
+<7>[   14.269280] rk_battery_charger_detect_cb , battery_charger_detect 6
+<7>[   14.370329] Using Buffer DMA mode
+<7>[   14.370343] Periodic Transfer Interrupt Enhancement - disabled
+<7>[   14.370356] Multiprocessor Interrupt Enhancement - disabled
+<7>[   14.370369] OTG VER PARAM: 0, OTG VER FLAG: 0
+<7>[   14.370383] ^^^^^^^^^^^^^^^^^Device Mode
+<7>[   14.370407] dwc_otg_hcd_resume, usb device mode
+<7>[   14.479254] dwc_otg_hcd_suspend, usb device mode
+<3>[   14.748529] init: TSAI: UMS boot try count 8 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0xinit: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   14.748599] init: TSAI: s2=(null)
+<3>[   14.748628] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=8
+<7>[   14.869235] rk_battery_charger_detect_cb , battery_charger_detect 0
+<3>[   15.748839] init: TSAI: UMS boot try count 9 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0xinit: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   15.748907] init: TSAI: s2=(null)
+<3>[   15.748936] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=9
+<3>[   16.749144] init: TSAI: UMS boot try count 10 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0init: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   16.749246] init: TSAI: s2=(null)
+<3>[   16.749278] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=10
+<3>[   17.749484] init: TSAI: UMS boot try count 11 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0init: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   17.749553] init: TSAI: s2=(null)
+<3>[   17.749583] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=11
+<3>[   18.749786] init: TSAI: UMS boot try count 12 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0init: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   18.749854] init: TSAI: s2=(null)
+<3>[   18.749883] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=12
+<3>[   19.750087] init: TSAI: UMS boot try count 13 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0init: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   19.750157] init: TSAI: s2=(null)
+<3>[   19.750187] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=13
+<3>[   20.750390] init: TSAI: UMS boot try count 14 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0init: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   20.750458] init: TSAI: s2=(null)
+<3>[   20.750488] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=14
+<3>[   21.750689] init: TSAI: UMS boot try count 15 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0init: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   21.750758] init: TSAI: s2=(null)
+<3>[   21.750788] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=15
+<3>[   22.750989] init: TSAI: UMS boot try count 16 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0init: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   22.751058] init: TSAI: s2=(null)
+<3>[   22.751087] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=16
+<3>[   23.751308] init: TSAI: UMS boot try count 17 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0init: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   23.751377] init: TSAI: s2=(null)
+<3>[   23.751407] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=17
+<3>[   24.751610] init: TSAI: UMS boot try count 18 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0init: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   24.751680] init: TSAI: s2=(null)
+<3>[   24.751710] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=18
+<3>[   25.751914] init: TSAI: UMS boot try count 19 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0init: TSAI: s1=storagemedia=ums uboot_logo=0x02000000@0x7dc00000 loader.timestamp=2019-07-15_21:11:55 hdmi.vic=1121
+<3>[   25.751984] init: TSAI: s2=(null)
+<3>[   25.752014] init: OK,UMS DRIVERS NOT READY, wait 1sec, RERRY=19
+<3>[   26.752215] init: TSAI: try count 0 cmdline=earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag console=ttyS2 androidboot.baseband=N/A androidboot.selinux=permissive androidboot.hardware=rk30board androidboot.console=ttyS2 root=LABEL=linuxroot rw rootfstype=ext4 init=/sbin/init mtdparts=rk29xxnand:0x00002000@0x00002000(uboot),0x00002000@0x00004000(trust),0x00002000@0x00006000(misc),0x00008000@0x00008000(resource),0x00008000@0x00010000(kernel),0x00010000@0x00018000(boot),0x00010000@0x00028000(recovery),0x00038000@0x00038000(init: TSAI: s1=(null)
+<3>[   26.752278] init: TSAI: s2=(null)
+<3>[   26.752336] init: property_set("ro.hardware", "rk30board") failed
+<3>[   26.811047] init: waitpid failed: No child processes
+<3>[   26.814446] init: could not import file '/init.debug.rc' from 'init.rockchip.rc'
+<3>[   26.814833] init: init.box.rc: 1: ignored duplicate definition of service 'media'
+<3>[   26.814898] init: could not import file 'init.car.rc' from '/init.rk30board.rc'
+<3>[   26.814953] init: could not import file '/init.usb.3.18.48+.rc' from '/init.rc'
+<3>[   26.815562] init: TSAI:cmd[3] write /proc/1/oom_score_adj -1000  (/init.rc:18)
+<3>[   26.815671] init: TSAI:cmd[2] restorecon /adb_keys  (/init.rc:21)
+<3>[   26.815745] init: SELinux: Could not get canonical path /adb_keys restorecon: No such file or directory.
+<3>[   26.815784] init: TSAI:cmd[2] start ueventd  (/init.rc:23)
+<3>[   26.816174] init: TSAI:cmd[3] chmod 0220 /proc/bluetooth/sleep/lpm  (init.connectivity.rc:5)
+<3>[   26.816431] init: TSAI:cmd[3] chmod 0220 /proc/bluetooth/sleep/btwrite  (init.connectivity.rc:6)
+<3>[   26.816608] init: TSAI:cmd[4] chown bluetooth net_bt_stack /proc/bluetooth/sleep/lpm  (init.connectivity.rc:7)
+<3>[   26.816727] init: TSAI:cmd[4] chown bluetooth net_bt_stack /proc/bluetooth/sleep/btwrite  (init.connectivity.rc:8)
+<3>[   26.816870] init: TSAI:cmd[1] wait_for_coldboot_done  ((null):0)
+<5>[   26.817360] ueventd: ueventd started!
+<3>[   26.817984] ueventd: invalid gid 'trace'
+<5>[   27.326410] ueventd: Coldboot took 0.21s.
+<3>[   27.391280] init: TSAI:cmd[1] mix_hwrng_into_linux_rng  ((null):0)
+<3>[   27.392270] init: /dev/hw_random not found
+<3>[   27.392720] init: TSAI:cmd[1] keychord_init  ((null):0)
+<3>[   27.393880] init: TSAI:cmd[1] console_init  ((null):0)
+<3>[   27.396520] init: TSAI:cmd[2] sysclktz 0  (/init.rc:26)
+<3>[   27.396980] init: TSAI:cmd[3] symlink /system/etc /etc  (/init.rc:29)
+<3>[   27.397840] init: TSAI:cmd[3] symlink /sys/kernel/debug /d  (/init.rc:30)
+<3>[   27.398380] init: TSAI:cmd[3] symlink /system/vendor /vendor  (/init.rc:33)
+<3>[   27.398900] init: TSAI:cmd[2] mkdir /acct  (/init.rc:36)
+<3>[   27.400550] init: TSAI:cmd[5] mount cgroup none /acct cpuacct  (/init.rc:37)
+<6>[   27.401230] TSAI: vfs_kern_mount none @fs/namespace.c 905
+<7>[   27.404160] SELinux: initialized (dev cgroup, type cgroup), uses genfs_contexts
+<6>[   27.404620] TSAI mount none /acct cgroup ret=0 from init @fs/namespace.c
+<3>[   27.405090] init: TSAI:cmd[2] mkdir /acct/uid  (/init.rc:38)
+<3>[   27.407630] init: TSAI:cmd[5] mount tmpfs none /sys/fs/cgroup mode=0750,uid=0,gid=1000  (/init.rc:41)
+<6>[   27.408590] TSAI: vfs_kern_mount none @fs/namespace.c 905
+<7>[   27.410220] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
+<6>[   27.410690] TSAI mount none /sys/fs/cgroup tmpfs ret=0 from init @fs/namespace.c
+<3>[   27.411170] init: TSAI:cmd[5] mkdir /sys/fs/cgroup/memory 0750 root system  (/init.rc:42)
+<3>[   27.413370] init: TSAI:cmd[5] mount cgroup none /sys/fs/cgroup/memory memory  (/init.rc:43)
+<6>[   27.414060] TSAI: vfs_kern_mount none @fs/namespace.c 905
+<6>[   27.414540] TSAI mount none /sys/fs/cgroup/memory cgroup ret=-2 from init @fs/namespace.c
+<3>[   27.414920] init: TSAI:cmd[3] write /sys/fs/cgroup/memory/memory.move_charge_at_immigrate 1  (/init.rc:44)
+<3>[   27.416220] init: TSAI:cmd[4] chown root system /sys/fs/cgroup/memory/tasks  (/init.rc:45)
+<3>[   27.416740] init: TSAI:cmd[3] chmod 0660 /sys/fs/cgroup/memory/tasks  (/init.rc:46)
+<3>[   27.417280] init: TSAI:cmd[5] mkdir /sys/fs/cgroup/memory/sw 0750 root system  (/init.rc:47)
+<3>[   27.419110] init: TSAI:cmd[3] write /sys/fs/cgroup/memory/sw/memory.swappiness 100  (/init.rc:48)
+<3>[   27.420050] init: TSAI:cmd[3] write /sys/fs/cgroup/memory/sw/memory.move_charge_at_immigrate 1  (/init.rc:49)
+<3>[   27.421000] init: TSAI:cmd[4] chown root system /sys/fs/cgroup/memory/sw/tasks  (/init.rc:50)
+<3>[   27.421530] init: TSAI:cmd[3] chmod 0660 /sys/fs/cgroup/memory/sw/tasks  (/init.rc:51)
+<3>[   27.422040] init: TSAI:cmd[2] mkdir /system  (/init.rc:53)
+<3>[   27.424450] init: TSAI:cmd[5] mkdir /data 0771 system system  (/init.rc:54)
+<3>[   27.426400] init: TSAI:cmd[5] mkdir /cache 0770 system cache  (/init.rc:55)
+<3>[   27.428430] init: TSAI:cmd[5] mkdir /config 0500 root root  (/init.rc:56)
+<3>[   27.429780] init: TSAI:cmd[5] mkdir /mnt 0755 root system  (/init.rc:60)
+<3>[   27.430950] init: TSAI:cmd[5] mount tmpfs tmpfs /mnt mode=0755,uid=0,gid=1000  (/init.rc:61)
+<6>[   27.431620] TSAI: vfs_kern_mount tmpfs @fs/namespace.c 905
+<7>[   27.432450] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
+<6>[   27.432790] TSAI mount tmpfs /mnt tmpfs ret=0 from init @fs/namespace.c
+<3>[   27.433190] init: TSAI:cmd[2] restorecon_recursive /mnt  (/init.rc:62)
+<3>[   27.435180] init: TSAI:cmd[4] mount configfs none /config  (/init.rc:65)
+<6>[   27.435600] TSAI: vfs_kern_mount none @fs/namespace.c 905
+<6>[   27.436180] TSAI mount none /config configfs ret=0 from init @fs/namespace.c
+<3>[   27.436550] init: TSAI:cmd[3] chmod 0775 /config/sdcardfs  (/init.rc:66)
+<3>[   27.437190] init: TSAI:cmd[4] chown system package_info /config/sdcardfs  (/init.rc:67)
+<3>[   27.437710] init: TSAI:cmd[5] mkdir /mnt/secure 0700 root root  (/init.rc:70)
+<3>[   27.441060] init: TSAI:cmd[5] mkdir /mnt/secure/asec 0700 root root  (/init.rc:71)
+<3>[   27.442590] init: TSAI:cmd[5] mkdir /mnt/asec 0755 root system  (/init.rc:72)
+<3>[   27.444800] init: TSAI:cmd[5] mkdir /mnt/obb 0755 root system  (/init.rc:73)
+<3>[   27.446440] init: TSAI:cmd[5] mkdir /mnt/media_rw 0750 root media_rw  (/init.rc:74)
+<3>[   27.448490] init: TSAI:cmd[5] mkdir /mnt/user 0755 root root  (/init.rc:75)
+<3>[   27.450380] init: TSAI:cmd[5] mkdir /mnt/user/0 0755 root root  (/init.rc:76)
+<3>[   27.452080] init: TSAI:cmd[5] mkdir /mnt/expand 0771 system system  (/init.rc:77)
+<3>[   27.454080] init: TSAI:cmd[5] mkdir /storage 0755 root root  (/init.rc:80)
+<3>[   27.455920] init: TSAI:cmd[5] mkdir /mnt/runtime 0700 root root  (/init.rc:81)
+<3>[   27.457680] init: TSAI:cmd[5] mkdir /mnt/runtime/default 0755 root root  (/init.rc:82)
+<3>[   27.459340] init: TSAI:cmd[5] mkdir /mnt/runtime/default/self 0755 root root  (/init.rc:83)
+<3>[   27.460910] init: TSAI:cmd[5] mkdir /mnt/runtime/read 0755 root root  (/init.rc:84)
+<3>[   27.462440] init: TSAI:cmd[5] mkdir /mnt/runtime/read/self 0755 root root  (/init.rc:85)
+<3>[   27.463980] init: TSAI:cmd[5] mkdir /mnt/runtime/write 0755 root root  (/init.rc:86)
+<3>[   27.465510] init: TSAI:cmd[5] mkdir /mnt/runtime/write/self 0755 root root  (/init.rc:87)
+<3>[   27.467030] init: TSAI:cmd[3] symlink /storage/self/primary /sdcard  (/init.rc:90)
+<3>[   27.467810] init: TSAI:cmd[3] symlink /mnt/user/0/primary /mnt/runtime/default/self/primary  (/init.rc:91)
+<3>[   27.468670] init: TSAI:cmd[5] mkdir /dev/memcg 0700 root system  (/init.rc:94)
+<3>[   27.473040] init: TSAI:cmd[5] mount cgroup none /dev/memcg memory  (/init.rc:95)
+<6>[   27.473750] TSAI: vfs_kern_mount none @fs/namespace.c 905
+<6>[   27.474290] TSAI mount none /dev/memcg cgroup ret=-2 from init @fs/namespace.c
+<3>[   27.474690] init: TSAI:cmd[3] write /proc/sys/kernel/panic_on_oops 1  (/init.rc:97)
+<3>[   27.476020] init: TSAI:cmd[3] write /proc/sys/kernel/hung_task_timeout_secs 0  (/init.rc:98)
+<3>[   27.476670] init: TSAI:cmd[3] write /proc/cpu/alignment 4  (/init.rc:99)
+<3>[   27.477260] init: TSAI:cmd[3] write /proc/sys/kernel/sched_tunable_scaling 0  (/init.rc:105)
+<3>[   27.478010] init: TSAI:cmd[3] write /proc/sys/kernel/sched_latency_ns 10000000  (/init.rc:106)
+<3>[   27.478730] init: TSAI:cmd[3] write /proc/sys/kernel/sched_wakeup_granularity_ns 2000000  (/init.rc:107)
+<3>[   27.479460] init: TSAI:cmd[3] write /proc/sys/kernel/sched_compat_yield 1  (/init.rc:108)
+<3>[   27.480050] init: TSAI:cmd[3] write /proc/sys/kernel/sched_child_runs_first 0  (/init.rc:109)
+<3>[   27.480780] init: TSAI:cmd[3] write /proc/sys/kernel/randomize_va_space 2  (/init.rc:111)
+<3>[   27.481900] init: TSAI:cmd[3] write /proc/sys/kernel/kptr_restrict 2  (/init.rc:112)
+<3>[   27.482710] init: TSAI:cmd[3] write /proc/sys/vm/mmap_min_addr 32768  (/init.rc:113)
+<3>[   27.483800] init: TSAI:cmd[3] write /proc/sys/net/ipv4/ping_group_range 0 2147483647  (/init.rc:114)
+<3>[   27.485250] init: TSAI:cmd[3] write /proc/sys/net/unix/max_dgram_qlen 300  (/init.rc:115)
+<3>[   27.486190] init: TSAI:cmd[3] write /proc/sys/kernel/sched_rt_runtime_us 950000  (/init.rc:116)
+<3>[   27.487030] init: TSAI:cmd[3] write /proc/sys/kernel/sched_rt_period_us 1000000  (/init.rc:117)
+<3>[   27.487800] init: TSAI:cmd[3] write /proc/sys/net/ipv4/fwmark_reflect 1  (/init.rc:120)
+<3>[   27.488590] init: TSAI:cmd[3] write /proc/sys/net/ipv6/fwmark_reflect 1  (/init.rc:121)
+<3>[   27.489510] init: TSAI:cmd[3] write /proc/sys/net/ipv4/tcp_fwmark_accept 1  (/init.rc:124)
+<3>[   27.490280] init: TSAI:cmd[3] write /proc/sys/net/ipv4/conf/all/accept_redirects 0  (/init.rc:127)
+<3>[   27.491330] init: TSAI:cmd[3] write /proc/sys/net/ipv6/conf/all/accept_redirects 0  (/init.rc:128)
+<3>[   27.492790] init: TSAI:cmd[2] mkdir /dev/cpuctl  (/init.rc:131)
+<3>[   27.496050] init: TSAI:cmd[5] mount cgroup none /dev/cpuctl cpu  (/init.rc:132)
+<6>[   27.496790] TSAI: vfs_kern_mount none @fs/namespace.c 905
+<7>[   27.498350] SELinux: initialized (dev cgroup, type cgroup), uses genfs_contexts
+<6>[   27.498640] TSAI mount none /dev/cpuctl cgroup ret=0 from init @fs/namespace.c
+<3>[   27.499100] init: TSAI:cmd[4] chown system system /dev/cpuctl  (/init.rc:133)
+<3>[   27.499660] init: TSAI:cmd[4] chown system system /dev/cpuctl/tasks  (/init.rc:134)
+<3>[   27.500450] init: TSAI:cmd[3] chmod 0666 /dev/cpuctl/tasks  (/init.rc:135)
+<3>[   27.501380] init: TSAI:cmd[3] write /dev/cpuctl/cpu.shares 1024  (/init.rc:136)
+<3>[   27.502200] init: TSAI:cmd[3] write /dev/cpuctl/cpu.rt_runtime_us 800000  (/init.rc:137)
+<3>[   27.503140] init: TSAI:cmd[3] write /dev/cpuctl/cpu.rt_period_us 1000000  (/init.rc:138)
+<3>[   27.503790] init: TSAI:cmd[2] mkdir /dev/cpuctl/bg_non_interactive  (/init.rc:140)
+<3>[   27.507510] init: TSAI:cmd[4] chown system system /dev/cpuctl/bg_non_interactive/tasks  (/init.rc:141)
+<3>[   27.508340] init: TSAI:cmd[3] chmod 0666 /dev/cpuctl/bg_non_interactive/tasks  (/init.rc:142)
+<3>[   27.509200] init: TSAI:cmd[3] write /dev/cpuctl/bg_non_interactive/cpu.shares 52  (/init.rc:144)
+<3>[   27.510010] init: TSAI:cmd[3] write /dev/cpuctl/bg_non_interactive/cpu.rt_runtime_us 700000  (/init.rc:145)
+<3>[   27.510790] init: TSAI:cmd[3] write /dev/cpuctl/bg_non_interactive/cpu.rt_period_us 1000000  (/init.rc:146)
+<3>[   27.511460] init: TSAI:cmd[2] mkdir /dev/cpuset  (/init.rc:149)
+<3>[   27.514240] init: TSAI:cmd[4] mount cpuset none /dev/cpuset  (/init.rc:150)
+<6>[   27.517300] TSAI mount none /dev/cpuset cpuset ret=-19 from init @fs/namespace.c
+<3>[   27.517790] init: TSAI:cmd[2] mkdir /dev/cpuset/foreground  (/init.rc:154)
+<3>[   27.520750] init: TSAI:cmd[3] write /dev/cpuset/foreground/cpus 0  (/init.rc:155)
+<3>[   27.521850] init: TSAI:cmd[3] write /dev/cpuset/foreground/mems 0  (/init.rc:156)
+<3>[   27.522610] init: TSAI:cmd[2] mkdir /dev/cpuset/foreground/boost  (/init.rc:157)
+<3>[   27.525140] init: TSAI:cmd[3] write /dev/cpuset/foreground/boost/cpus 0  (/init.rc:158)
+<3>[   27.526280] init: TSAI:cmd[3] write /dev/cpuset/foreground/boost/mems 0  (/init.rc:159)
+<3>[   27.527090] init: TSAI:cmd[2] mkdir /dev/cpuset/background  (/init.rc:160)
+<3>[   27.529640] init: TSAI:cmd[3] write /dev/cpuset/background/cpus 0  (/init.rc:161)
+<3>[   27.530540] init: TSAI:cmd[3] write /dev/cpuset/background/mems 0  (/init.rc:162)
+<3>[   27.531320] init: TSAI:cmd[2] mkdir /dev/cpuset/system-background  (/init.rc:167)
+<3>[   27.533740] init: TSAI:cmd[3] write /dev/cpuset/system-background/cpus 0  (/init.rc:168)
+<3>[   27.534640] init: TSAI:cmd[3] write /dev/cpuset/system-background/mems 0  (/init.rc:169)
+<3>[   27.535420] init: TSAI:cmd[4] chown system system /dev/cpuset  (/init.rc:172)
+<3>[   27.535970] init: TSAI:cmd[4] chown system system /dev/cpuset/foreground  (/init.rc:173)
+<3>[   27.536440] init: TSAI:cmd[4] chown system system /dev/cpuset/foreground/boost  (/init.rc:174)
+<3>[   27.536900] init: TSAI:cmd[4] chown system system /dev/cpuset/background  (/init.rc:175)
+<3>[   27.537350] init: TSAI:cmd[4] chown system system /dev/cpuset/tasks  (/init.rc:176)
+<3>[   27.537820] init: TSAI:cmd[4] chown system system /dev/cpuset/foreground/tasks  (/init.rc:177)
+<3>[   27.538290] init: TSAI:cmd[4] chown system system /dev/cpuset/foreground/boost/tasks  (/init.rc:178)
+<3>[   27.538760] init: TSAI:cmd[4] chown system system /dev/cpuset/background/tasks  (/init.rc:179)
+<3>[   27.539210] init: TSAI:cmd[3] chmod 0664 /dev/cpuset/foreground/tasks  (/init.rc:180)
+<3>[   27.539690] init: TSAI:cmd[3] chmod 0664 /dev/cpuset/foreground/boost/tasks  (/init.rc:181)
+<3>[   27.540160] init: TSAI:cmd[3] chmod 0664 /dev/cpuset/background/tasks  (/init.rc:182)
+<3>[   27.540630] init: TSAI:cmd[3] chmod 0664 /dev/cpuset/tasks  (/init.rc:183)
+<3>[   27.541090] init: TSAI:cmd[4] chown root net_bw_acct /proc/net/xt_qtaguid/ctrl  (/init.rc:189)
+<3>[   27.543170] init: TSAI:cmd[4] chown root net_bw_stats /proc/net/xt_qtaguid/stats  (/init.rc:190)
+<3>[   27.544650] init: TSAI:cmd[3] chmod 0644 /dev/xt_qtaguid  (/init.rc:194)
+<3>[   27.545750] init: TSAI:cmd[5] mkdir /dev/fscklogs 0770 root system  (/init.rc:198)
+<3>[   27.548830] init: TSAI:cmd[4] mount pstore pstore /sys/fs/pstore  (/init.rc:201)
+<6>[   27.549320] TSAI mount pstore /sys/fs/pstore pstore ret=-2 from init @fs/namespace.c
+<3>[   27.549700] init: TSAI:cmd[4] chown system log /sys/fs/pstore/console-ramoops  (/init.rc:202)
+<3>[   27.550170] init: TSAI:cmd[3] chmod 0440 /sys/fs/pstore/console-ramoops  (/init.rc:203)
+<3>[   27.550660] init: TSAI:cmd[4] chown system log /sys/fs/pstore/pmsg-ramoops-0  (/init.rc:204)
+<3>[   27.551110] init: TSAI:cmd[3] chmod 0440 /sys/fs/pstore/pmsg-ramoops-0  (/init.rc:205)
+<3>[   27.551570] init: TSAI:cmd[3] write /proc/sys/abi/swp 1  (/init.rc:208)
+<5>[   27.552410] Registered swp emulation handler
+<3>[   27.552820] init: TSAI:cmd[3] chmod 0666 /dev/tsai_spy  (/init.rc:210)
+<3>[   27.553610] init: TSAI:cmd[2] mkdir /mnt/nfs  (/init.rc:212)
+<3>[   27.555280] init: TSAI:cmd[5] mkdir /config/usb_gadget/g1 0770 shell shell  (/init.rc:214)
+<3>[   27.558850] init: TSAI:cmd[3] write /config/usb_gadget/g1/idVendor 0x18D1  (/init.rc:215)
+<3>[   27.560040] init: TSAI:cmd[3] write /config/usb_gadget/g1/idProduct 0x4E26  (/init.rc:216)
+<3>[   27.560850] init: TSAI:cmd[5] mkdir /config/usb_gadget/g1/strings/0x409 0770 shell shell  (/init.rc:217)
+<3>[   27.563070] init: TSAI:cmd[3] write /config/usb_gadget/g1/strings/0x409/serialnumber ${sys.serialno}  (/init.rc:218)
+<3>[   27.563520] init: property 'sys.serialno' doesn't exist while expanding '${sys.serialno}'
+<3>[   27.563820] init: cannot expand '${sys.serialno}' while writing to '/config/usb_gadget/g1/strings/0x409/serialnumber'
+<3>[   27.564190] init: TSAI:cmd[3] write /config/usb_gadget/g1/strings/0x409/manufacturer ${ro.product.manufacturer}  (/init.rc:219)
+<3>[   27.564520] init: property 'ro.product.manufacturer' doesn't exist while expanding '${ro.product.manufacturer}'
+<3>[   27.564830] init: cannot expand '${ro.product.manufacturer}' while writing to '/config/usb_gadget/g1/strings/0x409/manufacturer'
+<3>[   27.565170] init: TSAI:cmd[3] write /config/usb_gadget/g1/strings/0x409/product ${ro.product.name}  (/init.rc:220)
+<3>[   27.565490] init: property 'ro.product.name' doesn't exist while expanding '${ro.product.name}'
+<3>[   27.565780] init: cannot expand '${ro.product.name}' while writing to '/config/usb_gadget/g1/strings/0x409/product'
+<3>[   27.566150] init: TSAI:cmd[5] mkdir /config/usb_gadget/g1/configs/b.1 0770 shell shell  (/init.rc:221)
+<3>[   27.568130] init: TSAI:cmd[5] mkdir /config/usb_gadget/g1/configs/b.1/strings/0x409 0770 shell shell  (/init.rc:222)
+<3>[   27.569660] init: TSAI:cmd[3] write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration Conf 1  (/init.rc:223)
+<3>[   27.570460] init: TSAI:cmd[3] write /config/usb_gadget/g1/configs/b.1/MaxPower 120  (/init.rc:224)
+<3>[   27.571180] init: TSAI:cmd[5] mkdir /config/usb_gadget/g1/functions/ffs.adb 0770 shell shell  (/init.rc:226)
+<6>[   27.572440] file system registered
+<3>[   27.573210] init: TSAI:cmd[5] mkdir /config/usb_gadget/g1/functions/mtp.gs0 0770 shell shell  (/init.rc:228)
+<3>[   27.578040] init: TSAI:cmd[5] mkdir /config/usb_gadget/g1/functions/ptp.gs1 0770 shell shell  (/init.rc:229)
+<3>[   27.581090] init: TSAI:cmd[3] export ANDROID_BOOTLOGO 1  (/init.environ.rc:3)
+<3>[   27.581700] init: TSAI:cmd[3] export ANDROID_ROOT /system  (/init.environ.rc:4)
+<3>[   27.582090] init: TSAI:cmd[3] export ANDROID_ASSETS /system/app  (/init.environ.rc:5)
+<3>[   27.582460] init: TSAI:cmd[3] export ANDROID_DATA /data  (/init.environ.rc:6)
+<3>[   27.582830] init: TSAI:cmd[3] export ANDROID_STORAGE /storage  (/init.environ.rc:7)
+<3>[   27.583190] init: TSAI:cmd[3] export EXTERNAL_STORAGE /sdcard  (/init.environ.rc:8)
+<3>[   27.583560] init: TSAI:cmd[3] export ASEC_MOUNTPOINT /mnt/asec  (/init.environ.rc:9)
+<3>[   27.583960] init: TSAI:cmd[3] export BOOTCLASSPATH /system/framework/core-libart.jar:/system/framework/conscrypt.jar:/system/framework/okhttp.jar:/system/framework/core-junit.jar:/system/framework/bouncycastle.jar:/system/framework/ext.jar:/system/framework/framework.jar:/system/frame (/init.environ.rc:10)
+<3>[   27.584420] init: TSAI:cmd[3] export SYSTEMSERVERCLASSPATH /system/framework/services.jar:/system/framework/ethernet-service.jar:/system/framework/wifi-service.jar:/system/framework/pppoe-service.jar  (/init.environ.rc:11)
+<3>[   27.584960] init: TSAI:cmd[3] write /sys/module/rockchip_pm/parameters/policy 1  (/init.rk30board.rc:38)
+<6>[   27.585910] pm policy 0 -> 1
+<3>[   27.586450] init: TSAI:cmd[3] export EXTERNAL_STORAGE /sdcard  (init.rk30board.environment.rc:2)
+<3>[   27.586960] init: TSAI:cmd[5] mkdir /metadata 0770 root root  (init.rockchip.rc:7)
+<3>[   27.589210] init: TSAI:cmd[3] export RK_ADOBE_DE_MOBILE 1  (init.rockchip.rc:10)
+<3>[   27.589650] init: TSAI:cmd[3] export EBOOK_PAGE_VISIBLE_NUMBER 2***  (init.rockchip.rc:11)
+<3>[   27.590050] init: TSAI:cmd[3] export RK_ADEPT_DEVICE_TYPE mobile  (init.rockchip.rc:12)
+<3>[   27.590460] init: TSAI:cmd[3] export RK_ADOBE_DE_DOC_FOLDER /mnt/sdcard/Digital Editions  (init.rockchip.rc:13)
+<3>[   27.590880] init: TSAI:cmd[3] export RK_ADEPT_ACTIVATION_FILE /mnt/sdcard/.adobe-digital-editions/activation.xml  (init.rockchip.rc:14)
+<3>[   27.591290] init: TSAI:cmd[3] export RK_ADEPT_DEVICE_FILE /mnt/sdcard/.adobe-digital-editions/device.xml  (init.rockchip.rc:15)
+<3>[   27.591720] init: TSAI:cmd[3] export RK_ADEPT_DEVICE_SALT_FILE /mnt/sdcard/.adobe-digital-editions/devicesalt  (init.rockchip.rc:16)
+<3>[   27.592410] init: TSAI:cmd[3] export ADOBE_FONTS_DIR /system/fonts/adobefonts/  (init.rockchip.rc:17)
+<3>[   27.592870] init: TSAI:cmd[5] mkdir /mnt/shell/emulated 0700 shell shell  (init.rockchip.rc:20)
+<3>[   27.594550] init: TSAI:cmd[3] symlink /sdcard /mnt/sdcard  (init.rockchip.rc:21)
+<3>[   27.595680] init: TSAI:cmd[3] export EXTERNAL_STORAGE /sdcard  (init.rk30board.environment.rc:2)
+<3>[   27.596320] init: TSAI:cmd[1] mix_hwrng_into_linux_rng  ((null):0)
+<3>[   27.596780] init: /dev/hw_random not found
+<3>[   27.597170] init: TSAI:cmd[2] trigger early-fs  (/init.rc:252)
+<3>[   27.598210] init: TSAI:cmd[2] trigger fs  (/init.rc:253)
+<3>[   27.598720] init: TSAI:cmd[2] trigger post-fs  (/init.rc:254)
+<3>[   27.599200] init: TSAI:cmd[2] trigger load_system_props_action  (/init.rc:259)
+<3>[   27.599620] init: TSAI:cmd[2] trigger post-fs-data  (/init.rc:263)
+<3>[   27.600040] init: TSAI:cmd[2] trigger load_persist_props_action  (/init.rc:264)
+<3>[   27.600460] init: TSAI:cmd[2] trigger firmware_mounts_complete  (/init.rc:267)
+<3>[   27.600870] init: TSAI:cmd[2] trigger early-boot  (/init.rc:269)
+<3>[   27.601280] init: TSAI:cmd[2] trigger boot  (/init.rc:270)
+<3>[   27.601780] init: TSAI:cmd[1] queue_property_triggers  ((null):0)
+<3>[   27.602710] init: TSAI:cmd[2] insmod /rk30xxnand_ko.ko  (init.rk30board.bootmode.unknown.rc:2)
+<3>[   27.617140] rk30xxnand_ko: version magic '3.10.0 SMP preempt mod_unload aarch64' should be '3.18.48+ SMP preempt mod_unload aarch64'
+<6>[   27.617540] TSAI: temporarily allowed version mismatch @kernel/module.c
+<4>[   27.617750] rk30xxnand_ko: module license '' taints kernel.
+<4>[   27.617930] Disabling lock debugging due to kernel taint
+<4>[   27.622300] rk30xxnand_ko: Unknown symbol __copy_to_user (err 0)
+<4>[   27.622660] rk30xxnand_ko: Unknown symbol __copy_from_user (err 0)
+<3>[   27.625410] init: TSAI:cmd[2] mount_all fstab.rk30board  (init.rk30board.bootmode.unknown.rc:9)
+<5>[   38.351311] random: nonblocking pool is initialized
+<6>[   47.273060] fs_mgr: Running /sbin/resize2fs on /dev/block/rknand_system
+<6>[   47.285590] resize2fs: resize2fs 1.42.9 (28-Dec-2013)
+<6>[   47.288220] resize2fs: open: No such file or directory while opening /dev/block/rknand_system
+<6>[   47.290420] resize2fs: resize2fs terminated by exit(1)
+<6>[   47.292600] TSAI: vfs_kern_mount /dev/block/rknand_system @fs/namespace.c 905
+<6>[   47.293460] TSAI mount /dev/block/rknand_system /system ext4 ret=-2 from init @fs/namespace.c
+<6>[   47.293790] fs_mgr: check_fs(): mount(/dev/block/rknand_system,/system,ext4)=-1: No such file or directory
+<6>[   47.294210] fs_mgr: Not running /system/bin/e2fsck on /dev/block/rknand_system (executable not in system image)
+<6>[   47.294840] TSAI: vfs_kern_mount /dev/block/rknand_system @fs/namespace.c 905
+<6>[   47.295240] TSAI mount /dev/block/rknand_system /system ext4 ret=-2 from init @fs/namespace.c
+<6>[   47.295520] fs_mgr: __mount(source=/dev/block/rknand_system,target=/system,type=ext4)=-1
+<3>[   47.295990] fs_mgr: Failed to mount an un-encryptable or wiped partition on/dev/block/rknand_system at /system options: noauto_da_alloc,discard error: No such file or directory
+<6>[   67.238460] TSAI: vfs_kern_mount /dev/block/rknand_cache @fs/namespace.c 905
+<6>[   67.238920] TSAI mount /dev/block/rknand_cache /cache ext4 ret=-2 from init @fs/namespace.c
+<6>[   67.239250] fs_mgr: check_fs(): mount(/dev/block/rknand_cache,/cache,ext4)=-1: No such file or directory
+<6>[   67.239640] fs_mgr: Not running /system/bin/e2fsck on /dev/block/rknand_cache (executable not in system image)
+<6>[   67.240220] TSAI: vfs_kern_mount /dev/block/rknand_cache @fs/namespace.c 905
+<6>[   67.240620] TSAI mount /dev/block/rknand_cache /cache ext4 ret=-2 from init @fs/namespace.c
+<6>[   67.240900] fs_mgr: __mount(source=/dev/block/rknand_cache,target=/cache,type=ext4)=-1
+<3>[   67.241360] fs_mgr: Failed to mount an un-encryptable or wiped partition on/dev/block/rknand_cache at /cache options: noauto_da_alloc,discard error: No such file or directory
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -2615,7 +2615,7 @@ static int mmc_add_disk(struct mmc_blk_data *md)
 	int ret;
 	struct mmc_card *card = md->queue.card;
 #if TSAI
-	printk("TSAI mmc_add_disk %s card %s \n", md->disk->disk_name, card->dev.kobj.name);
+	pr_info("TSAI mmc_add_disk %s card %s @%s\n", md->disk->disk_name, card->dev.kobj.name, __FILE__);
 #endif
 	add_disk(md->disk);
 	md->force_ro.show = force_ro_show;

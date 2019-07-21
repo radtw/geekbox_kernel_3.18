@@ -132,7 +132,7 @@ static int __init rockchip_reset_probe(struct platform_device *pdev)
 	resource_size_t size;
 	u32 flag = 0;
 #if TSAI
-	printk("TSAI rockchip_reset_probe %s \n", __FILE__);
+	pr_info("TSAI rockchip_reset_probe %s \n", __FILE__);
 #endif
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	base = devm_ioremap_resource(&pdev->dev, res);

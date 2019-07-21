@@ -29,7 +29,7 @@
 #include <linux/sched.h>
 #include <linux/spinlock.h>
 #include <linux/kthread.h>
-
+#include <linux/stacktrace.h>
 
 #define DEBUG
 #include "tsai_macro.h"
@@ -188,6 +188,50 @@ TSAI_STATIC void tsai_spy_walk_through_modules(void) {
 	__symbol_put("modules");
 }
 
+/* copy from stacktrace.c, use pr_info instead of printk for early debug */
+void tsai_print_stack_trace_private (struct stack_trace *trace, int spaces) {
+	int i;
+	if (WARN_ON(!trace->entries))
+		return;
+	for (i = 0; i < trace->nr_entries; i++) {
+		//pr_info("%*c", 1 + spaces, ' ');
+		pr_info("[<%p>] %pS\n", (void *) trace->entries[i], (void *) trace->entries[i]);
+	}
+}
+
+void tsai_printk_stack_trace(struct task_struct* tsk) {
+	struct stack_trace trace;
+	unsigned long entries[32];
+	trace.nr_entries = 0;
+	trace.max_entries = ARRAY_SIZE(entries);
+	trace.entries = entries;
+	trace.skip = 0;
+
+	save_stack_trace_tsk(tsk, &trace);
+	tsai_print_stack_trace_private(&trace, 0);
+}
+
+void tsai_printk_stack_trace_current(void) {
+	tsai_printk_stack_trace(current);
+}
+
+/* given an address, print out which VMA contains it */
+void tsai_print_vma_for_address(void* pc) {
+	struct vm_area_struct* vma;
+	char full_path[256];
+	unsigned long vpc;
+	vpc = (unsigned long)pc;
+	vma = find_vma(current->mm, vpc );
+	if (vma) {
+		char* p;
+		unsigned long offset = vpc - vma->vm_start;
+		p = d_path(&vma->vm_file->f_path, full_path, sizeof(full_path));
+		pr_info("%p %s (%lx--%lx) offset %lx @%s:%d\n", pc, p, vma->vm_start, vma->vm_end, offset, __FILE__, __LINE__);
+	}
+	else {
+
+	}
+}
 
 /* given a name, walk through the tasks and find by name
  * return -1 if not found
@@ -3262,7 +3306,7 @@ TSAI_STATIC irqreturn_t tsai_spy_isr(int irq, void *dev_id)
 
 void tsai_spy_call_func(void *info) {
 	int cpu = smp_processor_id();
-	printk("tsai_spy_call_func from cpu %d \n", cpu);
+	pr_info("tsai_spy_call_func from cpu %d \n", cpu);
 }
 
 TSAI_STATIC void tsai_spy_smp_call_func(void) {
@@ -3279,7 +3323,7 @@ unsigned long tsai_print_process_callstack(struct task_struct* thetask, struct f
 	unsigned long ret;
 	struct task_struct* threadtask = thetask;
 	ret = tsai_print_user_callstack(thetask, fout);
-	printk("tsai_print_process_callstack %u fpos %d \n", thetask->pid, (unsigned int)fout->f_pos);
+	pr_info("tsai_print_process_callstack %u fpos %d \n", thetask->pid, (unsigned int)fout->f_pos);
 	if ((unsigned int)fout->f_pos==0) {
 		BKPT;
 	}
@@ -3290,7 +3334,7 @@ unsigned long tsai_print_process_callstack(struct task_struct* thetask, struct f
 			break;
 		}
 		ret = tsai_print_user_callstack(threadtask, fout);
-		printk("tsai_print_process_callstack %u fpos %d \n", thetask->pid, (unsigned int)fout->f_pos);
+		pr_info("tsai_print_process_callstack %u fpos %d \n", thetask->pid, (unsigned int)fout->f_pos);
 	} while (1);
 
 	return ret;
@@ -3411,7 +3455,7 @@ TSAI_STATIC long tsai_spy_ioctl(struct file *file, unsigned int cmd,
 			if (p->msg_len > 0 && p->msg_len <256) {
 				res = copy_from_user(kern_msg, user_msg, p->msg_len);
 				kern_msg[p->msg_len] = 0;
-				printk("TSAI usermode %s\n", kern_msg);
+				pr_info("TSAI usermode %s\n", kern_msg);
 			}
 		}
 		break;
@@ -3427,7 +3471,7 @@ TSAI_STATIC long tsai_spy_ioctl(struct file *file, unsigned int cmd,
 		}
 		break;
 	default:
-		printk("[%s:%d] Unknown ioctl cmd\n", __func__, __LINE__);
+		pr_info("[%s:%d] Unknown ioctl cmd\n", __func__, __LINE__);
 		return -EINVAL;
 	}
 
@@ -3478,7 +3522,7 @@ ssize_t tsai_spy_write(struct file *f, char const __user *buf, size_t count_orig
 				filp_close(fout, (fl_owner_t)(NATIVE_UINT)current->pid);
 			}
 			else {
-				printk("tsai_spy_write user_callstack: unable to open output file \n");
+				pr_info("tsai_spy_write user_callstack: unable to open output file \n");
 			}
 		}
 	}
@@ -3594,7 +3638,7 @@ static int tsai_spy_open(struct inode *inode, struct file *file) {
 	 * previous mmap will be affected and map to zero page, so get rid of unwanted flags here! */
 	//file->f_flags &= ~(O_CREAT | O_EXCL | O_NOCTTY | O_TRUNC);
 	//inode->i_mode &= ~S_IFREG;
-	printk("tsai_spy_open called in %s %u\n", current->comm, current->pid);
+	pr_info("tsai_spy_open called in %s %u\n", current->comm, current->pid);
 	return 0;
 }
 /* usage example:
@@ -4017,11 +4061,11 @@ TSAI_STATIC void tsai_save_tracepoint(struct tracepoint *tp, void *priv) {
 	struct TSAI_SPY_DATA* d = (struct TSAI_SPY_DATA*)priv;
 	if (strcmp(tp->name, "sched_switch")==0) {
 		d->tracepoint_sched = tp;
-		printk("TSAI SPY __tracepoint_sched_switch = %p \n", d->tracepoint_sched);
+		pr_info("TSAI SPY __tracepoint_sched_switch = %p \n", d->tracepoint_sched);
 	}
 	else if (strcmp(tp->name, "sched_wakeup")==0) {
 		d->tracepoint_sched_wakeup = tp;
-		printk("TSAI SPY __tracepoint_sched_wakeup = %p \n", d->tracepoint_sched_wakeup);
+		pr_info("TSAI SPY __tracepoint_sched_wakeup = %p \n", d->tracepoint_sched_wakeup);
 	}
 	else if (strcmp(tp->name, "irq_handler_entry")==0) {
 		d->tracepoint_irq_entry = tp;
@@ -4057,7 +4101,7 @@ int tsai_spy_init(void)
 
 	ret = misc_register(&tsai_spy_dev);
 	if (IS_ERR((const void*)(NATIVE_UINT)ret)) {
-		printk("failed to create tsai_spy device");
+		pr_info("failed to create tsai_spy device");
 		return -1;
 	}
 
@@ -4090,7 +4134,7 @@ int tsai_spy_init(void)
 	/* not implemented yet */
 #endif
 
-	printk("TSAI Spy initialized\n");
+	pr_info("TSAI Spy initialized\n");
 	tsai_spy_data.debug_flag = 1;
 	tsai_spy_data.pr.opt_engine_timer = 0; /* prefer dedecated profiling worker thread instead of hrtimer */
 

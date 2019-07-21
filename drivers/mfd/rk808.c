@@ -1352,9 +1352,9 @@ static int rk808_i2c_probe(struct i2c_client *i2c, const struct i2c_device_id *i
 	int ret,i=0;
 //	int vlow_irq;
 #if TSAI
-	printk("TSAI rk808_i2c_probe %s \n", __FILE__);
+	pr_info("TSAI rk808_i2c_probe %s \n", __FILE__);
 #endif
-	printk("%s,line=%d\n", __func__,__LINE__);
+	pr_info("%s,line=%d\n", __func__,__LINE__);
 
 	if (i2c->dev.of_node) {
 		match = of_match_device(rk808_of_match, &i2c->dev);
@@ -1551,7 +1551,7 @@ static int __init rk808_module_init(void)
 {
 	int ret;
 #if TSAI
-	printk("TSAI rk808_module_init %s \n", __FILE__);
+	pr_info("TSAI rk808_module_init %s \n", __FILE__);
 #endif
 	ret = i2c_add_driver(&rk808_i2c_driver);
 	if (ret != 0)
