@@ -304,7 +304,7 @@ static int rockchip_mbox_probe(struct platform_device *pdev)
 						rockchip_mbox_isr, IRQF_ONESHOT,
 						dev_name(&pdev->dev), mb);
 #if TSAI
-		printk("TSAI rk mailbox[%d] IRQ %d ret=%d %s\n", i, irq, ret, __FILE__);
+		pr_info("TSAI rk mailbox[%d] IRQ %d ret=%d @%s\n", i, irq, ret, __FILE__);
 #endif
 		if (ret < 0)
 			return ret;

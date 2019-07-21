@@ -5007,9 +5007,6 @@ static int rk3368_lcdc_parse_dt(struct lcdc_device *lcdc_dev)
 		dev_drv->iommu_enabled = val;
 	return 0;
 }
-#if TSAI
-extern int tsai_move_on;
-#endif
 
 static int rk3368_lcdc_probe(struct platform_device *pdev)
 {
@@ -5021,7 +5018,7 @@ static int rk3368_lcdc_probe(struct platform_device *pdev)
 	int prop;
 	int ret = 0;
 #if TSAI
-	printk("TSAI rk3368_lcdc_probe[in] %s %d\n", __FILE__,__LINE__);
+	pr_info("TSAI rk3368_lcdc_probe[in] %s %d\n", __FILE__,__LINE__);
 #endif
 	/*if the primary lcdc has not registered ,the extend
 	   lcdc register later */
@@ -5108,10 +5105,6 @@ static int rk3368_lcdc_probe(struct platform_device *pdev)
 			       VOPL_IOMMU_COMPATIBLE_NAME);
 		}
 	}
-#if 0 && TSAI
-	while (!tsai_move_on)
-		cpu_relax();
-#endif
 	ret = rk_fb_register(dev_drv, lcdc_win, lcdc_dev->id);
 	if (ret < 0) {
 		dev_err(dev, "register fb for lcdc%d failed!\n", lcdc_dev->id);

@@ -41,6 +41,7 @@
 
 #if TSAI
 #include "tsai_macro.h"
+#include "tsai_spy.h"
 #endif
 
 static const char *handler[]= {
@@ -191,7 +192,7 @@ static int __die(const char *str, int err, struct thread_info *thread,
 	struct task_struct *tsk = thread->task;
 	static int die_counter;
 	int ret;
-#if TSAI
+#if 0 && TSAI
 	BKPT;
 #endif
 	pr_emerg("Internal error: %s: %x [#%d]" S_PREEMPT S_SMP "\n",
@@ -274,6 +275,9 @@ void register_undef_hook(struct undef_hook *hook)
 	raw_spin_unlock_irqrestore(&undef_lock, flags);
 }
 
+
+
+
 void unregister_undef_hook(struct undef_hook *hook)
 {
 	unsigned long flags;
@@ -294,8 +298,14 @@ static int call_undef_hook(struct pt_regs *regs)
 	if (!user_mode(regs))
 		return 1;
 
+#if TSAI
+	tsai_print_vma_for_address(pc);
+#endif
+
 	if (compat_thumb_mode(regs)) {
 		/* 16-bit Thumb instruction */
+		pr_info("TSAI: is compat_thumb_mode() \n");
+
 		if (get_user(instr, (u16 __user *)pc))
 			goto exit;
 		instr = le16_to_cpu(instr);
@@ -312,6 +322,15 @@ static int call_undef_hook(struct pt_regs *regs)
 		if (get_user(instr, (u32 __user *)pc))
 			goto exit;
 		instr = le32_to_cpu(instr);
+#if TSAI
+		pr_info("TSAI: instr=%x @%d\n", instr, __LINE__);
+		if (instr == 0xd4400000) { /* HLT #0 instruction, most certainly it's my debug code, ignore if there is not JTAG attached */
+			pr_info("TSAI: ignore HLT #0 at %p @%s\n", pc, __FILE__);
+			regs->pc += 4;
+			return 0;
+		}
+#endif
+
 	}
 
 	raw_spin_lock_irqsave(&undef_lock, flags);

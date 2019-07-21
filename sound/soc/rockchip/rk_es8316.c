@@ -46,7 +46,7 @@ static int rk29_hw_params(struct snd_pcm_substream *substream,
 	unsigned int pll_out = 0, dai_fmt = rtd->card->dai_link->dai_fmt;
 	int ret;
 
-	DBG("Enter::%s----%d\n", __func__, __LINE__);
+	DBG("Enter::%s----%s:%d\n", __func__, __FILE__, __LINE__);
 
 	/* set codec DAI configuration */
 	ret = snd_soc_dai_set_fmt(codec_dai, dai_fmt);
@@ -115,7 +115,7 @@ static int rk29_es8316_init(struct snd_soc_pcm_runtime *rtd)
 	struct snd_soc_dai *codec_dai = rtd->codec_dai;
 	int ret;
 
-	DBG("Enter::%s----%d\n", __func__, __LINE__);
+	DBG("Enter::%s----%s:%d\n", __func__, __FILE__, __LINE__);
 	ret = snd_soc_dai_set_sysclk(codec_dai, 0,
 				     11289600, SND_SOC_CLOCK_IN);
 	if (ret < 0) {
@@ -144,13 +144,19 @@ static struct snd_soc_card rockchip_es8316_snd_card = {
 	.name = "RK_ES8316",
 	.dai_link = &rk29_dai,
 	.num_links = 1,
+#if 0 && TSAI
+	.dapm_routes = audio_map,
+	.num_dapm_routes = ARRAY_SIZE(audio_map),
+#endif
 };
 
 static int rockchip_es8316_audio_probe(struct platform_device *pdev)
 {
 	int ret;
 	struct snd_soc_card *card = &rockchip_es8316_snd_card;
-
+#if TSAI
+	pr_info("TSAI:rockchip_es8316_audio_probe @%s\n", __FILE__);
+#endif
 	card->dev = &pdev->dev;
 
 	ret = rockchip_of_get_sound_card_info(card);
@@ -194,7 +200,23 @@ static struct platform_driver rockchip_es8316_audio_driver = {
 	.remove         = rockchip_es8316_audio_remove,
 };
 
+#if 0 && TSAI /* expand the macro to have more debug log */
+
+static int __init rockchip_es8316_init(void)
+{
+	pr_info("TSAI: rockchip_es8316_init @%s\n", __FILE__);
+	return platform_driver_register(&rockchip_es8316_audio_driver);
+}
+static void __exit rockchip_es8316_exit(void)
+{
+	platform_driver_unregister(&rockchip_es8316_audio_driver);
+}
+module_init(rockchip_es8316_init);
+module_exit(rockchip_es8316_exit);
+
+#else
 module_platform_driver(rockchip_es8316_audio_driver);
+#endif
 
 /* Module information */
 MODULE_AUTHOR("rockchip");

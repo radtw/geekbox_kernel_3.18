@@ -2709,7 +2709,7 @@ static int check_modinfo(struct module *mod, struct load_info *info, int flags)
 		pr_err("%s: version magic '%s' should be '%s'\n",
 		       mod->name, modmagic, vermagic);
 #if TSAI
-		printk("TSAI: temporarily allowed version mismatch \n");
+		pr_info("TSAI: temporarily allowed version mismatch @%s\n", __FILE__);
 #else
 		return -ENOEXEC;
 #endif

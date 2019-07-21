@@ -305,6 +305,24 @@ static int __init rockchip_jtag_enable(char *__unused)
 }
 __setup("rockchip_jtag", rockchip_jtag_enable);
 
+#if TSAI
+extern void tsai_printk_stack_trace_current(void);
+char tsai_uboot_storage_media[16];
+
+static int __init uboot_storage_media(char *media)
+{
+	pr_info("uboot_storage_media media '%s' @%s\n", media, __FILE__);
+	if (media[0]=='=')
+		media++;
+
+	strncpy(tsai_uboot_storage_media, media, 15);
+	tsai_printk_stack_trace_current();
+	return 1;
+}
+__setup("storagemedia", uboot_storage_media);
+
+#endif
+
 phys_addr_t uboot_logo_base=0;
 phys_addr_t uboot_logo_size=0;
 phys_addr_t uboot_logo_offset=0;

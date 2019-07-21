@@ -42,7 +42,7 @@
 #if TSAI
 #include "tsai_macro.h"
 #endif
-#if 0
+#if 1
 #define DBG(x...) printk(x)
 #else
 #define DBG(x...) do { } while (0)
@@ -117,7 +117,7 @@ struct es8316_priv {
 	unsigned int dmic_amic;
 	unsigned int sysclk;
 	struct snd_pcm_hw_constraint_list *sysclk_constraints;
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI	
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) /*TSAI*/
 	struct clk *mclk;
 #endif
 
@@ -350,7 +350,7 @@ static const struct soc_enum es8316_left_hpmux_enum =
 			      es8316_hpmux_texts,
 			      es8316_hpmux_values);
 static const struct snd_kcontrol_new es8316_left_hpmux_controls =
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) /* TSAI */
 	SOC_DAPM_ENUM("Route", es8316_left_hpmux_enum);
 #else
 	SOC_DAPM_VALUE_ENUM("Route", es8316_left_hpmux_enum);
@@ -362,7 +362,7 @@ static const struct soc_enum es8316_right_hpmux_enum =
 			      es8316_hpmux_texts,
 			      es8316_hpmux_values);
 static const struct snd_kcontrol_new es8316_right_hpmux_controls =
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))/* TSAI */
 	SOC_DAPM_ENUM("Route", es8316_right_hpmux_enum);
 #else
 	SOC_DAPM_VALUE_ENUM("Route", es8316_right_hpmux_enum);
@@ -399,7 +399,7 @@ static const struct soc_enum es8316_dacsrc_mux_enum =
 			      es8316_dacsrc_texts,
 			      es8316_dacsrc_values);
 static const struct snd_kcontrol_new es8316_dacsrc_mux_controls =
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) /* TSAI */
 	SOC_DAPM_ENUM("Route", es8316_dacsrc_mux_enum);
 #else
 	SOC_DAPM_VALUE_ENUM("Route", es8316_dacsrc_mux_enum);
@@ -1187,7 +1187,6 @@ static int es8316_probe(struct snd_soc_codec *codec)
 
 	DBG("---%s--start--\n", __func__);
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
-TSAI_BUSY_WAIT;
 	es8316->mclk = devm_clk_get(codec->dev, "mclk");
 	if (PTR_ERR(es8316->mclk) == -EPROBE_DEFER)
 		ret = -EPROBE_DEFER;
@@ -1286,7 +1285,7 @@ static int es8316_spi_probe(struct spi_device *spi)
 {
 	struct es8316_priv *es8316;
 	int ret;
-
+printk("es8316_spi_probe @%s\n", __FILE__);
 	es8316 = kzalloc(sizeof(*es8316), GFP_KERNEL);
 	if (es8316 == NULL)
 		return -ENOMEM;
@@ -1360,7 +1359,7 @@ static int es8316_i2c_probe(struct i2c_client *i2c_client,
 	enum of_gpio_flags flags;
 	struct device_node *np = i2c_client->dev.of_node;
 
-	DBG("---%s---probe start\n", __func__);
+	DBG("---%s---probe start @%s\n", __func__, __FILE__);
 
 	es8316 = kzalloc(sizeof(*es8316), GFP_KERNEL);
 	if (es8316 == NULL)
@@ -1471,11 +1470,14 @@ static struct i2c_driver es8316_i2c_driver = {
 
 static int __init es8316_init(void)
 {
-	DBG("--%s--start--\n", __func__);
+	pr_info("TSAI es8316_init @%s\n", __FILE__);
+	DBG("--%s--start--%s\n", __func__, __FILE__);
 #if defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)
+	DBG("i2c_add_driver %s\n", __FILE__);
 	return i2c_add_driver(&es8316_i2c_driver);
 #endif
 #if defined(CONFIG_SPI_MASTER)
+	DBG("spi_register_driver %s\n", __FILE__);
 	return spi_register_driver(&es8316_spi_driver);
 #endif
 }

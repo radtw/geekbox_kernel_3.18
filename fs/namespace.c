@@ -902,10 +902,8 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 	if (!type)
 		return ERR_PTR(-ENODEV);
 #if TSAI
-	printk("TSAI: vfs_kern_mount %s @%s %d\n", name, __FILE__, __LINE__);
+	pr_info("TSAI: vfs_kern_mount %s @%s %d\n", name, __FILE__, __LINE__);
 	if (0 && strcmp(name, "sysfs")==0 && strcmp(current->comm, "init")==0) {
-		while (1)
-			cpu_relax();
 	}
 #endif
 	mnt = alloc_vfsmnt(name);
@@ -2887,7 +2885,7 @@ SYSCALL_DEFINE5(mount, char __user *, dev_name, char __user *, dir_name,
 #if TSAI
 	if (0 && strcmp(kernel_dev, "rootfs")==0 && strcmp(current->comm, "init")==0) {
 		tsai_rootfs_init_count++;
-		printk("TSAI init mount rootfs, count=%d @%s\n",
+		pr_info("TSAI init mount rootfs, count=%d @%s\n",
 				tsai_rootfs_init_count, __FILE__);
 	}
 	if (0 && strcmp(kernel_dev, "adb")==0 ) {
@@ -2898,7 +2896,7 @@ SYSCALL_DEFINE5(mount, char __user *, dev_name, char __user *, dir_name,
 		(void *) data_page);
 
 #if TSAI
-	printk("TSAI mount %s %s %s ret=%d from %s @%s\n", kernel_dev, dir_name, kernel_type, ret, current->comm, __FILE__);
+	pr_info("TSAI mount %s %s %s ret=%d from %s @%s\n", kernel_dev, dir_name, kernel_type, ret, current->comm, __FILE__);
 #endif
 	free_page(data_page);
 out_data:

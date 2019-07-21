@@ -3370,7 +3370,7 @@ need_resched:
 		if ( (debug_shedule_duration) > debug_schedule_duration_threshold_us) {
 			struct pt_regs* regs = current_pt_regs();
 			unsigned int user_stack = current_user_stack_pointer();
-			printk("TSAI user stack %x regs %p \n", user_stack, regs);
+			pr_info("TSAI user stack %x regs %p \n", user_stack, regs);
 			BKPT;
 			//show_stack(current, (unsigned long*)user_stack); /* this can only interpret kernel side stack */
 		}

@@ -688,7 +688,7 @@ static int dhd_wifi_platform_load_sdio(void)
 	BCM_REFERENCE(i);
 	BCM_REFERENCE(adapter);
 #if TSAI
-	printk("TSAI dhd_wifi_platform_load_sdio @%s\n", __FILE__);
+	pr_info("TSAI dhd_wifi_platform_load_sdio @%s\n", __FILE__);
 #endif
 	/* Sanity check on the module parameters
 	 * - Both watchdog and DPC as tasklets are ok
@@ -810,9 +810,6 @@ static int dhd_wifi_platform_load()
 {
 	int err = 0;
 	printf("%s: Enter\n", __FUNCTION__);
-#if 0 && TSAI
-	TSAI_BUSY_WAIT;
-#endif
 	wl_android_init();
 
 	if ((err = dhd_wifi_platform_load_usb()))

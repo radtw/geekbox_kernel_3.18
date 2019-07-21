@@ -602,7 +602,7 @@ static int hdmi_display_probe(struct rk_display_device *device, void *devdata)
 	device->priv_data = devdata;
 	device->ops = &hdmi_display_ops;
 #if TSAI
-	printk("TSAI hdmi_display_probe %s %d\n", __FILE__,__LINE__);
+	pr_info("TSAI hdmi_display_probe %s %d\n", __FILE__,__LINE__);
 #endif
 
 	return 1;
@@ -616,7 +616,7 @@ struct rk_display_device *hdmi_register_display_sysfs(struct hdmi *hdmi,
 						      struct device *parent)
 {
 #if TSAI
-	printk("TSAI hdmi_register_display_sysfs %s %d\n", __FILE__,__LINE__);
+	pr_info("TSAI hdmi_register_display_sysfs %s %d\n", __FILE__,__LINE__);
 #endif
 	return rk_display_device_register(&display_hdmi, parent, hdmi);
 }

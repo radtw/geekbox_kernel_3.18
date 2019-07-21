@@ -840,7 +840,7 @@ finish:
 	if (!oldcard)
 		host->card = card;
 #if TSAI
-	printk("TSAI: mmc_sdio_init_card()[out] ret=0 \n");
+	pr_info("TSAI: mmc_sdio_init_card()[out] ret=0 @%s\n", __FILE__);
 #endif
 	return 0;
 
@@ -1116,7 +1116,7 @@ int mmc_attach_sdio(struct mmc_host *host)
 	BUG_ON(!host);
 	WARN_ON(!host->claimed);
 #if TSAI
-	printk("TSAI: mmc_attach_sdio %s\n", mmc_hostname(host));
+	pr_info("TSAI: mmc_attach_sdio %s @%s\n", mmc_hostname(host), __FILE__);
 #endif
 	err = mmc_send_io_op_cond(host, 0, &ocr);
 	if (err)
@@ -1144,7 +1144,7 @@ int mmc_attach_sdio(struct mmc_host *host)
 	if (err)
 #if TSAI
 	{
-		printk("TSAI: mmc_sdio_init_card return %d @%s\n", err, __FILE__);
+		pr_info("TSAI: mmc_sdio_init_card return %d @%s\n", err, __FILE__);
 		goto err;
 	}
 #else

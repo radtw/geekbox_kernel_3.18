@@ -277,6 +277,10 @@ static int parse_cmdline_partitions(sector_t n,
 	}
 	return 0;
 }
+#if TSAI
+extern void tsai_printk_stack_trace_current(void);
+extern char tsai_uboot_storage_media[];
+#endif
 
 static void rkpart_bootmode_fixup(void)
 {
@@ -285,6 +289,14 @@ static void rkpart_bootmode_fixup(void)
 	char *new_command_line;
 	size_t saved_command_line_len = strlen(saved_command_line);
 
+#if TSAI
+	pr_info("TSAI: rkpart_bootmode_fixup storagemedia=%s @%s:%d\n", tsai_uboot_storage_media, __FILE__,__LINE__);
+
+	if (strcmp(tsai_uboot_storage_media, "ums")==0) {
+		pr_info("TSAI: BOOT from UMS, don't set androidboot.mode here @%s\n", __FILE__);
+		return;
+	}
+#endif
 	if (strstr(saved_command_line, "androidboot.mode=charger")) {
 		new_command_line = kzalloc(saved_command_line_len + strlen(charger) + 1, GFP_KERNEL);
 		sprintf(new_command_line, "%s%s", saved_command_line, charger);
@@ -293,6 +305,9 @@ static void rkpart_bootmode_fixup(void)
 		sprintf(new_command_line, "%s%s", saved_command_line, mode);
 	}
 	saved_command_line = new_command_line;
+#if 0 && TSAI
+	tsai_printk_stack_trace_current();
+#endif
 }
 
 int rkpart_partition(struct parsed_partitions *state)
@@ -337,4 +352,24 @@ int rkpart_partition(struct parsed_partitions *state)
 	return 1;
 }
 
+#if TSAI
 
+void rkpart_bootmode_fixup_UMS(void) {
+	const char mode[] = " androidboot.mode=ums";
+	const char charger[] = " androidboot.charger.ums=1";
+	char *new_command_line;
+	size_t saved_command_line_len = strlen(saved_command_line);
+	pr_info("TSAI: rkpart_bootmode_fixup_UMS storagemedia=%s @%s\n", tsai_uboot_storage_media, __FILE__);
+	if (strcmp(tsai_uboot_storage_media, "ums")==0) {
+		pr_info("TSAI: BOOT from UMS, set androidboot.mode=%s@%s\n", __FILE__, tsai_uboot_storage_media);
+		if (strstr(saved_command_line, "androidboot.mode=charger")) {
+			new_command_line = kzalloc(saved_command_line_len + strlen(charger) + 1, GFP_KERNEL);
+			sprintf(new_command_line, "%s%s", saved_command_line, charger);
+		} else {
+			new_command_line = kzalloc(saved_command_line_len + strlen(mode) + 1, GFP_KERNEL);
+			sprintf(new_command_line, "%s%s", saved_command_line, mode);
+		}
+		saved_command_line = new_command_line;
+	}
+}
+#endif

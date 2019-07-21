@@ -1652,7 +1652,7 @@ SYSCALL_DEFINE4(wait4, pid_t, upid, int __user *, stat_addr,
 	put_pid(pid);
 #if 0 && TSAI
 	if (current->pid > 1 && strcmp(current->comm, "init")==0) {
-		printk("TSAI: wait4 pid=%d ret=%d\n", upid, ret);
+		pr_info("TSAI: wait4 pid=%d ret=%d\n", upid, ret);
 	}
 #endif
 	return ret;

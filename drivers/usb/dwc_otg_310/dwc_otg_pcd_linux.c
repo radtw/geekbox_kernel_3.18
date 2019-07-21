@@ -764,7 +764,7 @@ static int dwc_otg_gadget_start(struct usb_gadget *g,
 				struct usb_gadget_driver *driver)
 {
 #if TSAI
-	printk("TSAI: dwc_otg_gadget_start() %s %d\n", __FILE__ ,__LINE__ );
+	pr_info("TSAI: dwc_otg_gadget_start() %s %d\n", __FILE__ ,__LINE__ );
 #endif
 	DWC_DEBUGPL(DBG_PCD, "registering gadget driver '%s'\n",
 		    driver->driver.name);
@@ -789,7 +789,7 @@ static int dwc_otg_gadget_stop(struct usb_gadget *g,
 			       struct usb_gadget_driver *driver)
 {
 #if TSAI
-	printk("TSAI: dwc_otg_gadget_stop() %s %d\n", __FILE__ ,__LINE__ );
+	pr_info("TSAI: dwc_otg_gadget_stop() %s %d\n", __FILE__ ,__LINE__ );
 
 	gadget_wrapper->driver = 0;
 	/* when use usb.configfs, adb root would lead to dwc_otg_gadget_stop/dwc_otg_gadget_start */
@@ -1504,7 +1504,7 @@ static void dwc_phy_reconnect(struct work_struct *work)
 	dctl_data_t dctl = {.d32 = 0 };
 	struct dwc_otg_platform_data *pldata;
 #if TSAI
-	printk("TSAI: dwc_phy_reconnect() %s \n", __FILE__);
+	pr_info("TSAI: dwc_phy_reconnect() %s \n", __FILE__);
 #endif
 	pcd = container_of(work, dwc_otg_pcd_t, reconnect.work);
 	pldata = pcd->otg_dev->pldata;
@@ -1609,7 +1609,7 @@ static void check_id(struct work_struct *work)
 	static int last_id = -1;
 	int id = pldata->get_status(USB_STATUS_ID);
 #if 0 && TSAI
-	printk("TSAI: check_id() %s \n", __FILE__);
+	pr_info("TSAI: check_id() %s \n", __FILE__);
 #endif
 
 	if (last_id != id) {
@@ -1634,7 +1634,7 @@ static void dwc_otg_pcd_check_vbus_work(struct work_struct *work)
 	struct dwc_otg_device *otg_dev = _pcd->otg_dev;
 	struct dwc_otg_platform_data *pldata = otg_dev->pldata;
 #if 0 && TSAI
-	printk("TSAI: dwc_otg_pcd_check_vbus_work() %s %s \n", current->comm, __FILE__);
+	pr_info("TSAI: dwc_otg_pcd_check_vbus_work() %s %s \n", current->comm, __FILE__);
 #endif
 
 	if (pldata->get_status(USB_STATUS_BVABLID) &&

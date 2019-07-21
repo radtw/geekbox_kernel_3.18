@@ -3545,7 +3545,7 @@ ffsmod_init(void)
 { 
 	int ret;
 	ret = usb_function_register(&ffsusb_func);
-	printk("TSAI: ffsmod_init ret = %d \n", ret);
+	pr_info("TSAI: ffsmod_init ret = %d @%s\n", ret, __FILE__);
     return ret;
 } 
 

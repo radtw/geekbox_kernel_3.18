@@ -1822,10 +1822,18 @@ static void console_write(struct console *co, const char *s, unsigned int count)
 		console_flush(up);
 	} else {
 		while (count--) {
+#if 0 && TSAI
+			if (*s == '\n') {
+				kfifo_put(&fifo, &r);
+			}
+			kfifo_put(&fifo, s++);
+#else
+	/* this clause is done by IMG, but not sure reason */
 			if (*s == '\n') {
 				kfifo_put(&fifo, r);
 			}
 			kfifo_put(&fifo, *s++);
+#endif
 		}
 		wake_up_process(console_task);
 	}
@@ -2205,7 +2213,7 @@ static int __init serial_rk_init(void)
 {
 	int ret;
 	//hhb@rock-chips.com
-	printk("+_+ %s\n", VERSION_AND_TIME);
+	printk("%s\n", VERSION_AND_TIME);
 	
 	ret = uart_register_driver(&serial_rk_reg);
 	if (ret)

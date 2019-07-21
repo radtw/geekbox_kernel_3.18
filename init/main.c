@@ -500,7 +500,7 @@ asmlinkage __visible void __init start_kernel(void)
 	char *after_dashes;
 
 #if TSAI
-	printk("TSAI start_kernel %d \n", __LINE__);
+	pr_info("TSAI start_kernel %s%d \n", __FILE__, __LINE__);
 #endif
 	/*
 	 * Need to run as early as possible, to initialize the

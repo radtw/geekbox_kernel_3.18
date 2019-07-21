@@ -450,10 +450,10 @@ static int __inet_insert_ifa(struct in_ifaddr *ifa, struct nlmsghdr *nlh,
 		return 0;
 	}
 #if TSAI
-	printk("TSAI: __inet_insert_ifa %s %s %d\n", ifa->ifa_label, __FILE__,__LINE__);
+	pr_info("TSAI: __inet_insert_ifa %s %s %d\n", ifa->ifa_label, __FILE__,__LINE__);
 	/* if it's loopback, ifa->ifa_label should be "lo" */
 	if (strcmp(ifa->ifa_label, "lo")==0) {
-		printk("TSAI: insert a LOOPBACK device \n");
+		pr_info("TSAI: insert a LOOPBACK device \n");
 	}
 #endif
 

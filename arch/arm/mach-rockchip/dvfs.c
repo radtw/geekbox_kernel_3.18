@@ -301,9 +301,7 @@ static struct cpufreq_frequency_table *of_get_regu_mode_table(struct device_node
 	const __be32 *val;
 	int nr, i;
 #if TSAI
-	printk("TSAI: of_get_regu_mode_table %s\n", __FILE__);
-	while(!tsai_move_on)
-	cpu_relax();
+	pr_info("TSAI: of_get_regu_mode_table %s\n", __FILE__);
 #endif
 	prop = of_find_property(dev_node, "regu-mode-table", NULL);
 	if (!prop)
@@ -325,11 +323,6 @@ static struct cpufreq_frequency_table *of_get_regu_mode_table(struct device_node
 	}
 
 	val = prop->value;
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on)
-		cpu_relax();
-#else
 	for (i=0; i<nr/2; i++){
 		regu_mode_table[i].frequency = be32_to_cpup(val++) * 1000;
 		regu_mode_table[i].DVFS_INDEX = be32_to_cpup(val++);
@@ -344,7 +337,6 @@ static struct cpufreq_frequency_table *of_get_regu_mode_table(struct device_node
 
 	regu_mode_table[i].DVFS_INDEX = 0;
 	regu_mode_table[i].frequency = CPUFREQ_TABLE_END;
-#endif
 	return regu_mode_table;
 }
 
@@ -364,17 +356,18 @@ static int dvfs_regu_mode_table_constrain(struct dvfs_node *clk_dvfs_node)
 
 	if (IS_ERR_OR_NULL(clk_dvfs_node->vd->regulator))
 		return -EINVAL;
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on) cpu_relax();
-#else
 
 	for (i = 0; (clk_dvfs_node->regu_mode_table[i].frequency != CPUFREQ_TABLE_END); i++) {
 		mode = clk_dvfs_node->regu_mode_table[i].DVFS_INDEX;
 		convert_mode = dvfs_regu_mode_convert(mode);
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+		pr_info("TSAI: regulator_is_supported_mode() not exist in 3.18 @%s\n", __FILE__);
+		ret = 0;
+#else
 		ret = regulator_is_supported_mode(clk_dvfs_node->vd->regulator,
 						&convert_mode);
+#endif
 		if (ret) {
 			DVFS_ERR("%s: find mode=%d unsupported\n", __func__,
 				mode);
@@ -391,7 +384,6 @@ static int dvfs_regu_mode_table_constrain(struct dvfs_node *clk_dvfs_node)
 		}
 
 	}
-#endif
 	return 0;
 }
 
@@ -403,10 +395,6 @@ static int clk_dvfs_node_get_regu_mode(struct dvfs_node *clk_dvfs_node,
 
 	if ((!clk_dvfs_node) || (!clk_dvfs_node->regu_mode_table))
 		return -EINVAL;
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on) cpu_relax();
-#else
 
 	for (i = 0; (clk_dvfs_node->regu_mode_table[i].frequency != CPUFREQ_TABLE_END); i++) {
 		if (rate >= clk_dvfs_node->regu_mode_table[i].frequency) {
@@ -414,7 +402,6 @@ static int clk_dvfs_node_get_regu_mode(struct dvfs_node *clk_dvfs_node,
 			return 0;
 		}
 	}	
-#endif
 
 	return -EINVAL;
 }
@@ -1122,13 +1109,8 @@ static int pvtm_set_single_dvfs(struct dvfs_node *dvfs_node, u32 idx,
 	unsigned int n_voltages = dvfs_node->vd->n_voltages;
 	int *volt_list = dvfs_node->vd->volt_list;
 	int n, temp;
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on) cpu_relax();
-#else
 
 	volt_margin = info->volt_margin_uv + pvtm_table[idx].DVFS_INDEX;
-#endif
 	n = volt_margin/info->volt_step_uv;
 	if (volt_margin%info->volt_step_uv)
 		n++;
@@ -1146,10 +1128,6 @@ static int pvtm_set_single_dvfs(struct dvfs_node *dvfs_node, u32 idx,
 
 	DVFS_DBG("=====%s: temp:%d, freq:%d, target pvtm:%d=====\n",
 		 __func__, temp, dvfs_table[idx].frequency, target_pvtm);
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on) cpu_relax();
-#else
 
 	for (n = 0; n < n_voltages; n++) {
 		if (pvtm_list[n] >= target_pvtm) {
@@ -1160,7 +1138,6 @@ static int pvtm_set_single_dvfs(struct dvfs_node *dvfs_node, u32 idx,
 			return 0;
 		}
 	}
-#endif
 	return -EINVAL;
 
 	return 0;
@@ -1192,10 +1169,6 @@ static void pvtm_set_dvfs_table(struct dvfs_node *dvfs_node)
 						      info->sample_time_us);
 		}
 	}
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on) cpu_relax();
-#else
 
 	for (i = 0; dvfs_table[i].frequency != CPUFREQ_TABLE_END; i++) {
 		for (j = 0; info->pvtm_table[j].frequency !=
@@ -1229,7 +1202,6 @@ static void pvtm_set_dvfs_table(struct dvfs_node *dvfs_node)
 			break;
 		}
 	}
-#endif	
 }
 
 static void dvfs_virt_temp_limit_work_func(struct dvfs_node *dvfs_node)
@@ -1277,10 +1249,6 @@ static void dvfs_virt_temp_limit_work_func(struct dvfs_node *dvfs_node)
 		DVFS_DBG("delta time %6u us idle %6u us %u cpus select table %d\n",
 			 delta_time, delta_idle, nr_cpus, busy_cpus);
 	}
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on) cpu_relax();
-#else
 
 	if (limits_table) {
 		new_temp_limit_rate = limits_table[0].frequency;
@@ -1290,7 +1258,6 @@ static void dvfs_virt_temp_limit_work_func(struct dvfs_node *dvfs_node)
 				new_temp_limit_rate = limits_table[i].frequency;
 		}
 	}
-#endif
 	if (dvfs_node->temp_limit_rate != new_temp_limit_rate) {
 		dvfs_node->temp_limit_rate = new_temp_limit_rate;
 		dvfs_clk_set_rate(dvfs_node, dvfs_node->last_set_rate);
@@ -1369,10 +1336,6 @@ static void dvfs_temp_limit_performance(struct dvfs_node *dvfs_node, int temp)
 	int i;
 
 	dvfs_node->temp_limit_rate = dvfs_node->max_rate;
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on) cpu_relax();
-#else
 	
 	for (i = 0; dvfs_node->per_temp_limit_table[i].frequency !=
 		CPUFREQ_TABLE_END; i++) {
@@ -1380,7 +1343,6 @@ static void dvfs_temp_limit_performance(struct dvfs_node *dvfs_node, int temp)
 			dvfs_node->temp_limit_rate =
 			dvfs_node->per_temp_limit_table[i].frequency;
 	}
-#endif	
 	dvfs_clk_set_rate(dvfs_node, dvfs_node->last_set_rate);
 }
 
@@ -1393,10 +1355,6 @@ static void dvfs_temp_limit_normal(struct dvfs_node *dvfs_node, int temp)
 	if (temp > dvfs_node->target_temp) {
 		if (temp > dvfs_node->old_temp) {
 			delta_temp = temp - dvfs_node->target_temp;
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on) cpu_relax();
-#else
 			
 			for (i = 0;
 			dvfs_node->nor_temp_limit_table[i].frequency !=
@@ -1406,7 +1364,6 @@ static void dvfs_temp_limit_normal(struct dvfs_node *dvfs_node, int temp)
 					arm_rate_step =
 				dvfs_node->nor_temp_limit_table[i].frequency;
 			}
-#endif			
 			if (arm_rate_step &&
 			    (dvfs_node->temp_limit_rate > arm_rate_step)) {
 				dvfs_node->temp_limit_rate -= arm_rate_step;
@@ -1423,10 +1380,6 @@ static void dvfs_temp_limit_normal(struct dvfs_node *dvfs_node, int temp)
 		if (dvfs_node->temp_limit_rate < dvfs_node->max_rate ||
 		    temp_limit_4k) {
 			delta_temp = dvfs_node->target_temp - temp;
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on) cpu_relax();
-#else
 			
 			for (i = 0;
 			dvfs_node->nor_temp_limit_table[i].frequency !=
@@ -1436,7 +1389,6 @@ static void dvfs_temp_limit_normal(struct dvfs_node *dvfs_node, int temp)
 					arm_rate_step =
 				dvfs_node->nor_temp_limit_table[i].frequency;
 			}
-#endif
 			if (arm_rate_step) {
 				dvfs_node->temp_limit_rate += arm_rate_step;
 				if (dvfs_node->temp_limit_rate >
@@ -1680,9 +1632,7 @@ int dvfs_set_freq_volt_table(struct dvfs_node *clk_dvfs_node, struct cpufreq_fre
 		return -EINVAL;
 	}
 #if TSAI
-	printk("TSAI dvfs_set_freq_volt_table table=%p %s\n", table, __FILE__);
-	while(!tsai_move_on)
-		cpu_relax();
+	pr_info("TSAI dvfs_set_freq_volt_table table=%p %s\n", table, __FILE__);
 #endif
 	mutex_lock(&clk_dvfs_node->vd->mutex);
 	clk_dvfs_node->dvfs_table = table;
@@ -1752,10 +1702,6 @@ static void adjust_table_by_leakage(struct dvfs_node *dvfs_node)
 
 	if (dvfs_node->lkg_info.min_adjust_freq == -1)
 		return;
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on) cpu_relax();
-#else
 
 	for (i = 0;
 	(dvfs_node->dvfs_table[i].frequency != CPUFREQ_TABLE_END); i++) {
@@ -1763,7 +1709,6 @@ static void adjust_table_by_leakage(struct dvfs_node *dvfs_node)
 			dvfs_node->lkg_info.min_adjust_freq)
 			dvfs_node->dvfs_table[i].DVFS_INDEX += adjust_volt;
 	}
-#endif	
 }
 
 int clk_enable_dvfs(struct dvfs_node *clk_dvfs_node)
@@ -1843,7 +1788,7 @@ int clk_enable_dvfs(struct dvfs_node *clk_dvfs_node)
 		}
 		clk_dvfs_node->enable_count++;
 #if TSAI
-	printk("TSAI clk_enable_dvfs cur_volt %d %s %d\n", clk_dvfs_node->vd->cur_volt, __FILE__, __LINE__);	
+	pr_info("TSAI clk_enable_dvfs cur_volt %d %s %d\n", clk_dvfs_node->vd->cur_volt, __FILE__, __LINE__);	
 #endif
 		clk_dvfs_node->set_volt = clk_fv.DVFS_INDEX;
 		volt_new = dvfs_vd_get_newvolt_byclk(clk_dvfs_node);
@@ -2012,8 +1957,7 @@ static int dvfs_target(struct dvfs_node *clk_dvfs_node, unsigned long rate)
 	clk_volt_store = clk_dvfs_node->set_volt;
 	clk_dvfs_node->set_volt = clk_fv.DVFS_INDEX;
 #if 0 && TSAI
-//	if (strcmp(clk_dvfs_node->name, "clk_ddr")==0) BKPT;
-	printk("TSAI: dvfs_target %s @%s\n", clk_dvfs_node->name, __FILE__);
+	pr_info("TSAI: dvfs_target %s @%s\n", clk_dvfs_node->name, __FILE__);
 #endif
 	volt_new = dvfs_vd_get_newvolt_byclk(clk_dvfs_node);
 	DVFS_DBG("%s:%s new rate=%lu(was=%lu),new volt=%lu,(was=%d)\n",
@@ -2346,10 +2290,6 @@ static int of_get_dvfs_pvtm_table(struct device_node *dev_node,
 	const struct property *prop;
 	const __be32 *val;
 	int nr, i;
-#if TSAI
-	while(!tsai_move_on)
-		cpu_relax();
-#endif
 
 	prop = of_find_property(dev_node, "pvtm-operating-points", NULL);
 	if (!prop)
@@ -2370,10 +2310,6 @@ static int of_get_dvfs_pvtm_table(struct device_node *dev_node,
 			     (nr/3 + 1), GFP_KERNEL);
 
 	val = prop->value;
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on) cpu_relax();
-#else
 
 	for (i = 0; i < nr/3; i++) {
 		tmp_dvfs_table[i].frequency = be32_to_cpup(val++);
@@ -2388,7 +2324,6 @@ static int of_get_dvfs_pvtm_table(struct device_node *dev_node,
 
 	tmp_pvtm_table[i].DVFS_INDEX = 0;
 	tmp_pvtm_table[i].frequency = CPUFREQ_TABLE_END;
-#endif
 	*dvfs_table = tmp_dvfs_table;
 	*pvtm_table = tmp_pvtm_table;
 
@@ -2682,10 +2617,6 @@ static int dump_dbg_map(char *buf)
 						clk_dvfs_node->freq_limit_en ? "enable" : "disable",
 						clk_dvfs_node->min_rate, clk_dvfs_node->max_rate,
 						clk_dvfs_node->last_set_rate/1000);
-#if TSAI
-	printk("TSAI struct cpufreq_frequency_table no longer exist %s %d\n", __FILE__, __LINE__);
-	while(!tsai_move_on) cpu_relax();
-#else
 						
 				for (i = 0; (clk_dvfs_node->dvfs_table[i].frequency != CPUFREQ_TABLE_END); i++) {
 					printk( "|  |  |  |- freq = %d, volt = %d\n",
@@ -2706,7 +2637,6 @@ static int dump_dbg_map(char *buf)
 								dvfs_regu_mode_to_string(clk_dvfs_node->regu_mode_table[i].DVFS_INDEX));
 					}
 				}
-#endif				
 			}
 		}
 		mutex_unlock(&vd->mutex);

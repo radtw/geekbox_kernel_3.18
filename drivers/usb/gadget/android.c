@@ -604,7 +604,6 @@ rndis_function_bind_config(struct android_usb_function *f,
 		rndis->ethaddr[3], rndis->ethaddr[4], rndis->ethaddr[5]);
 
 #if TSAI /* my fix */
-	BKPT;
 	dev = gether_setup_name(c->cdev->gadget, 0, 0, rndis->ethaddr, 0, "rndis");
 #else
 	dev = gether_setup_name(c->cdev->gadget, rndis->ethaddr, "rndis");
@@ -1480,7 +1479,7 @@ static int __init init(void)
 	struct android_dev *dev;
 	int err;
 #if TSAI
-	printk("TSAI init %s %d \n", __FILE__,__LINE__);
+	pr_info("TSAI init %s %d \n", __FILE__,__LINE__);
 #endif
 	android_class = class_create(THIS_MODULE, "android_usb");
 	if (IS_ERR(android_class))

@@ -510,8 +510,7 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
 	spin_lock_init(&host->lock);
 	init_waitqueue_head(&host->wq);
 #if TSAI
-	printk("TSAI: mmc_alloc_host issue mmc_rescan %s %s %s \n", dev->kobj.name, mmc_hostname(host), __FILE__);
-	//TSAI_BUSY_WAIT;
+	pr_info("TSAI: mmc_alloc_host issue mmc_rescan %s %s @%s\n", dev->kobj.name, mmc_hostname(host), __FILE__);
 #endif
 	INIT_DELAYED_WORK(&host->detect, mmc_rescan);
 #ifdef CONFIG_PM

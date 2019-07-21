@@ -631,7 +631,7 @@ KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
 else
 KBUILD_CFLAGS	+= -O2
 endif
-#SRUK ##############################################################################################################################
+#TSAI ##############################################################################################################################
 #-include "tsai_bkpt.h" 
 KBUILD_CFLAGS += -DTSAI=1 -DTSAI_DS5=1 -DSRUK_DBF_REF=0 -DSRUK_GEM_REF=0
 KBUILD_AFLAGS += -DTSAI=1

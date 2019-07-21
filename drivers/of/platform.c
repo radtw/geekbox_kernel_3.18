@@ -23,10 +23,6 @@
 #include <linux/of_platform.h>
 #include <linux/platform_device.h>
 
-#if TSAI
-extern int tsai_move_on;
-#endif
-
 const struct of_device_id of_default_bus_match_table[] = {
 	{ .compatible = "simple-bus", },
 #ifdef CONFIG_ARM_AMBA
@@ -499,16 +495,12 @@ int of_platform_populate(struct device_node *root,
 	if (!root)
 		return -EINVAL;
 #if TSAI
-	printk("TSAI of_platform_populate %s %d \n", __FILE__, __LINE__);
+	pr_info("TSAI of_platform_populate %s %d \n", __FILE__, __LINE__);
 #endif
 
 	for_each_child_of_node(root, child) {
 #if TSAI
-	printk("TSAI child %s %s \n", child->name, child->type);
-	if (0 && strcmp(child->name, "iep_mmu")==0) {
-		while(!tsai_move_on)
-		    cpu_relax();
-	}
+	pr_info("TSAI child %s %s @%s\n", child->name, child->type, __FILE__);
 #endif
 		rc = of_platform_bus_create(child, matches, lookup, parent, true);
 		if (rc)

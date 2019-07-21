@@ -1595,7 +1595,7 @@ struct ion_handle *ion_import_dma_buf(struct ion_client *client, int fd)
 
 	handle = ion_handle_create(client, buffer);
 	if (IS_ERR(handle)) {
-#if TSAI
+#if 0 && TSAI
 		BKPT;
 #endif
 		mutex_unlock(&client->lock);

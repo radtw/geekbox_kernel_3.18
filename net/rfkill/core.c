@@ -707,8 +707,7 @@ static ssize_t state_store(struct device *dev, struct device_attribute *attr,
 	unsigned long state;
 	int err;
 #if TSAI
-	printk("TSAI: rfkill state_store %c %s\n", *buf, __FILE__);
-	//BKPT;
+	pr_info("TSAI: rfkill state_store %c %s\n", *buf, __FILE__);
 #endif
 	if (!capable(CAP_NET_ADMIN))
 		return -EPERM;

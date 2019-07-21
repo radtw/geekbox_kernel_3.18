@@ -171,10 +171,12 @@ check_partition(struct gendisk *hd, struct block_device *bdev)
 	i = res = err = 0;
 #if TSAI && defined(CONFIG_ARCH_ROCKCHIP)
         /* Rockchip partition table ONLY used by eMMC disk */
-        #ifdef CONFIG_RK_PARTITION
-	if ((179 == MAJOR(bdev->bd_dev) && (1 == hd->emmc_disk)))
-               i = sizeof(check_part) / sizeof(struct parsed_partitions *) - 2;
-        #endif
+    #ifdef CONFIG_RK_PARTITION
+	pr_info("TSAI: check_partition major=%d emmc=%d @%s\n", MAJOR(bdev->bd_dev), hd->emmc_disk, __FILE__);
+	if ((179 == MAJOR(bdev->bd_dev) && (1 == hd->emmc_disk))) {
+           i = sizeof(check_part) / sizeof(struct parsed_partitions *) - 2;
+	}
+    #endif
 #endif
 	while (!res && check_part[i]) {
 		memset(state->parts, 0, state->limit * sizeof(state->parts[0]));

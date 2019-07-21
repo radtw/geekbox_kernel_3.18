@@ -360,6 +360,12 @@ static size_t print_process(const struct printk_log *msg, char *buf)
 module_param_named(process, printk_process, bool, S_IRUGO | S_IWUSR);
 #endif
 
+#ifdef CONFIG_RK_LAST_LOG
+extern void rk_last_log_text(char *text, size_t size);
+static char rk_text[1024];
+static size_t msg_print_text(const struct printk_log *msg, enum log_flags prev,
+			     bool syslog, char *buf, size_t size);
+#endif
 /*
  * Check whether there is enough free space for the given message.
  *
@@ -500,6 +506,11 @@ static int log_store(int facility, int level,
 		msg->cpu = smp_processor_id();
 		msg->in_interrupt = in_interrupt() ? 1 : 0;
 	}
+#endif
+
+#ifdef CONFIG_RK_LAST_LOG
+	size = msg_print_text(msg, msg->flags, true, rk_text, sizeof(rk_text));
+	rk_last_log_text(rk_text, size);
 #endif
 	/* insert message */
 	log_next_idx += msg->len;
@@ -2090,6 +2101,9 @@ void suspend_console(void)
 {
 	if (!console_suspend_enabled)
 		return;
+#if TSAI
+	pr_info("TSAI suspend_console @%s\n", __FILE__);
+#endif
 	printk("Suspending console(s) (use no_console_suspend to debug)\n");
 	console_lock();
 	console_suspended = 1;
@@ -2100,6 +2114,9 @@ void resume_console(void)
 {
 	if (!console_suspend_enabled)
 		return;
+#if TSAI
+	pr_info("TSAI resume_console @%s\n", __FILE__);
+#endif
 	down_console_sem();
 	console_suspended = 0;
 	console_unlock();
@@ -2130,6 +2147,10 @@ static int console_cpu_notify(struct notifier_block *self,
 	return NOTIFY_OK;
 }
 
+#if TSAI
+static void console_cont_flush(char *text, size_t size);
+#endif
+
 /**
  * console_lock - lock the console system for exclusive use.
  *
@@ -2140,6 +2161,17 @@ static int console_cpu_notify(struct notifier_block *self,
  */
 void console_lock(void)
 {
+#if TSAI
+	pr_info("TSAI console_lock @%s\n", __FILE__);
+#endif
+#if TSAI
+	{
+		static char text[LOG_LINE_MAX + PREFIX_MAX];
+		/* flush buffered message fragment immediately to console */
+		console_cont_flush(text, sizeof(text));
+	}
+#endif
+
 	might_sleep();
 
 	down_console_sem();
@@ -2160,6 +2192,14 @@ EXPORT_SYMBOL(console_lock);
  */
 int console_trylock(void)
 {
+#if TSAI
+	{
+		static char text[LOG_LINE_MAX + PREFIX_MAX];
+		/* flush buffered message fragment immediately to console */
+		console_cont_flush(text, sizeof(text));
+	}
+#endif
+
 	if (down_trylock_console_sem())
 		return 0;
 	if (console_suspended) {
@@ -2168,6 +2208,7 @@ int console_trylock(void)
 	}
 	console_locked = 1;
 	console_may_schedule = 0;
+
 	return 1;
 }
 EXPORT_SYMBOL(console_trylock);
@@ -2227,7 +2268,9 @@ void console_unlock(void)
 	unsigned long flags;
 	bool wake_klogd = false;
 	bool do_cond_resched, retry;
-
+#if 0 && TSAI
+	pr_info("TSAI console_unlock @%s\n", __FILE__);
+#endif
 	if (console_suspended) {
 		up_console_sem();
 		return;
@@ -2421,6 +2464,9 @@ struct tty_driver *console_device(int *index)
  */
 void console_stop(struct console *console)
 {
+#if TSAI
+	pr_info("TSAI console_stop @%s\n", __FILE__);
+#endif
 	console_lock();
 	console->flags &= ~CON_ENABLED;
 	console_unlock();
@@ -2429,6 +2475,9 @@ EXPORT_SYMBOL(console_stop);
 
 void console_start(struct console *console)
 {
+#if TSAI
+	pr_info("TSAI console_start @%s\n", __FILE__);
+#endif
 	console_lock();
 	console->flags |= CON_ENABLED;
 	console_unlock();
@@ -2472,7 +2521,12 @@ void register_console(struct console *newcon)
 	unsigned long flags;
 	struct console *bcon = NULL;
 	struct console_cmdline *c;
-
+#if TSAI
+	{
+		static int enter_cnt;
+		pr_info("TSAI register_console %s cnt:%d@%s\n", newcon->name, enter_cnt++, __FILE__);
+	}
+#endif
 	if (console_drivers)
 		for_each_console(bcon)
 			if (WARN(bcon == newcon,
@@ -2606,9 +2660,9 @@ void register_console(struct console *newcon)
 	 * users know there might be something in the kernel's log buffer that
 	 * went to the bootconsole (that they do not see on the real console)
 	 */
-	pr_info("%sconsole [%s%d] enabled\n",
+	pr_info("%sconsole [%s%d] enabled @%s\n",
 		(newcon->flags & CON_BOOT) ? "boot" : "" ,
-		newcon->name, newcon->index);
+		newcon->name, newcon->index, __FILE__);
 	if (bcon &&
 	    ((newcon->flags & (CON_CONSDEV | CON_BOOT)) == CON_CONSDEV) &&
 	    !keep_bootcon) {
