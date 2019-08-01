@@ -205,7 +205,7 @@ void tsai_printk_stack_trace(struct task_struct* tsk) {
 	trace.nr_entries = 0;
 	trace.max_entries = ARRAY_SIZE(entries);
 	trace.entries = entries;
-	trace.skip = 0;
+	trace.skip = 1;
 
 	save_stack_trace_tsk(tsk, &trace);
 	tsai_print_stack_trace_private(&trace, 0);

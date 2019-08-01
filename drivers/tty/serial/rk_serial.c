@@ -47,6 +47,9 @@
 #include <linux/of.h>
 #endif
 
+#if TSAI
+#include "tsai_spy.h"
+#endif
 
 /*
 *			 Driver Version Note
@@ -1821,6 +1824,14 @@ static void console_write(struct console *co, const char *s, unsigned int count)
 		}
 		console_flush(up);
 	} else {
+#if TSAI
+		static int first_time = 1;
+		if (first_time) {
+			pr_info("TSAI console name=%s \n", co->name);
+			tsai_printk_stack_trace_current();
+			first_time = 0;
+		}
+#endif
 		while (count--) {
 #if 0 && TSAI
 			if (*s == '\n') {
@@ -1828,7 +1839,7 @@ static void console_write(struct console *co, const char *s, unsigned int count)
 			}
 			kfifo_put(&fifo, s++);
 #else
-	/* this clause is done by IMG, but not sure reason */
+	/* this clause is done by IMG, looks like 3.18 kfifo usage has changed */
 			if (*s == '\n') {
 				kfifo_put(&fifo, r);
 			}

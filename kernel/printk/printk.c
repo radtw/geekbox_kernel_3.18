@@ -1541,6 +1541,9 @@ static int console_trylock_for_printk(void)
 	 * console semaphore in order to do this test safely.
 	 */
 	if (!can_use_console(cpu)) {
+#if TSAI
+		pr_info("TSAI: cannot use console @%s:%d\n", __FILE__,__LINE__);
+#endif
 		console_locked = 0;
 		up_console_sem();
 		return 0;
@@ -2162,7 +2165,7 @@ static void console_cont_flush(char *text, size_t size);
 void console_lock(void)
 {
 #if TSAI
-	pr_info("TSAI console_lock @%s\n", __FILE__);
+	pr_info("TSAI console_lock lr=%pS @%s\n", __builtin_return_address(0), __FILE__);
 #endif
 #if TSAI
 	{
@@ -2192,7 +2195,7 @@ EXPORT_SYMBOL(console_lock);
  */
 int console_trylock(void)
 {
-#if TSAI
+#if 0 && TSAI /* this clause doesn't help */
 	{
 		static char text[LOG_LINE_MAX + PREFIX_MAX];
 		/* flush buffered message fragment immediately to console */
@@ -2649,6 +2652,7 @@ void register_console(struct console *newcon)
 		 * the already-registered consoles.
 		 */
 		exclusive_console = newcon;
+		pr_info("TSAI: console %s is exclusive_console %s\n", newcon->name, __FILE__);
 	}
 	console_unlock();
 	console_sysfs_notify();
