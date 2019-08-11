@@ -1574,7 +1574,11 @@ static int journal_get_superblock(journal_t *journal)
 	/* Check superblock checksum */
 	if (!jbd2_superblock_csum_verify(journal, sb)) {
 		printk(KERN_ERR "JBD2: journal checksum error\n");
+#if TSAI /* data partition may be accessed by 3.10, so checksum is mix of v2 and v3 */
+		pr_info("TSAI: allow checksum mismatch due to mix 3.10 and 3.18 kernel \n");
+#else
 		goto out;
+#endif
 	}
 
 	/* Precompute checksum seed for all metadata */
@@ -1645,7 +1649,11 @@ int jbd2_journal_load(journal_t *journal)
 		     ~cpu_to_be32(JBD2_KNOWN_INCOMPAT_FEATURES))) {
 			printk(KERN_WARNING
 				"JBD2: Unrecognised features on journal\n");
+#if TSAI /* now data partition may be accessed by 3.10 or desktop ubuntu, so checksum may be mix of v2 and v3 */
+			pr_info("TSAI: version=%d Ignore unknown journey feature @%s\n", journal->j_format_version, __FILE__);
+#else
 			return -EINVAL;
+#endif
 		}
 	}
 

@@ -1,3 +1,6 @@
+#if TSAI
+#define DEBUG
+#endif
 /*
  * Gadget Function Driver for MTP
  *
@@ -1025,7 +1028,7 @@ out:
 
 static int mtp_open(struct inode *ip, struct file *fp)
 {
-	printk(KERN_INFO "mtp_open\n");
+	printk(KERN_INFO "mtp_open @%s:%d\n", __FILE__, __LINE__);
 	if (mtp_lock(&_mtp_dev->open_excl))
 		return -EBUSY;
 
@@ -1454,7 +1457,7 @@ static int mtp_set_inst_name(struct usb_function_instance *fi, const char *name)
 
 	fi_mtp = to_fi_mtp(fi);
 	fi_mtp->name = ptr;
-
+pr_info("TSAI: mtp_set_inst_name %s @%s\n", name, __FILE__);
 	return 0;
 }
 

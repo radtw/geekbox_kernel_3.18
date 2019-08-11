@@ -23,6 +23,10 @@
 #include <linux/compat.h>
 #include <linux/slab.h>
 
+#if 0 && TSAI_DS5 //note this file is actually included by pcm_native.c
+	#include "streamline_annotate.h"
+#endif
+
 static int snd_pcm_ioctl_delay_compat(struct snd_pcm_substream *substream,
 				      s32 __user *src)
 {
@@ -282,28 +286,91 @@ static int snd_pcm_ioctl_xferi_compat(struct snd_pcm_substream *substream,
 	compat_caddr_t buf;
 	u32 frames;
 	int err;
+#if TSAI
+	int ret;
+#if TSAI_DS5
+	u64 tsai_ts = ANNOTATE_GET_TS();
+#endif
+#endif
 
 	if (! substream->runtime)
+#if TSAI
+	{
+		ret = -ENOTTY;
+		goto Leave;
+	}
+#else
 		return -ENOTTY;
+#endif
 	if (substream->stream != dir)
+#if TSAI
+	{
+		ret = -EINVAL;
+		goto Leave;
+	}
+#else
 		return -EINVAL;
+#endif
 	if (substream->runtime->status->state == SNDRV_PCM_STATE_OPEN)
+#if TSAI
+	{
+		ret = -EBADFD;
+		goto Leave;
+	}
+#else
 		return -EBADFD;
+#endif
 
 	if (get_user(buf, &data32->buf) ||
 	    get_user(frames, &data32->frames))
+#if TSAI
+	{
+		ret = -EFAULT;
+		goto Leave;
+	}
+#else
 		return -EFAULT;
+#endif
 
 	if (dir == SNDRV_PCM_STREAM_PLAYBACK)
 		err = snd_pcm_lib_write(substream, compat_ptr(buf), frames);
 	else
 		err = snd_pcm_lib_read(substream, compat_ptr(buf), frames);
 	if (err < 0)
+#if TSAI
+	{
+		ret = err;
+		goto Leave;
+	}
+#else
 		return err;
+#endif
 	/* copy the result */
 	if (put_user(err, &data32->result))
+#if TSAI
+	{
+		ret = -EFAULT;
+		goto Leave;
+	}
+#else
 		return -EFAULT;
+#endif
+
+#if TSAI
+	ret = 0;
+Leave:
+#if TSAI_DS5
+	{
+		char msg[256];
+		sprintf(msg, "snd_pcm_ioctl_xferi_compat ret=%d", ret);
+		ANNOTATE_CHANNEL_COLOR_TS(4, ANNOTATE_BLUE, msg, &tsai_ts);
+		ANNOTATE_CHANNEL_END(4);
+	}
+#endif
+	return ret;
+#else
 	return 0;
+#endif
 }
 
 
@@ -402,18 +469,44 @@ static int snd_pcm_ioctl_sync_ptr_compat(struct snd_pcm_substream *substream,
 	struct snd_pcm_mmap_status sstatus;
 	snd_pcm_uframes_t boundary;
 	int err;
-
+#if TSAI
+	int ret;
+#if TSAI_DS5
+	u64 tsai_ts = ANNOTATE_GET_TS();
+#endif
+#endif
 	if (snd_BUG_ON(!runtime))
+#if TSAI
+	{
+		ret = -EINVAL;
+		goto Leave;
+	}
+#else
 		return -EINVAL;
+#endif
 
 	if (get_user(sflags, &src->flags) ||
 	    get_user(scontrol.appl_ptr, &src->c.control.appl_ptr) ||
 	    get_user(scontrol.avail_min, &src->c.control.avail_min))
+#if TSAI
+	{
+		ret = -EFAULT;
+		goto Leave;
+	}
+#else
 		return -EFAULT;
+#endif
 	if (sflags & SNDRV_PCM_SYNC_PTR_HWSYNC) {
 		err = snd_pcm_hwsync(substream);
 		if (err < 0)
+#if TSAI
+		{
+			ret = err;
+			goto Leave;
+		}
+#else
 			return err;
+#endif
 	}
 	status = runtime->status;
 	control = runtime->control;
@@ -444,9 +537,29 @@ static int snd_pcm_ioctl_sync_ptr_compat(struct snd_pcm_substream *substream,
 		    &src->s.status.audio_tstamp) ||
 	    put_user(scontrol.appl_ptr, &src->c.control.appl_ptr) ||
 	    put_user(scontrol.avail_min, &src->c.control.avail_min))
+#if TSAI
+	{
+		ret = -EFAULT;
+		goto Leave;
+	}
+#else
 		return -EFAULT;
-
+#endif
+#if TSAI
+	ret = 0;
+Leave:
+#if TSAI_DS5
+	{
+		char msg[256];
+		sprintf(msg, "snd_pcm_ioctl_sync_ptr_compat ret=%d", ret);
+		ANNOTATE_CHANNEL_COLOR_TS(4, ANNOTATE_YELLOW, msg, &tsai_ts);
+		ANNOTATE_CHANNEL_END(3);
+	}
+#endif
+	return ret;
+#else
 	return 0;
+#endif
 }
 
 
@@ -481,6 +594,16 @@ static long snd_pcm_ioctl_compat(struct file *file, unsigned int cmd, unsigned l
 	substream = pcm_file->substream;
 	if (! substream)
 		return -ENOTTY;
+#if 0 && TSAI
+	pr_info("TSAI: snd_pcm_ioctl_compat cmd=%d\n", (int)cmd);
+#endif
+#if TSAI_DS5
+	{
+		const char* iname = (file->f_path.dentry ? (const char*)file->f_path.dentry->d_iname: "");
+	SRUK_ANNOTATE_CHANNEL_COLOR(3, ANNOTATE_WHITE, "snd_pcm_ioctl_compat %s cmd %x", iname, cmd);
+	ANNOTATE_CHANNEL_END(3);
+	}
+#endif
 
 	/*
 	 * When PCM is used on 32bit mode, we need to disable

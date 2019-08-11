@@ -902,8 +902,17 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 	if (!type)
 		return ERR_PTR(-ENODEV);
 #if TSAI
-	pr_info("TSAI: vfs_kern_mount %s @%s %d\n", name, __FILE__, __LINE__);
-	if (0 && strcmp(name, "sysfs")==0 && strcmp(current->comm, "init")==0) {
+	{
+		char sData[64];
+		if (strcmp(type->name, "nfs")==0) {
+			memcpy(sData, data, sizeof(sData));
+			sData[sizeof(sData) - 1] = 0;
+		}
+		else
+			sData[0] = 0;
+		pr_info("TSAI: vfs_kern_mount type %s name %s flg %x data %s @%s %d\n", type->name, name, flags, sData, __FILE__, __LINE__);
+		if (0 && strcmp(name, "sysfs")==0 && strcmp(current->comm, "init")==0) {
+		}
 	}
 #endif
 	mnt = alloc_vfsmnt(name);
@@ -927,6 +936,9 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 		kfree(mnt->mnt.data);
 		mnt_free_id(mnt);
 		free_vfsmnt(mnt);
+#if TSAI
+		pr_info("vfs_kern_mount %s failed %d \n", type->name, ERR_CAST(root));
+#endif
 		return ERR_CAST(root);
 	}
 
@@ -2896,7 +2908,8 @@ SYSCALL_DEFINE5(mount, char __user *, dev_name, char __user *, dir_name,
 		(void *) data_page);
 
 #if TSAI
-	pr_info("TSAI mount %s %s %s ret=%d from %s @%s\n", kernel_dev, dir_name, kernel_type, ret, current->comm, __FILE__);
+	pr_info("TSAI mount %s %s %s flg %x opt %x ret=%d from %s @%s\n", kernel_dev, dir_name, kernel_type, flags, data_page,
+			ret, current->comm, __FILE__);
 #endif
 	free_page(data_page);
 out_data:

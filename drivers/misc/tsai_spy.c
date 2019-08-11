@@ -31,6 +31,9 @@
 #include <linux/kthread.h>
 #include <linux/stacktrace.h>
 
+/* for 3.10 kernel, vfs_write doesn't seem to work well, use this instead*/
+extern ssize_t __kernel_write(struct file *, const char *, size_t, loff_t *);
+
 #define DEBUG
 #include "tsai_macro.h"
 
@@ -3340,6 +3343,105 @@ unsigned long tsai_print_process_callstack(struct task_struct* thetask, struct f
 	return ret;
 }
 
+/*
+ *  */
+int tsai_print_process_fd(struct task_struct* p) {
+	int ret = 0;
+	//struct tsai_process_rss* rs;
+	struct file* file_output;
+	char msg[512];
+	char spath[256];
+	int len;
+	pr_info("tsai_print_process_fd %s %d\n", p->comm, p->pid);
+	/* open a output file */
+	{
+		char tmp_filename[256] = {0} ;
+		sprintf(tmp_filename, "/tmp/filedesc_%d.txt", p->pid);
+		file_output = filp_open(tmp_filename, O_RDWR|O_CREAT|O_TRUNC|O_LARGEFILE, S_IRWXU|S_IRWXG|S_IRWXO);
+		if (IS_ERR(file_output )) {
+			ret = (int)IS_ERR(file_output);
+			file_output = 0;
+		}
+	}
+	pr_info("file_output %p ret=%d\n", file_output, ret);
+	if (file_output) {
+		int i=0;
+		int max;
+		//struct files_struct *files;
+		/* assuming now FD is less than 256*/
+		max=p->files->fdt->max_fds;
+		len = snprintf(msg, sizeof(msg), "PID %d %s \n", p->pid, p->comm);
+		__kernel_write(file_output, msg, len, &file_output->f_pos);
+		for (i=0; i<max; i++) {
+			struct file* f = p->files->fdt->fd[i];
+			const struct file_operations	*f_op;
+			char* p;
+			if (!f)
+				continue;
+			p = d_path(&(f->f_path), spath, sizeof(spath));
+			len = snprintf(msg, sizeof(msg), "[%03d]=> %s\n", i, p);
+			__kernel_write(file_output, msg, len, &file_output->f_pos);
+			pr_info("[%d]=%s\n", i, p);
+
+			len = 0;
+			f_op = f->f_op;
+			if (!f_op)
+				continue;
+
+#if 0
+			if (f_op->open) {
+				pr_info(".%s=%p %pS\n", "open", (void*)f_op->open, (void*)f_op->open);
+				len += snprintf(msg+len, sizeof(msg)-len, ".%s=%p %pS\n", "open", (void*)f_op->open, (void*)f_op->open );
+			}
+#endif
+#define PRINT_FOP(name) if (f_op->name) { \
+	                        len = snprintf(msg, sizeof(msg), ".%s=%p %pS\n", #name, \
+	                        		(void*)f_op->name, (void*)f_op->name );   \
+	                        pr_info("%s", msg);\
+	                        __kernel_write(file_output, msg, len, &file_output->f_pos);\
+	                    }
+			PRINT_FOP(llseek)
+			PRINT_FOP(read)
+			PRINT_FOP(write)
+			PRINT_FOP(aio_read)
+			PRINT_FOP(aio_write)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3, 18, 0)
+			PRINT_FOP(read_iter)
+			PRINT_FOP(write_iter)
+#else /* 3.10 */
+			PRINT_FOP(readdir)
+#endif
+			PRINT_FOP(iterate)
+			PRINT_FOP(poll)
+			PRINT_FOP(unlocked_ioctl)
+			PRINT_FOP(compat_ioctl)
+			PRINT_FOP(mmap)
+			PRINT_FOP(open)
+			PRINT_FOP(flush)
+			PRINT_FOP(release)
+			PRINT_FOP(fsync)
+			PRINT_FOP(aio_fsync)
+			PRINT_FOP(fasync)
+			PRINT_FOP(lock)
+			PRINT_FOP(sendpage)
+			PRINT_FOP(get_unmapped_area)
+			PRINT_FOP(check_flags)
+			PRINT_FOP(flock)
+			PRINT_FOP(splice_write)
+			PRINT_FOP(splice_read)
+			PRINT_FOP(setlease)
+			PRINT_FOP(fallocate)
+			PRINT_FOP(show_fdinfo)
+#undef PRINT_FOP
+		}
+		filp_close(file_output, (fl_owner_t)NULL);
+		file_output = 0;
+	}
+/*Leave:*/
+	return ret;
+}
+
+
 int tsai_allow_ld_annotate;
 
 TSAI_STATIC int tsai_spy_ld_annotate_relocate(struct TSpy_LD_Param* p) {
@@ -3622,6 +3724,21 @@ ssize_t tsai_spy_write(struct file *f, char const __user *buf, size_t count_orig
 	}
 	else if (strcmp(scmd, "smp_call_func")==0) {
 		tsai_spy_smp_call_func();
+	}
+	else if (strcmp(scmd, "file_descriptor")==0) {
+		pid_t pid = -1;
+		struct task_struct* thetask = NULL;
+		res = sscanf(sarg, "%u", &pid);
+		if (res) {
+			thetask = pid_task(find_vpid(pid), PIDTYPE_PID);
+		}
+		else {
+			/* argument is a process name, find the task */
+			thetask = tsai_find_process_by_name(sarg);
+		}
+		if (thetask) {
+			tsai_print_process_fd(thetask);
+		}
 	}
 	else {
 	#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 0, 0)
@@ -4152,5 +4269,5 @@ module_init(tsai_spy_init);
 module_exit(tsai_spy_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Samsung Electronics");
+MODULE_AUTHOR("TSAI");
 MODULE_VERSION("0.1");

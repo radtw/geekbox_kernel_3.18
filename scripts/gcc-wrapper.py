@@ -64,7 +64,16 @@ def interpret_warning(line):
     m = warning_re.match(line)
     if m and m.group(2) not in allowed_warnings:
         print "error, forbidden warning:", m.group(2)
-	# Coki04
+        #TSAI: this file gcc-wrapper.py doesn't exist in android common kernel, likely rockchip added on, 
+        # Wformat happens frequently so become too annoying
+        # If there is a warning, remove any object if it exists.
+        #if ofile:
+        #    try:
+        #        os.remove(ofile)
+        #    except OSError:
+        #        pass
+        #sys.exit(1)
+
 def run_gcc():
     args = sys.argv[1:]
     # Look for -o

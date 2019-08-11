@@ -32,6 +32,10 @@
 #include <sound/pcm_params.h>
 #include <sound/timer.h>
 
+#if TSAI_DS5
+	#include "streamline_annotate.h"
+#endif
+
 /*
  * fill ring buffer with silence
  * runtime->silence_start: starting pointer to silence area
@@ -45,7 +49,9 @@ void snd_pcm_playback_silence(struct snd_pcm_substream *substream, snd_pcm_ufram
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	snd_pcm_uframes_t frames, ofs, transfer;
-
+#if TSAI_DS5
+	SRUK_ANNOTATE_CHANNEL_COLOR(8, ANNOTATE_RED, "snd_pcm_playback_silence %u", new_hw_ptr);
+#endif
 	if (runtime->silence_size < runtime->boundary) {
 		snd_pcm_sframes_t noise_dist, n;
 		if (runtime->silence_start != runtime->control->appl_ptr) {
@@ -128,6 +134,9 @@ void snd_pcm_playback_silence(struct snd_pcm_substream *substream, snd_pcm_ufram
 		frames -= transfer;
 		ofs = 0;
 	}
+#if TSAI_DS5
+	ANNOTATE_CHANNEL_END(8);
+#endif
 }
 
 #ifdef CONFIG_SND_DEBUG
@@ -1973,6 +1982,11 @@ static int snd_pcm_lib_write_transfer(struct snd_pcm_substream *substream,
 		char *hwbuf = runtime->dma_area + frames_to_bytes(runtime, hwoff);
 		if (copy_from_user(hwbuf, buf, frames_to_bytes(runtime, frames)))
 			return -EFAULT;
+#if TSAI_DS5
+	SRUK_ANNOTATE_CHANNEL_COLOR(6, ANNOTATE_RED, "snd_pcm_lib_write_transfer dma hwbuf %p hwoff %u off %u",
+		hwbuf, hwoff, off);
+	ANNOTATE_CHANNEL_END(6);
+#endif
 	}
 	return 0;
 }
@@ -1992,7 +2006,11 @@ static snd_pcm_sframes_t snd_pcm_lib_write1(struct snd_pcm_substream *substream,
 	snd_pcm_uframes_t offset = 0;
 	snd_pcm_uframes_t avail;
 	int err = 0;
-
+#if TSAI_DS5
+	//u64 tsai_ts = ANNOTATE_GET_TS();
+	SRUK_ANNOTATE_CHANNEL_COLOR(5, ANNOTATE_GREEN, "snd_pcm_lib_write1 hwptr %u bufsize %u state %d",
+			(unsigned int)runtime->status->hw_ptr, (unsigned int)runtime->buffer_size, (int)runtime->status->state);
+#endif
 	if (size == 0)
 		return 0;
 
@@ -2043,6 +2061,9 @@ static snd_pcm_sframes_t snd_pcm_lib_write1(struct snd_pcm_substream *substream,
 		appl_ptr = runtime->control->appl_ptr;
 		appl_ofs = appl_ptr % runtime->buffer_size;
 		snd_pcm_stream_unlock_irq(substream);
+#if TSAI_DS5
+		SRUK_ANNOTATE_CHANNEL_COLOR(5, ANNOTATE_PURPLE, "transfer size %u avail %u frm %u ", (unsigned int)size, (unsigned int)avail, (unsigned int)frames);
+#endif
 		err = transfer(substream, appl_ofs, data, offset, frames);
 		snd_pcm_stream_lock_irq(substream);
 		if (err < 0)
@@ -2080,6 +2101,9 @@ static snd_pcm_sframes_t snd_pcm_lib_write1(struct snd_pcm_substream *substream,
 	if (xfer > 0 && err >= 0)
 		snd_pcm_update_state(substream, runtime);
 	snd_pcm_stream_unlock_irq(substream);
+#if TSAI_DS5
+	ANNOTATE_CHANNEL_END(5);
+#endif
 	return xfer > 0 ? (snd_pcm_sframes_t)xfer : err;
 }
 
