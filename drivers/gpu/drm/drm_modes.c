@@ -682,7 +682,7 @@ int drm_mode_hsync(const struct drm_display_mode *mode)
 	if (mode->hsync)
 		return mode->hsync;
 
-	if (mode->htotal < 0)
+	if (mode->htotal <= 0)
 		return 0;
 
 	calc_val = (mode->clock * 1000) / mode->htotal; /* hsync in Hz */
@@ -914,7 +914,7 @@ EXPORT_SYMBOL(drm_mode_equal_no_clocks_no_stereo);
  *
  * This function is a helper which can be used to validate modes against size
  * limitations of the DRM device/connector. If a mode is too big its status
- * member is updated with the appropriate validation failure code. The list
+ * memeber is updated with the appropriate validation failure code. The list
  * itself is not changed.
  */
 void drm_mode_validate_size(struct drm_device *dev,

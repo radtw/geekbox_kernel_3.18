@@ -580,7 +580,7 @@ config SDH_BFIN_MISSING_CMD_PULLUP_WORKAROUND
 config MMC_DW
 	tristate "Synopsys DesignWare Memory Card Interface"
 	depends on HAS_DMA
-	depends on ARC || ARM || ARM64 || MIPS || COMPILE_TEST
+	depends on ARC || ARM || MIPS || COMPILE_TEST
 	help
 	  This selects support for the Synopsys DesignWare Mobile Storage IP
 	  block, this provides host support for SD and MMC interfaces, in both
@@ -643,10 +643,9 @@ config MMC_DW_ROCKCHIP
 	depends on MMC_DW && ARCH_ROCKCHIP
 	select MMC_DW_PLTFM
 	help
-	  This selects support for Rockchip RK32XX SoC specific extensions to the
+	  This selects support for Rockchip SoC specific extensions to the
 	  Synopsys DesignWare Memory Card Interface driver. Select this option
-	  for platforms based on RK32XX SoC's.
-
+	  for platforms based on RK3066, RK3188 and RK3288 SoC's.
 config MMC_DW_ROCKCHIP_SWITCH_VOLTAGE
 	tristate "Supoort voltage switch for higher level standard"
 	depends on MMC_DW_ROCKCHIP

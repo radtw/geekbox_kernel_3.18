@@ -11,7 +11,7 @@ menuconfig INPUT_KEYBOARD
 	  If unsure, say Y.
 
 if INPUT_KEYBOARD
-
+#TSAI:
 config KEYS_RK
         tristate "rk keyboard"
 	depends on IIO

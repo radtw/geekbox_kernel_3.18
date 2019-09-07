@@ -136,7 +136,7 @@ config IRQ_REMAP
 	  Supports Interrupt remapping for IO-APIC and MSI devices.
 	  To use x2apic mode in the CPU's which support x2APIC enhancements or
 	  to support platforms with CPU's having > 8 bit APIC ID, say Y.
-
+#TSAI:
 config ROCKCHIP_IOMMU
 	bool "Rockchip IOMMU Support"
 	depends on ARCH_ROCKCHIP

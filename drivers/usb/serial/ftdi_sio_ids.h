@@ -566,7 +566,9 @@
 /*
  * NovaTech product ids (FTDI_VID)
  */
-#define FTDI_NT_ORIONLXM_PID	0x7c90	/* OrionLXm Substation Automation Platform */
+#define FTDI_NT_ORIONLXM_PID		0x7c90	/* OrionLXm Substation Automation Platform */
+#define FTDI_NT_ORIONLX_PLUS_PID	0x7c91	/* OrionLX+ Substation Automation Platform */
+#define FTDI_NT_ORION_IO_PID		0x7c92	/* Orion I/O */
 
 /*
  * Synapse Wireless product ids (FTDI_VID)
@@ -867,9 +869,17 @@
 #define	FIC_VID			0x1457
 #define	FIC_NEO1973_DEBUG_PID	0x5118
 
+/*
+ * Actel / Microsemi
+ */
+#define ACTEL_VID				0x1514
+#define MICROSEMI_ARROW_SF2PLUS_BOARD_PID	0x2008
+
 /* Olimex */
 #define OLIMEX_VID			0x15BA
 #define OLIMEX_ARM_USB_OCD_PID		0x0003
+#define OLIMEX_ARM_USB_TINY_PID	0x0004
+#define OLIMEX_ARM_USB_TINY_H_PID	0x002a
 #define OLIMEX_ARM_USB_OCD_H_PID	0x002b
 
 /*
@@ -895,6 +905,9 @@
 /*
  * RT Systems programming cables for various ham radios
  */
+/* This device uses the VID of FTDI */
+#define RTSYSTEMS_USB_VX8_PID   0x9e50  /* USB-VX8 USB to 7 pin modular plug for Yaesu VX-8 radio */
+
 #define RTSYSTEMS_VID		0x2100	/* Vendor ID */
 #define RTSYSTEMS_USB_S03_PID	0x9001	/* RTS-03 USB to Serial Adapter */
 #define RTSYSTEMS_USB_59_PID	0x9e50	/* USB-59 USB to 8 pin plug */
@@ -1412,6 +1425,12 @@
  * ATI command output: Cinterion MC55i
  */
 #define FTDI_CINTERION_MC55I_PID	0xA951
+
+/*
+ * Product: FirmwareHubEmulator
+ * Manufacturer: Harman Becker Automotive Systems
+ */
+#define FTDI_FHE_PID		0xA9A0
 
 /*
  * Product: Comet Caller ID decoder

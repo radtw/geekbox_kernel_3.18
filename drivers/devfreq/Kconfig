@@ -65,6 +65,7 @@ config DEVFREQ_GOV_USERSPACE
 
 comment "DEVFREQ Drivers"
 
+#TSAI:
 config ROCKCHIP_RK3368_DDR_FREQ
 	bool "ROCKCHIP RK3368 DDR FREQ Driver"
 	depends on ARCH_ROCKCHIP

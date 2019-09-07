@@ -782,7 +782,7 @@ void ion_unmap_kernel(struct ion_client *client, struct ion_handle *handle)
 }
 EXPORT_SYMBOL(ion_unmap_kernel);
 
-#ifdef CONFIG_ROCKCHIP_IOMMU
+#if defined(CONFIG_ROCKCHIP_IOMMU) /* TSAI: copied from 3.10, for RK IOMMU */
 static void ion_iommu_add(struct ion_buffer *buffer,
 			  struct ion_iommu_map *iommu)
 {

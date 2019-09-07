@@ -1,0 +1,37 @@
+
+Currently in progress to merge underlying code from
+
+
+commit 188113aac7bb1e0daf0014caef7231f2382a18d6 (HEAD -> android-3.18, tag: ASB-2019-09-05_3.18, origin/android-3.18)
+Author: Johannes Berg <johannes.berg@intel.com>
+Date:   Thu Aug 1 09:30:33 2019 +0200
+
+    mac80211: fix possible sta leak
+    
+    commit 5fd2f91ad483baffdbe798f8a08f1b41442d1e24 upstream.
+    
+    If TDLS station addition is rejected, the sta memory is leaked.
+    Avoid this by moving the check before the allocation.
+    
+    Cc: stable@vger.kernel.org
+    Fixes: 7ed5285396c2 ("mac80211: don't initiate TDLS connection if station is not associated to AP")
+    Link: https://lore.kernel.org/r/20190801073033.7892-1-johannes@sipsolutions.net
+    Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+    Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Signed-off-by: Greg Kroah-Hartman <gregkh@google.com>
+    Change-Id: I10d1e2cf486c53bd4dcc178616404c7978e4a788
+
+
+=============================================
+files in doubt
+kernel_3.18/drivers/clk/rockchip/clk.c
+/home/julian/geekbox/mmallow/kernel_3.18/drivers/clk/rockchip/clk-pll.c
+/home/julian/geekbox/mmallow/kernel_3.18/drivers/mmc/host/dw_mmc-rockchip.c
+
+3.18 now bring in
+SND_SOC_ROCKCHIP
+
+can experiment with using 3.10 code or use this unverified 3.18 code
+
+
+

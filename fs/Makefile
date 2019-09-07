@@ -131,7 +131,7 @@ obj-$(CONFIG_PSTORE)		+= pstore/
 obj-$(CONFIG_EFIVAR_FS)		+= efivarfs/
 
 ifeq ($(TSAI_OPT),1)
-	CFLAGS_block_dev.o += -O0
+CFLAGS_block_dev.o += -O0
     CFLAGS_super.o += -O0 
 	CFLAGS_namespace.o += -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-inline -fno-unit-at-a-time
 endif

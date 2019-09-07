@@ -282,7 +282,7 @@ static u32 clear_idx;
 #endif
 #define __LOG_BUF_LEN (1 << CONFIG_LOG_BUF_SHIFT)
 static char __log_buf[__LOG_BUF_LEN] __aligned(LOG_ALIGN);
-char *log_buf = __log_buf;
+static char *log_buf = __log_buf;
 static u32 log_buf_len = __LOG_BUF_LEN;
 
 /* Return log buffer address */
@@ -897,7 +897,12 @@ static void __init log_buf_len_update(unsigned size)
 /* save requested log_buf_len since it's too early to process it */
 static int __init log_buf_len_setup(char *str)
 {
-	unsigned size = memparse(str, &str);
+	unsigned int size;
+
+	if (!str)
+		return -EINVAL;
+
+	size = memparse(str, &str);
 
 	log_buf_len_update(size);
 
@@ -2664,9 +2669,15 @@ void register_console(struct console *newcon)
 	 * users know there might be something in the kernel's log buffer that
 	 * went to the bootconsole (that they do not see on the real console)
 	 */
+#if TSAI
 	pr_info("%sconsole [%s%d] enabled @%s\n",
 		(newcon->flags & CON_BOOT) ? "boot" : "" ,
 		newcon->name, newcon->index, __FILE__);
+#else
+	pr_info("%sconsole [%s%d] enabled\n",
+		(newcon->flags & CON_BOOT) ? "boot" : "" ,
+		newcon->name, newcon->index);
+#endif
 	if (bcon &&
 	    ((newcon->flags & (CON_CONSDEV | CON_BOOT)) == CON_CONSDEV) &&
 	    !keep_bootcon) {

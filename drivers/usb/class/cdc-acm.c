@@ -315,6 +315,12 @@ static void acm_ctrl_irq(struct urb *urb)
 		break;
 
 	case USB_CDC_NOTIFY_SERIAL_STATE:
+		if (le16_to_cpu(dr->wLength) != 2) {
+			dev_dbg(&acm->control->dev,
+				"%s - malformed serial state\n", __func__);
+			break;
+		}
+
 		newctrl = get_unaligned_le16(data);
 
 		if (!acm->clocal && (acm->ctrlin & ~newctrl & ACM_CTRL_DCD)) {
@@ -330,17 +336,17 @@ static void acm_ctrl_irq(struct urb *urb)
 
 		if (difference & ACM_CTRL_DSR)
 			acm->iocount.dsr++;
-		if (difference & ACM_CTRL_BRK)
-			acm->iocount.brk++;
-		if (difference & ACM_CTRL_RI)
-			acm->iocount.rng++;
 		if (difference & ACM_CTRL_DCD)
 			acm->iocount.dcd++;
-		if (difference & ACM_CTRL_FRAMING)
+		if (newctrl & ACM_CTRL_BRK)
+			acm->iocount.brk++;
+		if (newctrl & ACM_CTRL_RI)
+			acm->iocount.rng++;
+		if (newctrl & ACM_CTRL_FRAMING)
 			acm->iocount.frame++;
-		if (difference & ACM_CTRL_PARITY)
+		if (newctrl & ACM_CTRL_PARITY)
 			acm->iocount.parity++;
-		if (difference & ACM_CTRL_OVERRUN)
+		if (newctrl & ACM_CTRL_OVERRUN)
 			acm->iocount.overrun++;
 		spin_unlock(&acm->read_lock);
 
@@ -351,11 +357,10 @@ static void acm_ctrl_irq(struct urb *urb)
 
 	default:
 		dev_dbg(&acm->control->dev,
-			"%s - unknown notification %d received: index %d "
-			"len %d data0 %d data1 %d\n",
+			"%s - unknown notification %d received: index %d len %d\n",
 			__func__,
-			dr->bNotificationType, dr->wIndex,
-			dr->wLength, data[0], data[1]);
+			dr->bNotificationType, dr->wIndex, dr->wLength);
+
 		break;
 	}
 exit:
@@ -376,7 +381,7 @@ static int acm_submit_read_urb(struct acm *acm, int index, gfp_t mem_flags)
 
 	res = usb_submit_urb(acm->read_urbs[index], mem_flags);
 	if (res) {
-		if (res != -EPERM) {
+		if (res != -EPERM && res != -ENODEV) {
 			dev_err(&acm->data->dev,
 					"%s - usb_submit_urb failed: %d\n",
 					__func__, res);
@@ -496,6 +501,13 @@ static int acm_tty_install(struct tty_driver *driver, struct tty_struct *tty)
 	retval = tty_standard_install(driver, tty);
 	if (retval)
 		goto error_init_termios;
+
+	/*
+	 * Suppress initial echoing for some devices which might send data
+	 * immediately after acm driver has been installed.
+	 */
+	if (acm->quirks & DISABLE_ECHO)
+		tty->termios.c_lflag &= ~ECHO;
 
 	tty->driver_data = acm;
 
@@ -872,8 +884,6 @@ static int wait_serial_change(struct acm *acm, unsigned long arg)
 	DECLARE_WAITQUEUE(wait, current);
 	struct async_icount old, new;
 
-	if (arg & (TIOCM_DSR | TIOCM_RI | TIOCM_CD ))
-		return -EINVAL;
 	do {
 		spin_lock_irq(&acm->read_lock);
 		old = acm->oldcount;
@@ -1136,7 +1146,7 @@ static int acm_probe(struct usb_interface *intf,
 		}
 	}
 
-	while (buflen > 0) {
+	while (buflen >= 3) { /* minimum length making sense */
 		elength = buffer[0];
 		if (!elength) {
 			dev_err(&intf->dev, "skipping garbage byte\n");
@@ -1315,13 +1325,6 @@ made_compressed_probe:
 		goto alloc_fail;
 	}
 
-	minor = acm_alloc_minor(acm);
-	if (minor == ACM_TTY_MINORS) {
-		dev_err(&intf->dev, "no more free acm devices\n");
-		kfree(acm);
-		return -ENODEV;
-	}
-
 	ctrlsize = usb_endpoint_maxp(epctrl);
 	readsize = usb_endpoint_maxp(epread) *
 				(quirks == SINGLE_RX_URB ? 1 : 2);
@@ -1329,6 +1332,16 @@ made_compressed_probe:
 	acm->writesize = usb_endpoint_maxp(epwrite) * 20;
 	acm->control = control_interface;
 	acm->data = data_interface;
+
+	usb_get_intf(acm->control); /* undone in destruct() */
+
+	minor = acm_alloc_minor(acm);
+	if (minor == ACM_TTY_MINORS) {
+		dev_err(&intf->dev, "no more free acm devices\n");
+		kfree(acm);
+		return -ENODEV;
+	}
+
 	acm->minor = minor;
 	acm->dev = usb_dev;
 	acm->ctrl_caps = ac_management_function;
@@ -1483,7 +1496,6 @@ skip_countries:
 	usb_driver_claim_interface(&acm_driver, data_interface, acm);
 	usb_set_intfdata(data_interface, acm);
 
-	usb_get_intf(control_interface);
 	tty_dev = tty_port_register_device(&acm->port, acm_tty_driver, minor,
 			&control_interface->dev);
 	if (IS_ERR(tty_dev)) {
@@ -1691,6 +1703,9 @@ static const struct usb_device_id acm_ids[] = {
 	{ USB_DEVICE(0x0e8d, 0x0003), /* FIREFLY, MediaTek Inc; andrey.arapov@gmail.com */
 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
 	},
+	{ USB_DEVICE(0x0e8d, 0x2000), /* MediaTek Inc Preloader */
+	.driver_info = DISABLE_ECHO, /* DISABLE ECHO in termios flag */
+	},
 	{ USB_DEVICE(0x0e8d, 0x3329), /* MediaTek Inc GPS */
 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
 	},
@@ -1709,6 +1724,9 @@ static const struct usb_device_id acm_ids[] = {
 	{ USB_DEVICE(0x0ace, 0x1611), /* ZyDAS 56K USB MODEM - new version */
 	.driver_info = SINGLE_RX_URB, /* firmware bug */
 	},
+	{ USB_DEVICE(0x11ca, 0x0201), /* VeriFone Mx870 Gadget Serial */
+	.driver_info = SINGLE_RX_URB,
+	},
 	{ USB_DEVICE(0x22b8, 0x7000), /* Motorola Q Phone */
 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
 	},
@@ -1722,6 +1740,9 @@ static const struct usb_device_id acm_ids[] = {
 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
 	},
 	{ USB_DEVICE(0x0572, 0x1328), /* Shiro / Aztech USB MODEM UM-3100 */
+	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
+	},
+	{ USB_DEVICE(0x0572, 0x1349), /* Hiro (Conexant) USB MODEM H50228 */
 	.driver_info = NO_UNION_NORMAL, /* has no union descriptor */
 	},
 	{ USB_DEVICE(0x20df, 0x0001), /* Simtec Electronics Entropy Key */
@@ -1771,6 +1792,15 @@ static const struct usb_device_id acm_ids[] = {
 	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
 	},
 	{ USB_DEVICE(0x1576, 0x03b1), /* Maretron USB100 */
+	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
+	},
+	{ USB_DEVICE(0xfff0, 0x0100), /* DATECS FP-2000 */
+	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
+	},
+	{ USB_DEVICE(0x09d8, 0x0320), /* Elatec GmbH TWN3 */
+	.driver_info = NO_UNION_NORMAL, /* has misplaced union descriptor */
+	},
+	{ USB_DEVICE(0x0ca6, 0xa050), /* Castles VEGA3000 */
 	.driver_info = NO_UNION_NORMAL, /* reports zero length descriptor */
 	},
 
@@ -1874,6 +1904,13 @@ static const struct usb_device_id acm_ids[] = {
 	/* Exclude Infineon Flash Loader utility */
 	{ USB_DEVICE(0x058b, 0x0041),
 	.driver_info = IGNORE_DEVICE,
+	},
+
+	{ USB_DEVICE(0x1bc7, 0x0021), /* Telit 3G ACM only composition */
+	.driver_info = SEND_ZERO_PACKET,
+	},
+	{ USB_DEVICE(0x1bc7, 0x0023), /* Telit 3G ACM + ECM composition */
+	.driver_info = SEND_ZERO_PACKET,
 	},
 
 	/* control interfaces without any protocol set */

@@ -28,6 +28,7 @@
 /*
  * User space memory access functions
  */
+#include <linux/bitops.h>
 #include <linux/string.h>
 #include <linux/thread_info.h>
 
@@ -70,6 +71,9 @@ static inline void set_fs(mm_segment_t fs)
 {
 	current_thread_info()->addr_limit = fs;
 
+	/* On user-mode return, check fs is correct */
+	set_thread_flag(TIF_FSCHECK);
+
 	/*
 	 * Enable/disable UAO so that copy_to_user() etc can access
 	 * kernel memory with the unprivileged instructions.
@@ -107,15 +111,23 @@ static inline void set_fs(mm_segment_t fs)
  */
 #define __range_ok(addr, size)						\
 ({									\
+	unsigned long __addr = (unsigned long __force)(addr);		\
 	unsigned long flag, roksum;					\
 	__chk_user_ptr(addr);						\
 	asm("adds %1, %1, %3; ccmp %1, %4, #2, cc; cset %0, ls"		\
 		: "=&r" (flag), "=&r" (roksum)				\
-		: "1" (addr), "Ir" (size),				\
+		: "1" (__addr), "Ir" (size),				\
 		  "r" (current_thread_info()->addr_limit)		\
 		: "cc");						\
 	flag;								\
 })
+
+/*
+ * When dealing with data aborts, watchpoints, or instruction traps we may end
+ * up with a tagged userland pointer. Clear the tag to get a sane pointer to
+ * pass on to access_ok(), for instance.
+ */
+#define untagged_addr(addr)		sign_extend64(addr, 55)
 
 #define access_ok(type, addr, size)	__range_ok(addr, size)
 #define user_addr_max			get_fs

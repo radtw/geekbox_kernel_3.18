@@ -8,10 +8,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3368-tb_8846.dtb \
 	rk3368-tb_mipi.dtb \
 	px5-sdk.dtb
-
-dtb-$(CONFIG_ARCH_VEXPRESS) += rtsm_ve-aemv8a.dtb foundation-v8.dtb \
-				fvp-base-gicv2-psci.dtb
-dtb-$(CONFIG_ARCH_VEXPRESS) += juno.dtb
+dtb-$(CONFIG_ARCH_VEXPRESS) += rtsm_ve-aemv8a.dtb foundation-v8.dtb
 dtb-$(CONFIG_ARCH_XGENE) += apm-mustang.dtb
 
 targets += dtbs

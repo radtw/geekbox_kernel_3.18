@@ -316,7 +316,7 @@ source "drivers/mtd/maps/Kconfig"
 source "drivers/mtd/devices/Kconfig"
 
 source "drivers/mtd/nand/Kconfig"
-
+#TSAI: keep
 source "drivers/mtd/rknand/Kconfig"
 
 source "drivers/mtd/onenand/Kconfig"

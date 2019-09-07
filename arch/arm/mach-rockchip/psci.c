@@ -20,6 +20,7 @@
 #include <linux/rockchip/psci.h>
 #include <asm/compiler.h>
 #include <asm/smp_plat.h>
+#include <asm/io.h> /* ioremap */
 #ifdef CONFIG_ARM
 #include <linux/mm.h>
 #include <asm/opcodes-sec.h>

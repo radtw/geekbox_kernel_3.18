@@ -54,8 +54,8 @@ obj-$(CONFIG_ALTERA_STAPL)	+=altera-stapl/
 obj-$(CONFIG_INTEL_MEI)		+= mei/
 obj-$(CONFIG_VMWARE_VMCI)	+= vmw_vmci/
 obj-$(CONFIG_LATTICE_ECP3_CONFIG)	+= lattice-ecp3-config.o
-#TSAI: copied
-obj-y += inv_mpu/
+#TSAI: copied from 3.10, but doesn't seem to be used? so remove the folder
+#obj-y += inv_mpu/
 obj-$(CONFIG_SRAM)		+= sram.o
 obj-y				+= mic/
 

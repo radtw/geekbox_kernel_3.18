@@ -80,8 +80,6 @@
 
 #include "fbcon.h"
 
-#undef CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY
-
 #ifdef FBCONDEBUG
 #  define DPRINTK(fmt, args...) printk(KERN_DEBUG "%s: " fmt, __func__ , ## args)
 #else
@@ -903,10 +901,7 @@ static int var_to_display(struct display *disp,
 static void display_to_var(struct fb_var_screeninfo *var,
 			   struct display *disp)
 {
-	if (disp->mode)
-		fb_videomode_to_var(var, disp->mode);
-	var->xres = disp->xres_virtual;
-	var->yres = disp->yres_virtual;
+	fb_videomode_to_var(var, disp->mode);
 	var->xres_virtual = disp->xres_virtual;
 	var->yres_virtual = disp->yres_virtual;
 	var->bits_per_pixel = disp->bits_per_pixel;
@@ -3023,7 +3018,7 @@ static int fbcon_fb_unbind(int idx)
 	for (i = first_fb_vc; i <= last_fb_vc; i++) {
 		if (con2fb_map[i] != idx &&
 		    con2fb_map[i] != -1) {
-			new_idx = i;
+			new_idx = con2fb_map[i];
 			break;
 		}
 	}

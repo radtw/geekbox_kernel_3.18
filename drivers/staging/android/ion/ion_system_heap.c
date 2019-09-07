@@ -23,7 +23,7 @@
 #include <linux/seq_file.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
-#include <linux/rockchip-iovmm.h>
+#include <linux/rockchip-iovmm.h> /* TSAI */
 #include "ion.h"
 #include "ion_priv.h"
 
@@ -228,7 +228,7 @@ static int ion_system_heap_shrink(struct ion_heap *heap, gfp_t gfp_mask,
 	return nr_total;
 }
 
-#ifdef CONFIG_ROCKCHIP_IOMMU
+#ifdef CONFIG_ROCKCHIP_IOMMU /* TSAI */
 // get device's vaddr
 static int ion_system_map_iommu(struct ion_buffer *buffer,
 				struct device *iommu_dev,

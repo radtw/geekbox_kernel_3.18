@@ -782,13 +782,16 @@ static void xhci_kill_endpoint_urbs(struct xhci_hcd *xhci,
 			(ep->ep_state & EP_GETTING_NO_STREAMS)) {
 		int stream_id;
 
-		for (stream_id = 0; stream_id < ep->stream_info->num_streams;
+		for (stream_id = 1; stream_id < ep->stream_info->num_streams;
 				stream_id++) {
+			ring = ep->stream_info->stream_rings[stream_id];
+			if (!ring)
+				continue;
+
 			xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
 					"Killing URBs for slot ID %u, ep index %u, stream %u",
-					slot_id, ep_index, stream_id + 1);
-			xhci_kill_ring_urbs(xhci,
-					ep->stream_info->stream_rings[stream_id]);
+					slot_id, ep_index, stream_id);
+			xhci_kill_ring_urbs(xhci, ring);
 		}
 	} else {
 		ring = ep->ring;
@@ -839,17 +842,6 @@ void xhci_stop_endpoint_command_watchdog(unsigned long arg)
 	spin_lock_irqsave(&xhci->lock, flags);
 
 	ep->stop_cmds_pending--;
-	if (xhci->xhc_state & XHCI_STATE_REMOVING) {
-		spin_unlock_irqrestore(&xhci->lock, flags);
-		return;
-	}
-	if (xhci->xhc_state & XHCI_STATE_DYING) {
-		xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
-				"Stop EP timer ran, but another timer marked "
-				"xHCI as DYING, exiting.");
-		spin_unlock_irqrestore(&xhci->lock, flags);
-		return;
-	}
 	if (!(ep->stop_cmds_pending == 0 && (ep->ep_state & EP_HALT_PENDING))) {
 		xhci_dbg_trace(xhci, trace_xhci_dbg_cancel_urb,
 				"Stop EP timer ran, but no command pending, "
@@ -1607,10 +1599,13 @@ static void handle_port_status(struct xhci_hcd *xhci,
 		}
 	}
 
-	if ((temp & PORT_PLC) && (temp & PORT_PLS_MASK) == XDEV_U0 &&
-			DEV_SUPERSPEED(temp)) {
+	if ((temp & PORT_PLC) &&
+	    DEV_SUPERSPEED(temp) &&
+	    ((temp & PORT_PLS_MASK) == XDEV_U0 ||
+	     (temp & PORT_PLS_MASK) == XDEV_U1 ||
+	     (temp & PORT_PLS_MASK) == XDEV_U2)) {
 		xhci_dbg(xhci, "resume SS port %d finished\n", port_id);
-		/* We've just brought the device into U0 through either the
+		/* We've just brought the device into U0/1/2 through either the
 		 * Resume state after a device remote wakeup, or through the
 		 * U3Exit state after a host-initiated resume.  If it's a device
 		 * initiated remote wake, don't pass up the link state change,

@@ -634,7 +634,7 @@ int __init init_rootfs(void)
 	int err = register_filesystem(&rootfs_fs_type);
 #if TSAI
 	pr_info("TSAI init_rootfs() saved_root_name=%s root_fs_names=%s %s %d\n", saved_root_name, root_fs_names,
-		__FILE__, __LINE__);
+		__FILE__, __LINE__); 
 #endif
 
 	if (err)

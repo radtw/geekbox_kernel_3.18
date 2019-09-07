@@ -178,6 +178,7 @@ source "drivers/phy/Kconfig"
 
 source "drivers/powercap/Kconfig"
 
+#TSAI: android 3.18 doesn't have this line
 source "drivers/phy/Kconfig"
 
 source "drivers/mcb/Kconfig"
@@ -185,6 +186,7 @@ source "drivers/mcb/Kconfig"
 source "drivers/ras/Kconfig"
 
 source "drivers/thunderbolt/Kconfig"
+#TSAI: gator
 source "drivers/gator/Kconfig"
 #TSAI: copied
 source "drivers/rksfc/Kconfig"

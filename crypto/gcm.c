@@ -146,10 +146,8 @@ static int crypto_gcm_setkey(struct crypto_aead *aead, const u8 *key,
 
 	err = crypto_ablkcipher_encrypt(&data->req);
 	if (err == -EINPROGRESS || err == -EBUSY) {
-		err = wait_for_completion_interruptible(
-			&data->result.completion);
-		if (!err)
-			err = data->result.err;
+		wait_for_completion(&data->result.completion);
+		err = data->result.err;
 	}
 
 	if (err)
@@ -744,11 +742,11 @@ static struct crypto_instance *crypto_gcm_alloc_common(struct rtattr **tb,
 	ctr = crypto_skcipher_spawn_alg(&ctx->ctr);
 
 	/* We only support 16-byte blocks. */
+	err = -EINVAL;
 	if (ctr->cra_ablkcipher.ivsize != 16)
 		goto out_put_ctr;
 
 	/* Not a stream cipher? */
-	err = -EINVAL;
 	if (ctr->cra_blocksize != 1)
 		goto out_put_ctr;
 

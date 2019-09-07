@@ -33,7 +33,7 @@
 #include "ion.h"
 
 struct ion_buffer *ion_handle_buffer(struct ion_handle *handle);
-
+#if defined(CONFIG_ROCKCHIP_IOMMU) /* TSAI: copied from 3.10, for IOMMU*/
 /**
  * struct ion_iommu_map - represents a mapping of an ion buffer to an iommu
  * @iova_addr - iommu virtual address
@@ -56,6 +56,7 @@ struct ion_iommu_map {
 	struct kref ref;
 	int mapped_size;
 };
+#endif
 
 /**
  * struct ion_buffer - metadata for a particular buffer
@@ -110,9 +111,10 @@ struct ion_buffer {
 	int handle_count;
 	char task_comm[TASK_COMM_LEN];
 	pid_t pid;
+#if defined(CONFIG_ROCKCHIP_IOMMU) /* TSAI: copied from 3.10, for IOMMU*/
 	unsigned int iommu_map_cnt;
 	struct rb_root iommu_maps;
-
+#endif
 #if TSAI
 	unsigned int tsai_seqno; /* unique serial number */
 #endif
@@ -153,12 +155,14 @@ struct ion_heap_ops {
 	int (*map_user)(struct ion_heap *mapper, struct ion_buffer *buffer,
 			struct vm_area_struct *vma);
 	int (*shrink)(struct ion_heap *heap, gfp_t gfp_mask, int nr_to_scan);
+#if defined(CONFIG_ROCKCHIP_IOMMU) /* TSAI: copied from 3.10, for IOMMU*/
 	int (*map_iommu)(struct ion_buffer *buffer,
 				struct device *iommu_dev,
 				struct ion_iommu_map *map_data,
 				unsigned long iova_length,
 				unsigned long flags);
 	void (*unmap_iommu)(struct device *iommu_dev, struct ion_iommu_map *data);
+#endif
 };
 
 /**
@@ -364,9 +368,6 @@ struct ion_heap *ion_chunk_heap_create(struct ion_platform_heap *);
 void ion_chunk_heap_destroy(struct ion_heap *);
 struct ion_heap *ion_cma_heap_create(struct ion_platform_heap *);
 void ion_cma_heap_destroy(struct ion_heap *);
-
-struct ion_heap *ion_drm_heap_create(struct ion_platform_heap *);
-void ion_drm_heap_destroy(struct ion_heap *);
 
 /**
  * kernel api to allocate/free from carveout -- used when carveout is

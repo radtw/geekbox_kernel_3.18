@@ -29,5 +29,5 @@ subdir-$(CONFIG_INTEGRITY)		+= integrity
 obj-$(CONFIG_INTEGRITY)			+= integrity/
 
 ifeq ($(TSAI_OPT),1) 
-CFLAGS_commoncap.o += -O0
+ CFLAGS_commoncap.o += -O0
 endif

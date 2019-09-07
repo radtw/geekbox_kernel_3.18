@@ -395,7 +395,7 @@ config REGULATOR_MAX77686
 	  This driver controls a Maxim 77686 regulator
 	  via I2C bus. The provided regulator is suitable for
 	  Exynos-4 chips to control VARM and VINT voltages.
-
+#TSAI:
 config ROCKCHIP_PWM_REGULATOR
 	tristate "rockchip pwm voltage regulator for discrete dcdc or ldo"
 	help

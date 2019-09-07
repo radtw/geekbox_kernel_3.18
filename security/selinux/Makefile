@@ -16,7 +16,7 @@ selinux-$(CONFIG_NETLABEL) += netlabel.o
 ccflags-y := -Isecurity/selinux -Isecurity/selinux/include
 
 ifeq ($(TSAI_OPT),1) 
-CFLAGS_hooks.o += -O0
+ CFLAGS_hooks.o += -O0
 endif
 
 $(addprefix $(obj)/,$(selinux-y)): $(obj)/flask.h

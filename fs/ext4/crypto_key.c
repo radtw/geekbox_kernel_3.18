@@ -129,11 +129,9 @@ int ext4_get_encryption_info(struct inode *inode)
 	if (ei->i_crypt_info)
 		return 0;
 
-	if (!ext4_read_workqueue) {
-		res = ext4_init_crypto();
-		if (res)
-			return res;
-	}
+	res = ext4_init_crypto();
+	if (res)
+		return res;
 
 	res = ext4_xattr_get(inode, EXT4_XATTR_INDEX_ENCRYPTION,
 				 EXT4_XATTR_NAME_ENCRYPTION_CONTEXT,
@@ -202,9 +200,17 @@ int ext4_get_encryption_info(struct inode *inode)
 		res = -ENOKEY;
 		goto out;
 	}
+	down_read(&keyring_key->sem);
 	ukp = ((struct user_key_payload *)keyring_key->payload.data);
+	if (!ukp) {
+		/* key was revoked before we acquired its semaphore */
+		res = -EKEYREVOKED;
+		up_read(&keyring_key->sem);
+		goto out;
+	}
 	if (ukp->datalen != sizeof(struct ext4_encryption_key)) {
 		res = -EINVAL;
+		up_read(&keyring_key->sem);
 		goto out;
 	}
 	master_key = (struct ext4_encryption_key *)ukp->data;
@@ -215,10 +221,12 @@ int ext4_get_encryption_info(struct inode *inode)
 			    "ext4: key size incorrect: %d\n",
 			    master_key->size);
 		res = -ENOKEY;
+		up_read(&keyring_key->sem);
 		goto out;
 	}
 	res = ext4_derive_key_aes(ctx.nonce, master_key->raw,
 				  raw_key);
+	up_read(&keyring_key->sem);
 	if (res)
 		goto out;
 got_key:

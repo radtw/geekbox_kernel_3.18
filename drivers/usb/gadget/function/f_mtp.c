@@ -312,15 +312,17 @@ struct mtp_ext_config_desc_function {
 };
 
 /* MTP Extended Configuration Descriptor */
-struct {
+struct mtp_ext_config_desc {
 	struct mtp_ext_config_desc_header	header;
 	struct mtp_ext_config_desc_function    function;
-} mtp_ext_config_desc = {
+};
+
+static struct mtp_ext_config_desc mtp_ext_config_desc = {
 	.header = {
 		.dwLength = __constant_cpu_to_le32(sizeof(mtp_ext_config_desc)),
 		.bcdVersion = __constant_cpu_to_le16(0x0100),
 		.wIndex = __constant_cpu_to_le16(4),
-		.bCount = __constant_cpu_to_le16(1),
+		.bCount = 1,
 	},
 	.function = {
 		.bFirstInterfaceNumber = 0,
@@ -724,6 +726,11 @@ static void send_file_work(struct work_struct *data)
 	offset = dev->xfer_file_offset;
 	count = dev->xfer_file_length;
 
+	if (count < 0) {
+		dev->xfer_result = -EINVAL;
+		return;
+	}
+
 	DBG(cdev, "send_file_work(%lld %lld)\n", offset, count);
 
 	if (dev->xfer_send_header) {
@@ -824,6 +831,11 @@ static void receive_file_work(struct work_struct *data)
 	filp = dev->xfer_file;
 	offset = dev->xfer_file_offset;
 	count = dev->xfer_file_length;
+
+	if (count < 0) {
+		dev->xfer_result = -EINVAL;
+		return;
+	}
 
 	DBG(cdev, "receive_file_work(%lld)\n", count);
 
@@ -1028,7 +1040,7 @@ out:
 
 static int mtp_open(struct inode *ip, struct file *fp)
 {
-	printk(KERN_INFO "mtp_open @%s:%d\n", __FILE__, __LINE__);
+	printk(KERN_INFO "mtp_open\n");
 	if (mtp_lock(&_mtp_dev->open_excl))
 		return -EBUSY;
 
@@ -1099,6 +1111,13 @@ static int mtp_ctrlrequest(struct usb_composite_dev *cdev,
 			value = (w_length < sizeof(mtp_ext_config_desc) ?
 					w_length : sizeof(mtp_ext_config_desc));
 			memcpy(cdev->req->buf, &mtp_ext_config_desc, value);
+
+			/* update compatibleID if PTP */
+			if (dev->function.fs_descriptors == fs_ptp_descs) {
+				struct mtp_ext_config_desc *d = cdev->req->buf;
+
+				d->function.compatibleID[0] = 'P';
+			}
 		}
 	} else if ((ctrl->bRequestType & USB_TYPE_MASK) == USB_TYPE_CLASS) {
 		DBG(cdev, "class request: %d index: %d value: %d length: %d\n",
@@ -1457,7 +1476,7 @@ static int mtp_set_inst_name(struct usb_function_instance *fi, const char *name)
 
 	fi_mtp = to_fi_mtp(fi);
 	fi_mtp->name = ptr;
-pr_info("TSAI: mtp_set_inst_name %s @%s\n", name, __FILE__);
+
 	return 0;
 }
 

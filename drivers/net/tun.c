@@ -1423,7 +1423,9 @@ static void tun_setup(struct net_device *dev)
  */
 static int tun_validate(struct nlattr *tb[], struct nlattr *data[])
 {
-	return -EINVAL;
+	/* NL_SET_ERR_MSG(extack,
+		       "tun/tap creation via rtnetlink is not supported."); */
+	return -EOPNOTSUPP;
 }
 
 static struct rtnl_link_ops tun_link_ops __read_mostly = {
@@ -1656,6 +1658,9 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
 
 		if (!dev)
 			return -ENOMEM;
+		err = dev_get_valid_name(net, dev, name);
+		if (err < 0)
+			goto err_free_dev;
 
 		dev_net_set(dev, net);
 		dev->rtnl_link_ops = &tun_link_ops;
@@ -2058,6 +2063,10 @@ static long __tun_chr_ioctl(struct file *file, unsigned int cmd,
 	case TUNSETSNDBUF:
 		if (copy_from_user(&sndbuf, argp, sizeof(sndbuf))) {
 			ret = -EFAULT;
+			break;
+		}
+		if (sndbuf <= 0) {
+			ret = -EINVAL;
 			break;
 		}
 

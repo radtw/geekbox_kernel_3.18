@@ -118,8 +118,7 @@ static int drm_helper_probe_single_connector_modes_merge_bits(struct drm_connect
 		mode->status = MODE_UNVERIFIED;
 
 	if (connector->force) {
-		if (connector->force == DRM_FORCE_ON ||
-		    connector->force == DRM_FORCE_ON_DIGITAL)
+		if (connector->force == DRM_FORCE_ON)
 			connector->status = connector_status_connected;
 		else
 			connector->status = connector_status_disconnected;

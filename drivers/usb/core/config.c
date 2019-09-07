@@ -208,6 +208,16 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno, int inum,
 
 			/*
 			 * Adjust bInterval for quirked devices.
+			 */
+			/*
+			 * This quirk fixes bIntervals reported in ms.
+			 */
+			if (to_usb_device(ddev)->quirks &
+				USB_QUIRK_LINEAR_FRAME_INTR_BINTERVAL) {
+				n = clamp(fls(d->bInterval) + 3, i, j);
+				i = j = n;
+			}
+			/*
 			 * This quirk fixes bIntervals reported in
 			 * linear microframes.
 			 */
@@ -747,7 +757,7 @@ int usb_get_configuration(struct usb_device *dev)
 		}
 
 		if (dev->quirks & USB_QUIRK_DELAY_INIT)
-			msleep(100);
+			msleep(200);
 
 		result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno,
 		    bigbuffer, length);
@@ -808,8 +818,8 @@ int usb_get_bos_descriptor(struct usb_device *dev)
 
 	/* Get BOS descriptor */
 	ret = usb_get_descriptor(dev, USB_DT_BOS, 0, bos, USB_DT_BOS_SIZE);
-	if (ret < USB_DT_BOS_SIZE) {
-		dev_err(ddev, "unable to get BOS descriptor\n");
+	if (ret < USB_DT_BOS_SIZE || bos->bLength < USB_DT_BOS_SIZE) {
+		dev_err(ddev, "unable to get BOS descriptor or descriptor too short\n");
 		if (ret >= 0)
 			ret = -ENOMSG;
 		kfree(bos);

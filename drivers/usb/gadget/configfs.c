@@ -9,10 +9,6 @@
 #include "u_f.h"
 #include "u_os_desc.h"
 
-#if TSAI
-	#include "tsai_macro.h"
-#endif
-
 #ifdef CONFIG_USB_CONFIGFS_UEVENT
 #include <linux/platform_device.h>
 #include <linux/kdev_t.h>
@@ -301,6 +297,7 @@ static ssize_t gadget_dev_desc_UDC_store(struct gadget_info *gi,
 		ret = unregister_gadget(gi);
 		if (ret)
 			goto err;
+		kfree(name);
 	} else {
 		if (gi->udc_name) {
 			ret = -EBUSY;
@@ -1800,7 +1797,9 @@ EXPORT_SYMBOL_GPL(unregister_gadget_item);
 static int __init gadget_cfs_init(void)
 {
 	int ret;
+
 	config_group_init(&gadget_subsys.su_group);
+
 	ret = configfs_register_subsystem(&gadget_subsys);
 
 #ifdef CONFIG_USB_CONFIGFS_UEVENT

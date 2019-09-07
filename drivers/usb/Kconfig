@@ -158,7 +158,7 @@ config USB_LED_TRIG
 	  Say Y here if you are working on a system with led-class supported
 	  LEDs and you want to use them as activity indicators for USB host or
 	  gadget.
-
+#TSAI:
 source "drivers/usb/dwc_otg_310/Kconfig"
 
 endif # USB_SUPPORT

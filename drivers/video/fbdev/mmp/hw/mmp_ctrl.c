@@ -496,7 +496,7 @@ static int mmphw_probe(struct platform_device *pdev)
 	if (!devm_request_mem_region(ctrl->dev, res->start,
 			resource_size(res), ctrl->name)) {
 		dev_err(ctrl->dev,
-			"can't request region for resource %pR @%s:%d\n", res, __FILE__,__LINE__);
+			"can't request region for resource %pR\n", res);
 		ret = -EINVAL;
 		goto failed;
 	}

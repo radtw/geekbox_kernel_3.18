@@ -1298,7 +1298,7 @@ config SERIAL_BCM63XX_CONSOLE
 	help
 	  If you have enabled the serial port on the bcm63xx CPU
 	  you can make it the console by answering Y to this option.
-
+#TSAI:
 config SERIAL_ROCKCHIP
 	bool "RockChip SOCS serial port support"
 	select SERIAL_CORE

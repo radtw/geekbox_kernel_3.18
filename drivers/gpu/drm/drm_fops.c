@@ -84,7 +84,6 @@ int drm_open(struct inode *inode, struct file *filp)
 	int retcode;
 	int need_setup = 0;
 
-//printk(KERN_ERR"[%s][%d]+_+ - current %s\n",__FUNCTION__,__LINE__, current->comm);
 	minor = drm_minor_acquire(iminor(inode));
 	if (IS_ERR(minor))
 		return PTR_ERR(minor);
@@ -104,7 +103,6 @@ int drm_open(struct inode *inode, struct file *filp)
 		if (retcode)
 			goto err_undo;
 	}
-//printk(KERN_ERR"[%s][%d]+_+\n",__FUNCTION__,__LINE__);
 	return 0;
 
 err_undo:
@@ -157,6 +155,7 @@ static int drm_open_helper(struct file *filp, struct drm_minor *minor)
 		return -ENOMEM;
 
 	filp->private_data = priv;
+	filp->f_mode |= FMODE_UNSIGNED_OFFSET;
 	priv->filp = filp;
 	priv->uid = current_euid();
 	priv->pid = get_pid(task_pid(current));
@@ -517,19 +516,16 @@ ssize_t drm_read(struct file *filp, char __user *buffer,
 	size_t total;
 	ssize_t ret;
 
-	if ((filp->f_flags & O_NONBLOCK) == 0) {
-		ret = wait_event_interruptible(file_priv->event_wait,
-					       !list_empty(&file_priv->event_list));
-		if (ret < 0)
-			return ret;
-	}
+	ret = wait_event_interruptible(file_priv->event_wait,
+				       !list_empty(&file_priv->event_list));
+	if (ret < 0)
+		return ret;
 
 	total = 0;
 	while (drm_dequeue_event(file_priv, total, count, &e)) {
 		if (copy_to_user(buffer + total,
 				 e->event, e->event->length)) {
 			total = -EFAULT;
-			e->destroy(e);
 			break;
 		}
 
@@ -537,7 +533,7 @@ ssize_t drm_read(struct file *filp, char __user *buffer,
 		e->destroy(e);
 	}
 
-	return total ?: -EAGAIN;
+	return total;
 }
 EXPORT_SYMBOL(drm_read);
 

@@ -121,7 +121,12 @@ void __iomem *devm_ioremap_resource(struct device *dev, struct resource *res)
 	name = res->name ?: dev_name(dev);
 
 	if (!devm_request_mem_region(dev, res->start, size, name)) {
+	#if TSAI
 		dev_err(dev, "can't request region for resource %pR @%s:%d\n", res, __FILE__,__LINE__);
+	#else
+		dev_err(dev, "can't request region for resource %pR\n", res);
+
+	#endif
 		return IOMEM_ERR_PTR(-EBUSY);
 	}
 

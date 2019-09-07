@@ -37,10 +37,6 @@
 #include "u_os_desc.h"
 #include "configfs.h"
 
-#if TSAI
-    #include "tsai_macro.h"
-#endif
-
 #define FUNCTIONFS_MAGIC	0xa647361 /* Chosen by a honest dice roll ;) */
 
 /* Reference counter handling */
@@ -535,6 +531,7 @@ done_mutex:
 static int ffs_ep0_open(struct inode *inode, struct file *file)
 {
 	struct ffs_data *ffs = inode->i_private;
+
 	ENTER();
 
 	if (unlikely(ffs->state == FFS_CLOSING))
@@ -818,7 +815,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 		}
 
 		if (io_data->aio) {
-			req = usb_ep_alloc_request(ep->ep, GFP_KERNEL);
+			req = usb_ep_alloc_request(ep->ep, GFP_ATOMIC);
 			if (unlikely(!req))
 				goto error_lock;
 
@@ -1618,80 +1615,6 @@ static void ffs_epfiles_destroy(struct ffs_epfile *epfiles, unsigned count)
 	kfree(epfiles);
 }
 
-#if 1 && TSAI && defined(CONFIG_ANDROID)
-
-static void ffs_func_unbind(struct usb_configuration *c, struct usb_function *f);
-/* copied from geekbox kernel 3.10 needed by drivers/usb/gadget/android.c by no function in google release  */
-
-static void ffs_func_free(struct ffs_function *func)
-{
-	struct ffs_ep *ep         = func->eps;
-	unsigned count            = func->ffs->eps_count;
-	unsigned long flags;
-
-	ENTER();
-
-	/* cleanup after autoconfig */
-	spin_lock_irqsave(&func->ffs->eps_lock, flags);
-	do {
-		if (ep->ep && ep->req)
-			usb_ep_free_request(ep->ep, ep->req);
-		ep->req = NULL;
-		++ep;
-	} while (--count);
-	spin_unlock_irqrestore(&func->ffs->eps_lock, flags);
-
-	ffs_data_put(func->ffs);
-
-	kfree(func->eps);
-	/*
-	 * eps and interfaces_nums are allocated in the same chunk so
-	 * only one free is required.  Descriptors are also allocated
-	 * in the same chunk.
-	 */
-
-	kfree(func);
-}
-
-static int functionfs_bind_config(struct usb_composite_dev *cdev,
-				   struct usb_configuration *c,
-				   struct ffs_data *ffs)
-{
-	struct ffs_function *func;
-	int ret;
-
-	ENTER();
-
-	func = kzalloc(sizeof *func, GFP_KERNEL);
-	if (unlikely(!func))
-		return -ENOMEM;
-
-	func->function.name    = "Function FS Gadget";
-	func->function.strings = ffs->stringtabs;
-
-	func->function.bind    = ffs_func_bind;
-	func->function.unbind  = ffs_func_unbind;
-	func->function.set_alt = ffs_func_set_alt;
-	func->function.disable = ffs_func_disable;
-	func->function.setup   = ffs_func_setup;
-	func->function.suspend = ffs_func_suspend;
-	func->function.resume  = ffs_func_resume;
-
-	func->conf   = c;
-	func->gadget = cdev->gadget;
-	func->ffs = ffs;
-	ffs_data_get(ffs);
-
-	ret = usb_add_function(c, &func->function);
-	if (unlikely(ret))
-		ffs_func_free(func);
-
-	return ret;
-}
-
-
-
-#endif
 
 static void ffs_func_eps_disable(struct ffs_function *func)
 {
@@ -1725,11 +1648,14 @@ static int ffs_func_eps_enable(struct ffs_function *func)
 	spin_lock_irqsave(&func->ffs->eps_lock, flags);
 	do {
 		struct usb_endpoint_descriptor *ds;
+		struct usb_ss_ep_comp_descriptor *comp_desc = NULL;
+		int needs_comp_desc = false;
 		int desc_idx;
 
-		if (ffs->gadget->speed == USB_SPEED_SUPER)
+		if (ffs->gadget->speed == USB_SPEED_SUPER) {
 			desc_idx = 2;
-		else if (ffs->gadget->speed == USB_SPEED_HIGH)
+			needs_comp_desc = true;
+		} else if (ffs->gadget->speed == USB_SPEED_HIGH)
 			desc_idx = 1;
 		else
 			desc_idx = 0;
@@ -1746,6 +1672,14 @@ static int ffs_func_eps_enable(struct ffs_function *func)
 
 		ep->ep->driver_data = ep;
 		ep->ep->desc = ds;
+
+		if (needs_comp_desc) {
+			comp_desc = (struct usb_ss_ep_comp_descriptor *)(ds +
+					USB_DT_ENDPOINT_SIZE);
+			ep->ep->maxburst = comp_desc->bMaxBurst + 1;
+			ep->ep->comp_desc = comp_desc;
+		}
+
 		ret = usb_ep_enable(ep->ep);
 		if (likely(!ret)) {
 			epfile->ep = ep;
@@ -2792,10 +2726,8 @@ static int _ffs_func_bind(struct usb_configuration *c,
 	struct ffs_data *ffs = func->ffs;
 
 	const int full = !!func->ffs->fs_descs_count;
-	const int high = gadget_is_dualspeed(func->gadget) &&
-		func->ffs->hs_descs_count;
-	const int super = gadget_is_superspeed(func->gadget) &&
-		func->ffs->ss_descs_count;
+	const int high = !!func->ffs->hs_descs_count;
+	const int super = !!func->ffs->ss_descs_count;
 
 	int fs_len, hs_len, ss_len, ret, i;
 
@@ -3054,7 +2986,7 @@ static int ffs_func_setup(struct usb_function *f,
 	__ffs_event_add(ffs, FUNCTIONFS_SETUP);
 	spin_unlock_irqrestore(&ffs->ev.waitq.lock, flags);
 
-	return 0;
+	return creq->wLength == 0 ? USB_GADGET_DELAYED_STATUS : 0;
 }
 
 static void ffs_func_suspend(struct usb_function *f)
@@ -3477,6 +3409,7 @@ static void ffs_closed(struct ffs_data *ffs)
 {
 	struct ffs_dev *ffs_obj;
 	struct f_fs_opts *opts;
+	struct config_item *ci;
 
 	ENTER();
 	ffs_dev_lock();
@@ -3499,8 +3432,12 @@ static void ffs_closed(struct ffs_data *ffs)
 	    || !atomic_read(&opts->func_inst.group.cg_item.ci_kref.refcount))
 		goto done;
 
-	unregister_gadget_item(ffs_obj->opts->
-			       func_inst.group.cg_item.ci_parent->ci_parent);
+	ci = opts->func_inst.group.cg_item.ci_parent->ci_parent;
+	ffs_dev_unlock();
+
+	if (test_bit(FFS_FL_BOUND, &ffs->flags))
+		unregister_gadget_item(ci);
+	return;
 done:
 	ffs_dev_unlock();
 }
@@ -3536,30 +3473,6 @@ static char *ffs_prepare_buffer(const char __user *buf, size_t len)
 	return data;
 }
 
-#if TSAI /* expanding the MACRO for break points */
-
-static struct usb_function_driver ffsusb_func = { .name = "ffs", .mod = ((struct module *)0), .alloc_inst = ffs_alloc_inst, .alloc_func = ffs_alloc, };
-
-struct __UNIQUE_ID_alias1 {}; static int __attribute__ ((__section__(".init.text"))) __attribute__((__cold__)) __attribute__((no_instrument_function))
-ffsmod_init(void)
-{ 
-	int ret;
-	ret = usb_function_register(&ffsusb_func);
-	pr_info("TSAI: ffsmod_init ret = %d @%s\n", ret, __FILE__);
-    return ret;
-} 
-
-static void __attribute__ ((__section__(".exit.text"))) __attribute__((__used__)) __attribute__((__cold__)) __attribute__((no_instrument_function)) ffsmod_exit(void)
-{
-	usb_function_unregister(&ffsusb_func);
-}
-
-static initcall_t __initcall_ffsmod_init6 __attribute__((__used__)) __attribute__((__section__(".initcall" "6" ".init"))) = ffsmod_init; ;;
-static exitcall_t __exitcall_ffsmod_exit __attribute__((__used__)) __attribute__ ((__section__(".exitcall.exit"))) = ffsmod_exit;;
-
-#else
 DECLARE_USB_FUNCTION_INIT(ffs, ffs_alloc_inst, ffs_alloc);
-#endif
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michal Nazarewicz");
-

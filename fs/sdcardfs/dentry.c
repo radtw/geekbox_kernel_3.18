@@ -34,6 +34,8 @@ static int sdcardfs_d_revalidate(struct dentry *dentry, unsigned int flags)
 	struct dentry *parent_lower_dentry = NULL;
 	struct dentry *lower_cur_parent_dentry = NULL;
 	struct dentry *lower_dentry = NULL;
+	struct inode *inode;
+	struct sdcardfs_inode_data *data;
 
 	if (flags & LOOKUP_RCU)
 		return -ECHILD;
@@ -49,7 +51,6 @@ static int sdcardfs_d_revalidate(struct dentry *dentry, unsigned int flags)
 	 * whether the base obbpath has been changed or not
 	 */
 	if (is_obbpath_invalid(dentry)) {
-		d_drop(dentry);
 		return 0;
 	}
 
@@ -60,17 +61,22 @@ static int sdcardfs_d_revalidate(struct dentry *dentry, unsigned int flags)
 	lower_dentry = lower_path.dentry;
 	lower_cur_parent_dentry = dget_parent(lower_dentry);
 
+	if ((lower_dentry->d_flags & DCACHE_OP_REVALIDATE)) {
+		err = lower_dentry->d_op->d_revalidate(lower_dentry, flags);
+		if (err == 0) {
+			goto out;
+		}
+	}
+
 	spin_lock(&lower_dentry->d_lock);
 	if (d_unhashed(lower_dentry)) {
 		spin_unlock(&lower_dentry->d_lock);
-		d_drop(dentry);
 		err = 0;
 		goto out;
 	}
 	spin_unlock(&lower_dentry->d_lock);
 
 	if (parent_lower_dentry != lower_cur_parent_dentry) {
-		d_drop(dentry);
 		err = 0;
 		goto out;
 	}
@@ -84,7 +90,6 @@ static int sdcardfs_d_revalidate(struct dentry *dentry, unsigned int flags)
 	}
 
 	if (!qstr_case_eq(&dentry->d_name, &lower_dentry->d_name)) {
-		__d_drop(dentry);
 		err = 0;
 	}
 
@@ -95,6 +100,20 @@ static int sdcardfs_d_revalidate(struct dentry *dentry, unsigned int flags)
 		spin_unlock(&dentry->d_lock);
 		spin_unlock(&lower_dentry->d_lock);
 	}
+	if (!err)
+		goto out;
+
+	/* If our top's inode is gone, we may be out of date */
+	inode = igrab(dentry->d_inode);
+	if (inode) {
+		data = top_data_get(SDCARDFS_I(inode));
+		if (!data || data->abandoned) {
+			err = 0;
+		}
+		if (data)
+			data_put(data);
+		iput(inode);
+	}
 
 out:
 	dput(parent_dentry);
@@ -104,8 +123,16 @@ out:
 	return err;
 }
 
+/* 1 = delete, 0 = cache */
+static int sdcardfs_d_delete(const struct dentry *d)
+{
+	return SDCARDFS_SB(d->d_sb)->options.nocache ? 1 : 0;
+}
+
 static void sdcardfs_d_release(struct dentry *dentry)
 {
+	if (!dentry || !dentry->d_fsdata)
+		return;
 	/* release and reset the lower paths */
 	if (has_graft_path(dentry))
 		sdcardfs_put_reset_orig_path(dentry);
@@ -161,6 +188,7 @@ static void sdcardfs_canonical_path(const struct path *path,
 
 const struct dentry_operations sdcardfs_ci_dops = {
 	.d_revalidate	= sdcardfs_d_revalidate,
+	.d_delete	= sdcardfs_d_delete,
 	.d_release	= sdcardfs_d_release,
 	.d_hash	= sdcardfs_hash_ci,
 	.d_compare	= sdcardfs_cmp_ci,

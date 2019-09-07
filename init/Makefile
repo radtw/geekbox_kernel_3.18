@@ -19,7 +19,7 @@ mounts-$(CONFIG_BLK_DEV_DM)	+= do_mounts_dm.o
 
 
 ifeq ($(TSAI_OPT),1) 
-CFLAGS_do_mounts.o += -O0
+ CFLAGS_do_mounts.o += -O0
 endif
 
 # dependencies on generated files need to be listed explicitly

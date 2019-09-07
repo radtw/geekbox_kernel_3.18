@@ -1229,7 +1229,7 @@ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
 			dwc3_stop_active_transfer(dwc, dep->number, true);
 			goto out1;
 		}
-		dev_err(dwc->dev, "request %p was not queued to %s\n",
+		dev_err(dwc->dev, "request %pK was not queued to %s\n",
 				request, ep->name);
 		ret = -EINVAL;
 		goto out0;
@@ -1641,6 +1641,7 @@ static int dwc3_gadget_start(struct usb_gadget *g,
 
 	/* begin to receive SETUP packets */
 	dwc->ep0state = EP0_SETUP_PHASE;
+	dwc->link_state = DWC3_LINK_STATE_SS_DIS;
 	dwc3_ep0_out_start(dwc);
 
 	dwc3_gadget_enable_irq(dwc);
@@ -1833,7 +1834,7 @@ static int __dwc3_cleanup_done_trbs(struct dwc3 *dwc, struct dwc3_ep *dep,
 		 * would help. Lets hope that if this occurs, someone
 		 * fixes the root cause instead of looking away :)
 		 */
-		dev_err(dwc->dev, "%s's TRB (%p) still owned by HW\n",
+		dev_err(dwc->dev, "%s's TRB (%pK) still owned by HW\n",
 				dep->name, trb);
 
 	count = trb->size & DWC3_TRB_SIZE_MASK;
@@ -2344,6 +2345,8 @@ static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
 		dwc->gadget.speed = USB_SPEED_LOW;
 		break;
 	}
+
+	dwc->eps[1]->endpoint.maxpacket = dwc->gadget.ep0->maxpacket;
 
 	/* Enable USB2 LPM Capability */
 

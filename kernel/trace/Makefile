@@ -69,7 +69,6 @@ obj-$(CONFIG_TRACEPOINT_BENCHMARK) += trace_benchmark.o
 
 libftrace-y := ftrace.o
 
-
 ifeq ($(TSAI_OPT),1) 
     CFLAGS_trace.o += -O0
 endif

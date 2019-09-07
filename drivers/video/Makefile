@@ -1,6 +1,6 @@
 obj-$(CONFIG_VGASTATE)            += vgastate.o
 obj-$(CONFIG_HDMI)                += hdmi.o
-
+#TSAI:
 obj-$(CONFIG_FB_ROCKCHIP)         += rockchip/
 obj-$(CONFIG_DRM_ROCKCHIP)        += rockchip/
 

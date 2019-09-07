@@ -905,7 +905,7 @@ config GPIO_VIPERBOARD
           See viperboard API specification and Nano
           River Tech's viperboard.h for detailed meaning
           of the module parameters.
-
+#TSAI:
 config GPIO_RK816
 	tristate "Rockchip RK816 GPIO"
 	depends on MFD_RK816

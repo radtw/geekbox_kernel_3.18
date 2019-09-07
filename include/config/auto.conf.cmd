@@ -23,7 +23,6 @@ deps_config := \
 	security/selinux/Kconfig \
 	security/keys/Kconfig \
 	security/Kconfig \
-	drivers/hwtracing/coresight/Kconfig \
 	lib/Kconfig.kgdb \
 	samples/Kconfig \
 	kernel/trace/Kconfig \
@@ -194,7 +193,6 @@ deps_config := \
 	drivers/staging/gdm72xx/Kconfig \
 	drivers/staging/ozwpan/Kconfig \
 	drivers/staging/board/Kconfig \
-	drivers/staging/android/fiq_debugger/Kconfig \
 	drivers/staging/android/ion/Kconfig \
 	drivers/staging/android/Kconfig \
 	drivers/staging/media/lirc/Kconfig \
@@ -819,10 +817,6 @@ deps_config := \
 	drivers/misc/carma/Kconfig \
 	drivers/misc/lis3lv02d/Kconfig \
 	drivers/misc/ti-st/Kconfig \
-	drivers/misc/inv_mpu/pressure/Kconfig \
-	drivers/misc/inv_mpu/compass/Kconfig \
-	drivers/misc/inv_mpu/accel/Kconfig \
-	drivers/misc/inv_mpu/Kconfig \
 	drivers/misc/cb710/Kconfig \
 	drivers/misc/eeprom/Kconfig \
 	drivers/misc/c2port/Kconfig \
@@ -977,7 +971,7 @@ deps_config := \
 include/config/auto.conf: \
 	$(deps_config)
 
-ifneq "$(KERNELVERSION)" "3.18.48"
+ifneq "$(KERNELVERSION)" "3.18.140"
 include/config/auto.conf: FORCE
 endif
 ifneq "$(ARCH)" "arm64"

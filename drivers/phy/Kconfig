@@ -14,7 +14,7 @@ config GENERIC_PHY
 	  API by which phy drivers can create PHY using the phy framework and
 	  phy users can obtain reference to the PHY. All the users of this
 	  framework should select this config.
-
+#TSAI:
 config PHY_ROCKCHIP_USB
 	tristate "Rockchip USB2 PHY Driver"
 	depends on ARCH_ROCKCHIP && OF

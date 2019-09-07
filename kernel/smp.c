@@ -730,5 +730,5 @@ struct PTR_SMP_C {
 tsai_ptr_smp_c = {
 		.flush_smp_call_function_queue = flush_smp_call_function_queue,
 };
-
+ 
 #endif

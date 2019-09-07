@@ -23,7 +23,7 @@
 #include <linux/ratelimit.h>
 
 const struct cred *override_fsids(struct sdcardfs_sb_info *sbi,
-		struct sdcardfs_inode_info *info)
+		struct sdcardfs_inode_data *data)
 {
 	struct cred *cred;
 	const struct cred *old_cred;
@@ -33,10 +33,14 @@ const struct cred *override_fsids(struct sdcardfs_sb_info *sbi,
 	if (!cred)
 		return NULL;
 
-	if (info->under_obb)
-		uid = AID_MEDIA_OBB;
-	else
-		uid = multiuser_get_uid(info->userid, sbi->options.fs_low_uid);
+	if (sbi->options.gid_derivation) {
+		if (data->under_obb)
+			uid = AID_MEDIA_OBB;
+		else
+			uid = multiuser_get_uid(data->userid, sbi->options.fs_low_uid);
+	} else {
+		uid = sbi->options.fs_low_uid;
+	}
 	cred->fsuid = make_kuid(&init_user_ns, uid);
 	cred->fsgid = make_kgid(&init_user_ns, sbi->options.fs_low_gid);
 
@@ -73,7 +77,7 @@ static int sdcardfs_create(struct inode *dir, struct dentry *dentry,
 
 	/* save current_cred and override it */
 	saved_cred = override_fsids(SDCARDFS_SB(dir->i_sb),
-					SDCARDFS_I(dir));
+					SDCARDFS_I(dir)->data);
 	if (!saved_cred)
 		return -ENOMEM;
 
@@ -101,7 +105,8 @@ static int sdcardfs_create(struct inode *dir, struct dentry *dentry,
 	if (err)
 		goto out;
 
-	err = sdcardfs_interpose(dentry, dir->i_sb, &lower_path, SDCARDFS_I(dir)->userid);
+	err = sdcardfs_interpose(dentry, dir->i_sb, &lower_path,
+			SDCARDFS_I(dir)->data->userid);
 	if (err)
 		goto out;
 	fsstack_copy_attr_times(dir, sdcardfs_lower_inode(dir));
@@ -138,7 +143,7 @@ static int sdcardfs_unlink(struct inode *dir, struct dentry *dentry)
 
 	/* save current_cred and override it */
 	saved_cred = override_fsids(SDCARDFS_SB(dir->i_sb),
-						SDCARDFS_I(dir));
+						SDCARDFS_I(dir)->data);
 	if (!saved_cred)
 		return -ENOMEM;
 
@@ -200,10 +205,11 @@ static int sdcardfs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode
 	struct dentry *lower_dentry;
 	struct vfsmount *lower_mnt;
 	struct dentry *lower_parent_dentry = NULL;
+	struct dentry *parent_dentry = NULL;
 	struct path lower_path;
 	struct sdcardfs_sb_info *sbi = SDCARDFS_SB(dentry->d_sb);
 	const struct cred *saved_cred = NULL;
-	struct sdcardfs_inode_info *pi = SDCARDFS_I(dir);
+	struct sdcardfs_inode_data *pd = SDCARDFS_I(dir)->data;
 	int touch_err = 0;
 	struct fs_struct *saved_fs;
 	struct fs_struct *copied_fs;
@@ -217,16 +223,19 @@ static int sdcardfs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode
 
 	/* save current_cred and override it */
 	saved_cred = override_fsids(SDCARDFS_SB(dir->i_sb),
-						SDCARDFS_I(dir));
+						SDCARDFS_I(dir)->data);
 	if (!saved_cred)
 		return -ENOMEM;
 
 	/* check disk space */
-	if (!check_min_free_space(dentry, 0, 1)) {
+	parent_dentry = dget_parent(dentry);
+	if (!check_min_free_space(parent_dentry, 0, 1)) {
 		pr_err("sdcardfs: No minimum free space.\n");
 		err = -ENOSPC;
+		dput(parent_dentry);
 		goto out_revert;
 	}
+	dput(parent_dentry);
 
 	/* the lower_dentry is negative here */
 	sdcardfs_get_lower_path(dentry, &lower_path);
@@ -278,7 +287,7 @@ static int sdcardfs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode
 			make_nomedia_in_obb = 1;
 	}
 
-	err = sdcardfs_interpose(dentry, dir->i_sb, &lower_path, pi->userid);
+	err = sdcardfs_interpose(dentry, dir->i_sb, &lower_path, pd->userid);
 	if (err) {
 		unlock_dir(lower_parent_dentry);
 		goto out;
@@ -291,16 +300,16 @@ static int sdcardfs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode
 	fixup_lower_ownership(dentry, dentry->d_name.name);
 	unlock_dir(lower_parent_dentry);
 	if ((!sbi->options.multiuser) && (qstr_case_eq(&dentry->d_name, &q_obb))
-		&& (pi->perm == PERM_ANDROID) && (pi->userid == 0))
+		&& (pd->perm == PERM_ANDROID) && (pd->userid == 0))
 		make_nomedia_in_obb = 1;
 
 	/* When creating /Android/data and /Android/obb, mark them as .nomedia */
 	if (make_nomedia_in_obb ||
-		((pi->perm == PERM_ANDROID)
+		((pd->perm == PERM_ANDROID)
 				&& (qstr_case_eq(&dentry->d_name, &q_data)))) {
 		revert_fsids(saved_cred);
 		saved_cred = override_fsids(sbi,
-					SDCARDFS_I(dentry->d_inode));
+					SDCARDFS_I(dentry->d_inode)->data);
 		if (!saved_cred) {
 			pr_err("sdcardfs: failed to set up .nomedia in %s: %d\n",
 						lower_path.dentry->d_name.name,
@@ -346,7 +355,7 @@ static int sdcardfs_rmdir(struct inode *dir, struct dentry *dentry)
 
 	/* save current_cred and override it */
 	saved_cred = override_fsids(SDCARDFS_SB(dir->i_sb),
-						SDCARDFS_I(dir));
+						SDCARDFS_I(dir)->data);
 	if (!saved_cred)
 		return -ENOMEM;
 
@@ -403,7 +412,7 @@ static int sdcardfs_rename(struct inode *old_dir, struct dentry *old_dentry,
 
 	/* save current_cred and override it */
 	saved_cred = override_fsids(SDCARDFS_SB(old_dir->i_sb),
-						SDCARDFS_I(new_dir));
+						SDCARDFS_I(new_dir)->data);
 	if (!saved_cred)
 		return -ENOMEM;
 
@@ -545,13 +554,12 @@ static int sdcardfs_permission(struct vfsmount *mnt, struct inode *inode, int ma
 {
 	int err;
 	struct inode tmp;
-	struct inode *top = grab_top(SDCARDFS_I(inode));
+	struct sdcardfs_inode_data *top = top_data_get(SDCARDFS_I(inode));
 
-	if (!top) {
-		release_top(SDCARDFS_I(inode));
-		WARN(1, "Top value was null!\n");
+	if (IS_ERR(mnt))
+		return PTR_ERR(mnt);
+	if (!top)
 		return -EINVAL;
-	}
 
 	/*
 	 * Permission check on sdcardfs inode.
@@ -565,10 +573,11 @@ static int sdcardfs_permission(struct vfsmount *mnt, struct inode *inode, int ma
 	 * locks must be dealt with to avoid undefined behavior.
 	 */
 	copy_attrs(&tmp, inode);
-	tmp.i_uid = make_kuid(&init_user_ns, SDCARDFS_I(top)->d_uid);
-	tmp.i_gid = make_kgid(&init_user_ns, get_gid(mnt, SDCARDFS_I(top)));
-	tmp.i_mode = (inode->i_mode & S_IFMT) | get_mode(mnt, SDCARDFS_I(top));
-	release_top(SDCARDFS_I(inode));
+	tmp.i_uid = make_kuid(&init_user_ns, top->d_uid);
+	tmp.i_gid = make_kgid(&init_user_ns, get_gid(mnt, inode->i_sb, top));
+	tmp.i_mode = (inode->i_mode & S_IFMT)
+			| get_mode(mnt, SDCARDFS_I(inode), top);
+	data_put(top);
 	tmp.i_sb = inode->i_sb;
 	if (IS_POSIXACL(inode))
 		pr_warn("%s: This may be undefined behavior...\n", __func__);
@@ -593,16 +602,14 @@ static int sdcardfs_setattr(struct vfsmount *mnt, struct dentry *dentry, struct 
 	struct iattr lower_ia;
 	struct dentry *parent;
 	struct inode tmp;
-	struct inode *top;
+	struct sdcardfs_inode_data *top;
 	const struct cred *saved_cred = NULL;
 
 	inode = dentry->d_inode;
-	top = grab_top(SDCARDFS_I(inode));
+	top = top_data_get(SDCARDFS_I(inode));
 
-	if (!top) {
-		release_top(SDCARDFS_I(inode));
+	if (!top)
 		return -EINVAL;
-	}
 
 	/*
 	 * Permission check on sdcardfs inode.
@@ -617,11 +624,12 @@ static int sdcardfs_setattr(struct vfsmount *mnt, struct dentry *dentry, struct 
 	 *
 	 */
 	copy_attrs(&tmp, inode);
-	tmp.i_uid = make_kuid(&init_user_ns, SDCARDFS_I(top)->d_uid);
-	tmp.i_gid = make_kgid(&init_user_ns, get_gid(mnt, SDCARDFS_I(top)));
-	tmp.i_mode = (inode->i_mode & S_IFMT) | get_mode(mnt, SDCARDFS_I(top));
+	tmp.i_uid = make_kuid(&init_user_ns, top->d_uid);
+	tmp.i_gid = make_kgid(&init_user_ns, get_gid(mnt, dentry->d_sb, top));
+	tmp.i_mode = (inode->i_mode & S_IFMT)
+			| get_mode(mnt, SDCARDFS_I(inode), top);
 	tmp.i_size = i_size_read(inode);
-	release_top(SDCARDFS_I(inode));
+	data_put(top);
 	tmp.i_sb = inode->i_sb;
 
 	/*
@@ -650,7 +658,7 @@ static int sdcardfs_setattr(struct vfsmount *mnt, struct dentry *dentry, struct 
 
 	/* save current_cred and override it */
 	saved_cred = override_fsids(SDCARDFS_SB(dentry->d_sb),
-						SDCARDFS_I(inode));
+						SDCARDFS_I(inode)->data);
 	if (!saved_cred)
 		return -ENOMEM;
 
@@ -672,13 +680,9 @@ static int sdcardfs_setattr(struct vfsmount *mnt, struct dentry *dentry, struct 
 	 * afterwards in the other cases: we fsstack_copy_inode_size from
 	 * the lower level.
 	 */
-	if (current->mm)
-		down_write(&current->mm->mmap_sem);
 	if (ia->ia_valid & ATTR_SIZE) {
 		err = inode_newsize_ok(&tmp, ia->ia_size);
 		if (err) {
-			if (current->mm)
-				up_write(&current->mm->mmap_sem);
 			goto out;
 		}
 		truncate_setsize(inode, ia->ia_size);
@@ -701,8 +705,6 @@ static int sdcardfs_setattr(struct vfsmount *mnt, struct dentry *dentry, struct 
 	err = notify_change2(lower_mnt, lower_dentry, &lower_ia, /* note: lower_ia */
 			NULL);
 	mutex_unlock(&lower_dentry->d_inode->i_mutex);
-	if (current->mm)
-		up_write(&current->mm->mmap_sem);
 	if (err)
 		goto out;
 
@@ -722,29 +724,30 @@ out_err:
 	return err;
 }
 
-static int sdcardfs_fillattr(struct vfsmount *mnt,
-				struct inode *inode, struct kstat *stat)
+static int sdcardfs_fillattr(struct vfsmount *mnt, struct inode *inode,
+				struct kstat *lower_stat, struct kstat *stat)
 {
 	struct sdcardfs_inode_info *info = SDCARDFS_I(inode);
-	struct inode *top = grab_top(info);
+	struct sdcardfs_inode_data *top = top_data_get(info);
+	struct super_block *sb = inode->i_sb;
 
 	if (!top)
 		return -EINVAL;
 
 	stat->dev = inode->i_sb->s_dev;
 	stat->ino = inode->i_ino;
-	stat->mode = (inode->i_mode  & S_IFMT) | get_mode(mnt, SDCARDFS_I(top));
+	stat->mode = (inode->i_mode  & S_IFMT) | get_mode(mnt, info, top);
 	stat->nlink = inode->i_nlink;
-	stat->uid = make_kuid(&init_user_ns, SDCARDFS_I(top)->d_uid);
-	stat->gid = make_kgid(&init_user_ns, get_gid(mnt, SDCARDFS_I(top)));
+	stat->uid = make_kuid(&init_user_ns, top->d_uid);
+	stat->gid = make_kgid(&init_user_ns, get_gid(mnt, sb, top));
 	stat->rdev = inode->i_rdev;
-	stat->size = i_size_read(inode);
-	stat->atime = inode->i_atime;
-	stat->mtime = inode->i_mtime;
-	stat->ctime = inode->i_ctime;
-	stat->blksize = (1 << inode->i_blkbits);
-	stat->blocks = inode->i_blocks;
-	release_top(info);
+	stat->size = lower_stat->size;
+	stat->atime = lower_stat->atime;
+	stat->mtime = lower_stat->mtime;
+	stat->ctime = lower_stat->ctime;
+	stat->blksize = lower_stat->blksize;
+	stat->blocks = lower_stat->blocks;
+	data_put(top);
 	return 0;
 }
 
@@ -769,8 +772,7 @@ static int sdcardfs_getattr(struct vfsmount *mnt, struct dentry *dentry,
 		goto out;
 	sdcardfs_copy_and_fix_attrs(dentry->d_inode,
 			      lower_path.dentry->d_inode);
-	err = sdcardfs_fillattr(mnt, dentry->d_inode, stat);
-	stat->blocks = lower_stat.blocks;
+	err = sdcardfs_fillattr(mnt, dentry->d_inode, &lower_stat, stat);
 out:
 	sdcardfs_put_lower_path(dentry, &lower_path);
 	return err;

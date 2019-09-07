@@ -425,6 +425,7 @@ config SND_SOC_ES8328_SPI
 	tristate
 	select SND_SOC_ES8328
 
+#TSAI:
 config SND_SOC_ES8316
 	tristate
 

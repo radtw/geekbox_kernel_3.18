@@ -3,7 +3,7 @@
 #
 
 # Each configuration option enables a list of files.
-
+#TSAI:
 obj-$(CONFIG_KEYS_RK)                   += rk_keys.o
 obj-$(CONFIG_KEYBOARD_ADP5520)		+= adp5520-keys.o
 obj-$(CONFIG_KEYBOARD_ADP5588)		+= adp5588-keys.o

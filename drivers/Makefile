@@ -10,8 +10,6 @@ obj-y				+= bus/
 
 obj-$(CONFIG_GENERIC_PHY)	+= phy/
 
-obj-$(CONFIG_GENERIC_PHY)	+= phy/
-
 # GPIO must come after pinctrl as gpios may need to mux pins etc
 obj-y				+= pinctrl/
 obj-y				+= gpio/
@@ -92,6 +90,7 @@ obj-$(CONFIG_TC)		+= tc/
 obj-$(CONFIG_UWB)		+= uwb/
 obj-$(CONFIG_USB_PHY)		+= usb/
 obj-$(CONFIG_USB)		+= usb/
+obj-$(CONFIG_USB_SUPPORT)	+= usb/
 obj-$(CONFIG_PCI)		+= usb/
 obj-$(CONFIG_USB_GADGET)	+= usb/
 obj-$(CONFIG_SERIO)		+= input/serio/
@@ -164,9 +163,8 @@ obj-$(CONFIG_POWERCAP)		+= powercap/
 obj-$(CONFIG_MCB)		+= mcb/
 obj-$(CONFIG_RAS)		+= ras/
 obj-$(CONFIG_THUNDERBOLT)	+= thunderbolt/
-obj-$(CONFIG_CORESIGHT)		+= hwtracing/coresight/
 
-
+#TSAI: gator
 obj-$(CONFIG_GATOR)		+= gator/
 #TSAI:copied
 obj-$(CONFIG_RK_SFC)		+= rksfc/

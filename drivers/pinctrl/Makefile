@@ -19,6 +19,7 @@ obj-$(CONFIG_PINCTRL_BAYTRAIL)	+= pinctrl-baytrail.o
 obj-$(CONFIG_PINCTRL_BCM281XX)	+= pinctrl-bcm281xx.o
 obj-$(CONFIG_PINCTRL_FALCON)	+= pinctrl-falcon.o
 obj-$(CONFIG_PINCTRL_PALMAS)	+= pinctrl-palmas.o
+#TSAI:
 obj-$(CONFIG_PINCTRL_RK3368)  	+= pinctrl-rk3368.o
 obj-$(CONFIG_PINCTRL_ROCKCHIP)	+= pinctrl-rockchip.o
 obj-$(CONFIG_PINCTRL_SINGLE)	+= pinctrl-single.o

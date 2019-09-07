@@ -56,7 +56,7 @@ static struct idr drm_minors_idr;
 struct class *drm_class;
 static struct dentry *drm_debugfs_root;
 
-void drm_err(const char *format, ...)
+void drm_err(const char *func, const char *format, ...)
 {
 	struct va_format vaf;
 	va_list args;
@@ -66,8 +66,7 @@ void drm_err(const char *format, ...)
 	vaf.fmt = format;
 	vaf.va = &args;
 
-	printk(KERN_ERR "[" DRM_NAME ":%pf] *ERROR* %pV",
-	       __builtin_return_address(0), &vaf);
+	printk(KERN_ERR "[" DRM_NAME ":%s] *ERROR* %pV", func, &vaf);
 
 	va_end(args);
 }
@@ -201,10 +200,8 @@ int drm_dropmaster_ioctl(struct drm_device *dev, void *data,
 		goto out_unlock;
 
 	ret = 0;
-	if (dev->driver->master_drop) {
-		printk("[%s][%d]+_+\n",__FUNCTION__,__LINE__);
+	if (dev->driver->master_drop)
 		dev->driver->master_drop(dev, file_priv, false);
-}
 	drm_master_put(&file_priv->minor->master);
 	file_priv->is_master = 0;
 
@@ -323,7 +320,7 @@ static int drm_minor_register(struct drm_device *dev, unsigned int type)
 	ret = drm_debugfs_init(minor, minor->index, drm_debugfs_root);
 	if (ret) {
 		DRM_ERROR("DRM: Failed to initialize /sys/kernel/debug/dri.\n");
-		return ret;
+		goto err_debugfs;
 	}
 
 	ret = device_add(minor->kdev);
@@ -537,8 +534,6 @@ static void drm_fs_inode_free(struct inode *inode)
  * The initial ref-count of the object is 1. Use drm_dev_ref() and
  * drm_dev_unref() to take and drop further ref-counts.
  *
- * Note that for purely virtual devices @parent can be NULL.
- *
  * RETURNS:
  * Pointer to new DRM device, or NULL if out of memory.
  */
@@ -711,9 +706,7 @@ int drm_dev_register(struct drm_device *dev, unsigned long flags)
 	if (ret)
 		goto err_minors;
 
-printk("[%s][%d]+_+\n",__FUNCTION__,__LINE__);
 	if (dev->driver->load) {
-printk("[%s][%d]+_+\n",__FUNCTION__,__LINE__);
 		ret = dev->driver->load(dev, flags);
 		if (ret)
 			goto err_minors;
@@ -884,8 +877,6 @@ static int __init drm_core_init(void)
 		goto err_p3;
 	}
 
-	printk(KERN_ERR"+_+ Initialized %s %d.%d.%d %s\n",
-		 CORE_NAME, CORE_MAJOR, CORE_MINOR, CORE_PATCHLEVEL, CORE_DATE);
 	DRM_INFO("Initialized %s %d.%d.%d %s\n",
 		 CORE_NAME, CORE_MAJOR, CORE_MINOR, CORE_PATCHLEVEL, CORE_DATE);
 	return 0;

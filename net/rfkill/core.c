@@ -39,7 +39,6 @@
 #if TSAI
     #include "tsai_macro.h"
 #endif
-
 #define POLL_INTERVAL		(5 * HZ)
 
 #define RFKILL_BLOCK_HW		BIT(0)

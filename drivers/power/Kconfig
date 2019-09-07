@@ -356,7 +356,7 @@ config CHARGER_MAX8998
 	help
 	  Say Y to enable support for the battery charger control sysfs and
 	  platform data of MAX8998/LP3974 PMICs.
-
+#TSAI:
 config BATTERY_RK30_ADC_FAC
         tristate "RK30 ADC Battery Factory"
         help

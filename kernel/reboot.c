@@ -321,7 +321,7 @@ SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
 	switch (cmd) {
 #ifdef CONFIG_ARCH_ROCKCHIP	
 	case LINUX_REBOOT_CMD_RESTART_RAMFS: /* TSAI: rk*/
-		kernel_restart("ramfs");
+		kernel_restart("ramfs"); 
 #endif
 	case LINUX_REBOOT_CMD_RESTART:
 		kernel_restart(NULL);

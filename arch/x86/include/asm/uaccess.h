@@ -29,7 +29,12 @@
 
 #define get_ds()	(KERNEL_DS)
 #define get_fs()	(current_thread_info()->addr_limit)
-#define set_fs(x)	(current_thread_info()->addr_limit = (x))
+static inline void set_fs(mm_segment_t fs)
+{
+	current_thread_info()->addr_limit = fs;
+	/* On user-mode return, check fs is correct */
+	set_thread_flag(TIF_FSCHECK);
+}
 
 #define segment_eq(a, b)	((a).seg == (b).seg)
 
@@ -336,7 +341,7 @@ do {									\
 #define __get_user_asm_u64(x, ptr, retval, errret) \
 	 __get_user_asm(x, ptr, retval, "q", "", "=r", errret)
 #define __get_user_asm_ex_u64(x, ptr) \
-	 __get_user_asm_ex(x, ptr, "q", "", "=r")
+	 __get_user_asm_ex(x, ptr, "q", "", "=&r")
 #endif
 
 #define __get_user_size(x, ptr, size, retval, errret)			\
@@ -383,13 +388,13 @@ do {									\
 	__chk_user_ptr(ptr);						\
 	switch (size) {							\
 	case 1:								\
-		__get_user_asm_ex(x, ptr, "b", "b", "=q");		\
+		__get_user_asm_ex(x, ptr, "b", "b", "=&q");		\
 		break;							\
 	case 2:								\
-		__get_user_asm_ex(x, ptr, "w", "w", "=r");		\
+		__get_user_asm_ex(x, ptr, "w", "w", "=&r");		\
 		break;							\
 	case 4:								\
-		__get_user_asm_ex(x, ptr, "l", "k", "=r");		\
+		__get_user_asm_ex(x, ptr, "l", "k", "=&r");		\
 		break;							\
 	case 8:								\
 		__get_user_asm_ex_u64(x, ptr);				\
@@ -407,7 +412,7 @@ do {									\
 		     "  jmp 2b\n"					\
 		     ".previous\n"					\
 		     _ASM_EXTABLE_EX(1b, 3b)				\
-		     : ltype(x) : "m" (__m(addr)))
+		     : ltype(x) : "m" (__m(addr)), "0" (0))
 
 #define __put_user_nocheck(x, ptr, size)			\
 ({								\

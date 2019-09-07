@@ -511,10 +511,6 @@ extern struct cpufreq_governor cpufreq_gov_sched;
 #define CPUFREQ_BOOST_FREQ	(1 << 0)
 
 struct cpufreq_frequency_table {
-#if 0 && TSAI
-	/* TODO: this field has been removed in 3.18, only put here so driver can compiler, need to remove */
-unsigned int	index;     /* any */
-#endif
 	unsigned int	flags;
 	unsigned int	driver_data; /* driver specific data, not used by core */
 	unsigned int	frequency; /* kHz - doesn't need to be in ascending

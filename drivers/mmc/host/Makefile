@@ -43,6 +43,7 @@ obj-$(CONFIG_MMC_VIA_SDMMC)	+= via-sdmmc.o
 obj-$(CONFIG_SDH_BFIN)		+= bfin_sdh.o
 
 #obj-$(CONFIG_MMC_DW)		+= dw_mmc.o
+#TSAI: rk_sdmmc.o instead of dw_mmc.o
 obj-$(CONFIG_MMC_DW)           += rk_sdmmc.o
 
 obj-$(CONFIG_MMC_DW_PLTFM)	+= dw_mmc-pltfm.o

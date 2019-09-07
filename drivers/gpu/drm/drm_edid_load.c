@@ -254,7 +254,8 @@ static void *edid_load(struct drm_connector *connector, const char *name,
 	    name, connector_name);
 
 out:
-	release_firmware(fw);
+	if (fw)
+		release_firmware(fw);
 	return edid;
 }
 

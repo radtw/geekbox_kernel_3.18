@@ -185,6 +185,7 @@ source "drivers/net/ethernet/via/Kconfig"
 source "drivers/net/ethernet/wiznet/Kconfig"
 source "drivers/net/ethernet/xilinx/Kconfig"
 source "drivers/net/ethernet/xircom/Kconfig"
+#TSAI:
 source "drivers/net/ethernet/rockchip/Kconfig"
 
 endif # ETHERNET

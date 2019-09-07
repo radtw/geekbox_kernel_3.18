@@ -62,7 +62,7 @@ obj-$(CONFIG_GENEVE) += geneve.o
 obj-$(CONFIG_XFRM) += xfrm4_policy.o xfrm4_state.o xfrm4_input.o \
 		      xfrm4_output.o xfrm4_protocol.o
 
-ifeq ($(TSAI_OPT),1) 
+ifeq ($(TSAI_OPT),1)  
 	CFLAGS_devinet.o += -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-inline -fno-unit-at-a-time
 endif
 		      

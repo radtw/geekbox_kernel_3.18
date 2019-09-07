@@ -283,7 +283,9 @@ static int rawv6_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len)
 			/* Binding to link-local address requires an interface */
 			if (!sk->sk_bound_dev_if)
 				goto out_unlock;
+		}
 
+		if (sk->sk_bound_dev_if) {
 			err = -ENODEV;
 			dev = dev_get_by_index_rcu(sock_net(sk),
 						   sk->sk_bound_dev_if);
@@ -1297,7 +1299,7 @@ void raw6_proc_exit(void)
 #endif	/* CONFIG_PROC_FS */
 
 /* Same as inet6_dgram_ops, sans udp_poll.  */
-static const struct proto_ops inet6_sockraw_ops = {
+const struct proto_ops inet6_sockraw_ops = {
 	.family		   = PF_INET6,
 	.owner		   = THIS_MODULE,
 	.release	   = inet6_release,
