@@ -3,6 +3,10 @@
 #include "lcd.h"
 #include "../hdmi/rockchip-hdmi.h"
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 static struct rk_screen *rk_screen;
 
 int rk_fb_get_extern_screen(struct rk_screen *screen)
@@ -75,7 +79,9 @@ static int rk_screen_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	int ret;
-
+#if 0 && TSAI
+	BKPT;
+#endif
 	if (!np) {
 		dev_err(&pdev->dev, "Missing device tree node.\n");
 		return -EINVAL;

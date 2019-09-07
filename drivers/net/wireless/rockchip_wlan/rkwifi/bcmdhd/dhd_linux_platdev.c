@@ -26,6 +26,10 @@
 #include<linux/of_gpio.h>
 #endif /* CONFIG_DTS */
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 #if defined(CUSTOMER_HW)
 #if defined(CUSTOMER_OOB)
 extern uint bcm_wlan_get_oob_irq(void);
@@ -589,6 +593,9 @@ static int dhd_wifi_platform_load_pcie(void)
 	if (dhd_wifi_platdata == NULL) {
 		err = dhd_bus_register();
 	} else {
+#if TSAI
+		BKPT;
+#endif
 		if (dhd_download_fw_on_driverload) {
 			/* power up all adapters */
 			for (i = 0; i < dhd_wifi_platdata->num_adapters; i++) {
@@ -720,6 +727,9 @@ static int dhd_wifi_platform_load_sdio(void)
 			adapter->bus_type, adapter->bus_num, adapter->slot_num));
 
 		do {
+#if 0 && TSAI
+		BKPT;
+#endif
 			sema_init(&dhd_chipup_sem, 0);
 			err = dhd_bus_reg_sdio_notify(&dhd_chipup_sem);
 			if (err) {

@@ -103,3 +103,5 @@ android/configs/android-*.cfg
 # TSAI: images
 /kernel.img
 /resource.img
+/dmesg*
+

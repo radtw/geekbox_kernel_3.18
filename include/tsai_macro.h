@@ -9,8 +9,8 @@
 #define TSAI_ASSERT_H_
 
 #if defined(__aarch64__)
-/*	#define BKPT __asm("hlt #0")*/
-#define BKPT pr_info("BKPT but NO JTAG %s%d\n", __FILE__, __LINE__)
+	#define BKPT __asm("hlt #0")
+//#define BKPT pr_info("BKPT but NO JTAG %s%d\n", __FILE__, __LINE__)
 #else
 	#define BKPT __asm("bkpt")
 #endif

@@ -1,4 +1,4 @@
-#if TSAI
+#if 0 && TSAI
 #define DEBUG
 #endif
 /*

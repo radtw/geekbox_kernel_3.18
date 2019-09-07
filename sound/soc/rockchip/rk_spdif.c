@@ -43,6 +43,10 @@
 #include <linux/spinlock.h>
 #include "rk_pcm.h"
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 /*
  * channel status register
  * 192 frame channel status bits: include 384 subframe bits
@@ -464,7 +468,6 @@ static int spdif_probe(struct platform_device *pdev)
 		ret = -ENOMEM;
 		goto err_;
 	}
-
 	ret = rockchip_pcm_platform_register(&pdev->dev);
 	if (ret) {
 		dev_err(&pdev->dev, "Could not register PCM: %d\n", ret);

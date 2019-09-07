@@ -151,7 +151,11 @@ static int dmaengine_pcm_set_runtime_hwparams(struct snd_pcm_substream *substrea
 			hw.info |= SNDRV_PCM_INFO_BATCH;
 
 		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+#if TSAI_DMAENGINE_HEADER_VER==404
+			addr_widths = dma_caps.dst_addr_widths;
+#else
 			addr_widths = dma_caps.dstn_addr_widths;
+#endif
 		else
 			addr_widths = dma_caps.src_addr_widths;
 	}

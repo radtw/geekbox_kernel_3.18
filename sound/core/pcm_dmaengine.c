@@ -143,7 +143,8 @@ MODULE_PARM_DESC(debug_audio_timeout, "Debug interface Audio DMA buffdone time o
 #endif
 
 #if TSAI_DS5
-static struct task_struct*  tsai_dma_submit_task = 0;
+/* [0]=playback, [1]=capture */
+extern struct task_struct*  tsai_dma_submit_task[2];
 #endif
 
 static void dmaengine_pcm_dma_complete(void *arg)
@@ -153,7 +154,8 @@ static void dmaengine_pcm_dma_complete(void *arg)
 /* TSAI: this function is called from within interrupt content!*/
 #if TSAI_DS5
 	u64 tsai_ts = ANNOTATE_GET_TS();
-	int pid = tsai_dma_submit_task ? tsai_dma_submit_task->pid: 0;
+	int dir = substream->stream?1:0;
+	int pid = tsai_dma_submit_task[dir] ? tsai_dma_submit_task[dir]->pid: 0;
 	char msg[256];
 	struct snd_pcm_runtime *runtime = substream->runtime;
 #endif
@@ -177,11 +179,15 @@ static void dmaengine_pcm_dma_complete(void *arg)
 	prtd->pos += snd_pcm_lib_period_bytes(substream);
 	if (prtd->pos >= snd_pcm_lib_buffer_bytes(substream))
 		prtd->pos = 0;
-
+#if 0 && TSAI //one off debug, when capturing, it doesn't seem to wake up the waiting task
+	if (dir==1) {
+		__asm("hlt #0");;
+	}
+#endif
 	snd_pcm_period_elapsed(substream);
 #if TSAI_DS5
-	sprintf(msg, "dmaengine_pcm_dma_complete pos %u hwbase %x hwptr %x",
-			prtd->pos, runtime->hw_ptr_base, runtime->status->hw_ptr);
+	sprintf(msg, "dmaengine_pcm_dma_complete dir %d pos %u hwbase %x hwptr %x",
+			dir, prtd->pos, runtime->hw_ptr_base, runtime->status->hw_ptr);
 	ANNOTATE_CHANNEL_COLOR_TS_PID(7, ANNOTATE_RED, msg, &tsai_ts, &pid);
 	ANNOTATE_CHANNEL_END_TS_PID(7, &tsai_ts, &pid);
 #endif
@@ -197,7 +203,8 @@ static int dmaengine_pcm_prepare_and_submit(struct snd_pcm_substream *substream)
 #if TSAI_DS5
 	u64 tsai_ts = ANNOTATE_GET_TS();
 	char msg[256] = {0};
-	tsai_dma_submit_task = current;
+	int dir = substream->stream?1:0;
+	tsai_dma_submit_task[dir] = current;
 #endif
 	direction = snd_pcm_substream_to_dma_direction(substream);
 
@@ -205,6 +212,11 @@ static int dmaengine_pcm_prepare_and_submit(struct snd_pcm_substream *substream)
 		flags |= DMA_PREP_INTERRUPT;
 
 	prtd->pos = 0;
+#if 0 && TSAI //one-off debug
+	if (dir==1) {
+		__asm("hlt #0");
+	}
+#endif
 #ifdef CONFIG_ARCH_ROCKCHIP
 	//printk("soc dma buffersize = %d , periodsize=%d, periods=%d\n",
 	//	snd_pcm_lib_buffer_bytes(substream),

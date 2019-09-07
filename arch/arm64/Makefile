@@ -118,3 +118,18 @@ define archhelp
   echo  '                  (distribution) /sbin/installkernel or'
   echo  '                  install to $$(INSTALL_PATH) and run lilo'
 endef
+
+#TSAI: geekbox proprietary target, eg. make geekbox.img
+# make ldship.img
+kernel.img: Image
+	$(Q)$(srctree)/mkkrnlimg $(objtree)/arch/arm64/boot/Image $(objtree)/kernel.img >/dev/null
+	@echo '  Image:  kernel.img is ready'
+
+LOGO := $(notdir $(wildcard $(srctree)/logo.bmp))
+LOGO_KERNEL := $(notdir $(wildcard $(srctree)/logo_kernel.bmp))
+%.img: %.dtb kernel.img $(LOGO) $(LOGO_KERNEL)
+	$(Q)$(srctree)/resource_tool $(objtree)/arch/arm64/boot/dts/$*.dtb $(LOGO) $(LOGO_KERNEL)
+	@echo '  Image:  resource.img (with $*.dtb $(LOGO) $(LOGO_KERNEL)) is ready'
+	@date
+	@echo -e '\n\t\t\tGeekbox: Something a little different!\n'
+	@echo

@@ -17,4 +17,7 @@ $(obj)/lcd.h: $(lcd-cpath)  FORCE
 $(obj)/rk_screen.o: $(obj)/lcd.h
 obj-y += rk_screen.o
 
+#TSAI
+#CFLAGS_rk_screen.o += -O0
+
 clean-files := lcd.h

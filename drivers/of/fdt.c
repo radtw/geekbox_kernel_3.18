@@ -8,7 +8,7 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
  */
-
+//#define DEBUG 1 /* TSAI */
 #include <linux/kernel.h>
 #include <linux/initrd.h>
 #include <linux/memblock.h>

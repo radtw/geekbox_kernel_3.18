@@ -294,7 +294,21 @@ static int call_undef_hook(struct pt_regs *regs)
 	void __user *pc = (void __user *)instruction_pointer(regs);
 
 	if (!user_mode(regs))
+#if TSAI
+	{
+		instr = *((u32 *)pc);
+		printk("TSAI: (kern pc @ %p)instr=%x @%d\n", pc, instr, __LINE__);
+		if (instr == 0xd4400000) { /* HLT #0 instruction, most certainly it's my debug code, ignore if there is not JTAG attached */
+			printk("TSAI: ignore HLT #0 at %p @%s\n", pc, __FILE__);
+			regs->pc += 4;
+			return 0;
+		}
+		
 		return 1;
+	}
+#else
+		return 1;
+#endif
 
 #if TSAI
 	tsai_print_vma_for_address(pc);

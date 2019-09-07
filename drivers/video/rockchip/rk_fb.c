@@ -533,6 +533,9 @@ int rk_fb_video_mode_from_timing(const struct display_timing *dt,
 		screen->pin_den = 1;
 	else
 		screen->pin_den = 0;
+#if TSAI
+	pr_info("TSAI: rk_fb_video_mode_from_timing %u x %u @%s\n", screen->mode.xres, screen->mode.yres, __FILE__);
+#endif
 
 	return 0;
 }
@@ -541,13 +544,21 @@ int rk_fb_prase_timing_dt(struct device_node *np, struct rk_screen *screen)
 {
 	struct display_timings *disp_timing;
 	struct display_timing *dt;
-
+#if 0 && TSAI
+BKPT;
+#endif
 	disp_timing = of_get_display_timings(np);
 	if (!disp_timing) {
 		pr_err("parse display timing err\n");
 		return -EINVAL;
 	}
 	dt = display_timings_get(disp_timing, disp_timing->native_mode);
+#if TSAI
+	pr_info("TSAI: display_timings native_mode=%u, h %u v %u @%s\n", disp_timing->native_mode,
+			dt->hactive.min, dt->vactive.min, __FILE__);
+	//TODO: add extra code to choose a timing matching HDMI resolution.
+	//For now just modify DTB to use a native mode of 1920x1080
+#endif
 	rk_fb_video_mode_from_timing(dt, screen);
 
 	return 0;

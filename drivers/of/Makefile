@@ -19,6 +19,7 @@ obj-$(CONFIG_OF_OVERLAY) += overlay.o
 CFLAGS_fdt.o = -I$(src)/../../scripts/dtc/libfdt
 CFLAGS_fdt_address.o = -I$(src)/../../scripts/dtc/libfdt
 ifeq ($(TSAI_OPT),1) 
+#	CFLAGS_fdt.o += -O0
 	CFLAGS_base.o += -O0
 	CFLAGS_device.o += -O0
 	CFLAGS_platform.o += -O0

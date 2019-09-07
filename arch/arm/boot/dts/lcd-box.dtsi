@@ -33,28 +33,8 @@
 
 		disp_timings: display-timings {
 			native-mode = <&timing0>;
+//TSAI: I swapped timing0 and timing1, because my native mode is 1920x1080			
 			timing0: timing0 {
-				screen-type = <SCREEN_RGB>;
-				out-face    = <OUT_P888>;
-				color-mode = <COLOR_YCBCR>;
-				clock-frequency = <74250000>;
-				hactive = <1280>;
-				vactive = <720>;
-				hback-porch = <220>;
-				hfront-porch = <110>;
-				vback-porch = <20>;
-				vfront-porch = <5>;
-				hsync-len = <40>;
-				vsync-len = <5>;
-				hsync-active = <1>;
-				vsync-active = <1>;
-				de-active = <0>;
-				pixelclk-active = <0>;
-				swap-rb = <0>;
-				swap-rg = <0>;
-				swap-gb = <0>;
-                     	};
-                     	timing1: timing1 {
 				screen-type = <SCREEN_RGB>;
 				out-face    = <OUT_P888>;
 				color-mode = <COLOR_YCBCR>;
@@ -74,8 +54,29 @@
 				swap-rb = <0>;
 				swap-rg = <0>;
 				swap-gb = <0>;
-                     	};
-                     	timing2: timing2 {
+            };
+            timing1: timing1 {			
+				screen-type = <SCREEN_RGB>;
+				out-face    = <OUT_P888>;
+				color-mode = <COLOR_YCBCR>;
+				clock-frequency = <74250000>;
+				hactive = <1280>;
+				vactive = <720>;
+				hback-porch = <220>;
+				hfront-porch = <110>;
+				vback-porch = <20>;
+				vfront-porch = <5>;
+				hsync-len = <40>;
+				vsync-len = <5>;
+				hsync-active = <1>;
+				vsync-active = <1>;
+				de-active = <0>;
+				pixelclk-active = <0>;
+				swap-rb = <0>;
+				swap-rg = <0>;
+				swap-gb = <0>;            
+            };
+            timing2: timing2 {
 				screen-type = <SCREEN_RGB>;
 				out-face    = <OUT_P888>;
 				color-mode = <COLOR_YCBCR>;

@@ -283,11 +283,22 @@ static void xrun_log_show(struct snd_pcm_substream *substream)
 
 #endif
 
+#if TSAI
+/* [0]=playback, [1]=capture */
+struct task_struct*  tsai_dma_submit_task[2];
+
+#endif
+
 int snd_pcm_update_state(struct snd_pcm_substream *substream,
 			 struct snd_pcm_runtime *runtime)
 {
 	snd_pcm_uframes_t avail;
-
+#if TSAI
+	int dir = substream->stream?1:0;
+	u64 tsai_ts = ANNOTATE_GET_TS();
+	int pid = tsai_dma_submit_task[dir] ? tsai_dma_submit_task[dir]->pid: 0;
+	char msg[256];
+#endif
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
 		avail = snd_pcm_playback_avail(runtime);
 	else
@@ -306,8 +317,18 @@ int snd_pcm_update_state(struct snd_pcm_substream *substream,
 		}
 	}
 	if (runtime->twake) {
+#if TSAI_DS5
+		if (avail >= runtime->twake) {
+			wake_up(&runtime->tsleep);
+			sprintf(msg, "snd_pcm_update_state dir %d wake up wait_avail()",
+				dir );
+			ANNOTATE_CHANNEL_COLOR_TS_PID(8, ANNOTATE_RED, msg, &tsai_ts, &pid);
+			ANNOTATE_CHANNEL_END_TS_PID(8, &tsai_ts, &pid);			
+		}
+#else
 		if (avail >= runtime->twake)
 			wake_up(&runtime->tsleep);
+#endif
 	} else if (avail >= runtime->control->avail_min)
 		wake_up(&runtime->sleep);
 	return 0;

@@ -194,7 +194,7 @@ config ARCH_THUNDER
 	bool "Cavium Inc. Thunder SoC Family"
 	help
 	  This enables support for Cavium's Thunder Family of SoCs.
-
+#TSAI:
 config ARCH_ROCKCHIP
 	bool "Rockchip SoCs"
 	select PINCTRL
