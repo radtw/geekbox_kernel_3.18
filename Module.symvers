@@ -7835,7 +7835,6 @@
 0x00000000	rpc_free_iostats	vmlinux	EXPORT_SYMBOL_GPL
 0x00000000	rpc_destroy_wait_queue	vmlinux	EXPORT_SYMBOL_GPL
 0x00000000	touch_buffer	vmlinux	EXPORT_SYMBOL
-0x00000000	pl330_dma_getposition	vmlinux	EXPORT_SYMBOL
 0x00000000	fat_setattr	vmlinux	EXPORT_SYMBOL_GPL
 0x00000000	wiphy_apply_custom_regulatory	vmlinux	EXPORT_SYMBOL
 0x00000000	device_find_child	vmlinux	EXPORT_SYMBOL_GPL
