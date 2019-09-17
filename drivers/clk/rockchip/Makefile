@@ -1,3 +1,4 @@
+#TSAI: this kernel_3.18.140/drivers/clk/rockchip directory is copied from 3.10
 obj-y	+= clk.o
 obj-y	+= clk-ops.o
 obj-y	+= clk-pll.o

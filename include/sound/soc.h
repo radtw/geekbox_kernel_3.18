@@ -1259,6 +1259,33 @@ static inline struct snd_soc_dapm_context *snd_soc_component_get_dapm(
 	return component->dapm_ptr;
 }
 
+#if TSAI /* copied from 4.4 */
+/**
+ * snd_soc_codec_get_dapm() - Returns the DAPM context for the CODEC
+ * @codec: The CODEC for which to get the DAPM context
+ *
+ * Note: Use this function instead of directly accessing the CODEC's dapm field
+ */
+static inline struct snd_soc_dapm_context *snd_soc_codec_get_dapm(
+	struct snd_soc_codec *codec)
+{
+	return snd_soc_component_get_dapm(&codec->component);
+}
+
+
+/**
+ * snd_soc_dapm_get_bias_level() - Get current CODEC DAPM bias level
+ * @codec: The CODEC for which to get the DAPM bias level
+ *
+ * Returns: The current DAPM bias level of the CODEC.
+ */
+static inline enum snd_soc_bias_level snd_soc_codec_get_bias_level(
+	struct snd_soc_codec *codec)
+{
+	return snd_soc_dapm_get_bias_level(snd_soc_codec_get_dapm(codec));
+}
+
+#endif
 /* codec IO */
 unsigned int snd_soc_read(struct snd_soc_codec *codec, unsigned int reg);
 int snd_soc_write(struct snd_soc_codec *codec, unsigned int reg,

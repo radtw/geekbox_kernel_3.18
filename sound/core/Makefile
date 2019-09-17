@@ -42,5 +42,6 @@ ifeq ($(TSAI_OPT),1)
 	CFLAGS_pcm_lib.o += -O0
 	CFLAGS_pcm_native.o += -O0
 	CFLAGS_pcm_dmaengine.o += -O0
+	CFLAGS_pcm_memory.o += -O0
 endif
 

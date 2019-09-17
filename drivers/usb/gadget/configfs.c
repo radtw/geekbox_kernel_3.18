@@ -1654,7 +1654,10 @@ static int android_device_create(struct gadget_info *gi)
 				MKDEV(0, 0), NULL, "android0");
 	if (IS_ERR(android_device))
 		return PTR_ERR(android_device);
-
+#if TSAI
+	pr_info("TSAI sysfs %s/%s created @%s\n", android_device->kobj.sd->parent->name,
+			android_device->kobj.sd->name, __FILE__);
+#endif
 	dev_set_drvdata(android_device, gi);
 
 	attrs = android_usb_attributes;

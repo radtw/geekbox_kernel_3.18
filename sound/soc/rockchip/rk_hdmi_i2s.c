@@ -27,6 +27,10 @@
 #include "rk_pcm.h"
 #include "rk_i2s.h"
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 static int hdmi_i2s_hifi_hw_params(struct snd_pcm_substream *substream,
 				   struct snd_pcm_hw_params *params)
 {
@@ -106,9 +110,11 @@ static int rockchip_hdmi_i2s_audio_probe(struct platform_device *pdev)
 {
 	int ret;
 	struct snd_soc_card *card = &rockchip_hdmi_i2s_snd_card;
-
+#if TSAI
+	static int enter_count = 0;
+	pr_info("TSAI: rockchip_hdmi_i2s_audio_probe enter_count=%d\n", enter_count++);
+#endif
 	card->dev = &pdev->dev;
-
 	ret = rockchip_of_get_sound_card_info(card);
 	if (ret) {
 		pr_err("%s() get sound card info failed: %d\n",

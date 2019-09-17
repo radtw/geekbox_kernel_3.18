@@ -1648,6 +1648,7 @@
 0x00000000	sock_no_recvmsg	vmlinux	EXPORT_SYMBOL
 0x00000000	hrtimer_cancel	vmlinux	EXPORT_SYMBOL_GPL
 0x00000000	devm_regulator_bulk_unregister_supply_alias	vmlinux	EXPORT_SYMBOL_GPL
+0x00000000	es8316_headset_detect	vmlinux	EXPORT_SYMBOL
 0x00000000	nf_ct_unlink_expect_report	vmlinux	EXPORT_SYMBOL_GPL
 0x00000000	dm_bufio_release	vmlinux	EXPORT_SYMBOL_GPL
 0x00000000	security_inode_setattr	vmlinux	EXPORT_SYMBOL_GPL

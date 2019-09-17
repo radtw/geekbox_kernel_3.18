@@ -1608,7 +1608,12 @@ static int lookup_slow(struct nameidata *nd, struct path *path)
 	return 0;
 }
 
-static inline int may_lookup(struct nameidata *nd)
+#if TSAI_OPT
+static
+#else
+static inline
+#endif
+int may_lookup(struct nameidata *nd)
 {
 	if (nd->flags & LOOKUP_RCU) {
 		int err = inode_permission2(nd->path.mnt, nd->inode, MAY_EXEC|MAY_NOT_BLOCK);
@@ -1879,7 +1884,11 @@ static int link_path_walk(const char *name, struct nameidata *nd)
 	for(;;) {
 		u64 hash_len;
 		int type;
-
+#if 0 && TSAI //check why /sbin/sh cannot run
+		if (strcmp(name, "sh")==0) {
+			__asm("nop");
+		}
+#endif
 		err = may_lookup(nd);
  		if (err)
 			break;

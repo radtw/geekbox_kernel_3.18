@@ -104,6 +104,7 @@ CFLAGS_tracepoint.o += -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -
 CFLAGS_jump_label.o += -O0
 CFLAGS_module.o += -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-inline -fno-unit-at-a-time
 CFLAGS_capability.o += -O0
+CFLAGS_seccomp.o += -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-inline -fno-unit-at-a-time
 endif
 
 $(obj)/configs.o: $(obj)/config_data.h

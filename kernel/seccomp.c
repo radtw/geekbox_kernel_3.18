@@ -63,6 +63,7 @@ struct seccomp_filter {
 /* Limit any path through the tree to 256KB worth of instructions. */
 #define MAX_INSNS_PER_PATH ((1 << 18) / sizeof(struct sock_filter))
 
+
 /*
  * Endianness is explicitly ignored and left for BPF program authors to manage
  * as per the specific architecture.
@@ -215,7 +216,11 @@ static inline bool seccomp_may_assign_mode(unsigned long seccomp_mode)
 	return true;
 }
 
-static inline void seccomp_assign_mode(struct task_struct *task,
+#if TSAI_OPT
+#else
+static inline
+#endif
+void seccomp_assign_mode(struct task_struct *task,
 				       unsigned long seccomp_mode)
 {
 	assert_spin_locked(&task->sighand->siglock);
@@ -337,6 +342,10 @@ static inline void seccomp_sync_threads(void)
 			seccomp_assign_mode(thread, SECCOMP_MODE_FILTER);
 	}
 }
+
+#if TSAI_OPT
+#pragma GCC optimize ("O0")
+#endif
 
 /**
  * seccomp_prepare_filter: Prepares a seccomp filter for use.

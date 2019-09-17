@@ -411,6 +411,14 @@ config SND_SOC_BT_SCO
 config SND_SOC_DMIC
 	tristate
 
+#TSAI: on 3.10 this cannot be manually selected, only can be selected by SND_RK_SOC_ES8316
+#config SND_SOC_ES8316
+
+#TSAI: copied from Rockchip 4.4
+config SND_SOC_ES8316
+	tristate "Everest Semi ES8316 CODEC"
+	depends on I2C
+
 config SND_SOC_HDMI_CODEC
        tristate "HDMI stub CODEC"
 
@@ -425,8 +433,6 @@ config SND_SOC_ES8328_SPI
 	tristate
 	select SND_SOC_ES8328
 
-#TSAI:
-config SND_SOC_ES8316
 	tristate
 
 config SND_SOC_ISABELLE

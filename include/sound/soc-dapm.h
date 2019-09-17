@@ -622,4 +622,18 @@ struct snd_soc_dapm_stats {
 	int neighbour_checks;
 };
 
+#if TSAI /* copied from 4.4 */
+/**
+ * snd_soc_dapm_get_bias_level() - Get current DAPM bias level
+ * @dapm: The context for which to get the bias level
+ *
+ * Returns: The current bias level of the passed DAPM context.
+ */
+static inline enum snd_soc_bias_level snd_soc_dapm_get_bias_level(
+	struct snd_soc_dapm_context *dapm)
+{
+	return dapm->bias_level;
+}
+
+#endif
 #endif

@@ -214,6 +214,7 @@ static int dmaengine_pcm_prepare_and_submit(struct snd_pcm_substream *substream)
 	prtd->pos = 0;
 #if 0 && TSAI //one-off debug
 	if (dir==1) {
+		__asm("nop");
 		__asm("hlt #0");
 	}
 #endif

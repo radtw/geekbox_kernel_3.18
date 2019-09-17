@@ -8,7 +8,13 @@ config SND_SOC_ROCKCHIP
 	  select the audio interfaces to support below.
 
 config SND_SOC_ROCKCHIP_I2S
-	tristate
+	tristate "Rockchip I2S Device Driver"
+	depends on CLKDEV_LOOKUP && SND_SOC_ROCKCHIP
+	select SND_SOC_GENERIC_DMAENGINE_PCM
+	help
+	  Say Y or M if you want to add support for I2S driver for
+	  Rockchip I2S device. The device supports up to maximum of
+	  8 channels each for play and record.
 
 #TSAI: the above come with Android common kernel 3.18
 #TSAI: the following copied from 3.10
@@ -21,8 +27,10 @@ config SND_RK_SOC
 	  the ROCKCHIP IIS interface. You will also need
 	  to select the audio interfaces to support below.
 
+#TSAI: make it exclude SND_SOC_ROCKCHIP_I2S
 config SND_RK_SOC_I2S
 	tristate
+	depends on !SND_SOC_ROCKCHIP_I2S
 
 config SND_RK_SOC_SPDIF
 	tristate

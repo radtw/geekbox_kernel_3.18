@@ -39,5 +39,9 @@ obj-$(CONFIG_SND_SOC)	+= txx9/
 obj-$(CONFIG_SND_SOC)	+= ux500/
 
 ifeq ($(TSAI_OPT),1) 
+	CFLAGS_soc-core.o += -O0
+	CFLAGS_soc-dapm.o += -O0
 	CFLAGS_soc-pcm.o += -O0 
+	CFLAGS_soc-devres.o += -O0
+	CFLAGS_soc-generic-dmaengine-pcm.o += -O0
 endif

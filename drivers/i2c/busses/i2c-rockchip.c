@@ -1,3 +1,4 @@
+/* TSAI: copied from 3.10 */
 /*
  * Copyright (C) 2012-2014 ROCKCHIP, Inc.
  *
@@ -782,8 +783,8 @@ static int rockchip_i2c_xfer(struct i2c_adapter *adap,
 	if (msgs[0].scl_rate <= 400000 && msgs[0].scl_rate >= 10000)
 		scl_rate = msgs[0].scl_rate;
 	else if (msgs[0].scl_rate > 400000) {
-		dev_warn_ratelimited(i2c->dev, "Warning: addr[0x%04x] msg[0].scl_rate( = %dKhz) is too high!",
-			msgs[0].addr, msgs[0].scl_rate/1000);
+		dev_warn_ratelimited(i2c->dev, "Warning: addr[0x%04x] msg[0].scl_rate( = %dKhz) is too high! @%s",
+			msgs[0].addr, msgs[0].scl_rate/1000, __FILE__);
 		scl_rate = 400000;
 	} else {
 		dev_warn_ratelimited(i2c->dev, "Warning: addr[0x%04x] msg[0].scl_rate( = %dKhz) is too low!",

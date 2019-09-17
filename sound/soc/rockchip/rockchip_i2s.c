@@ -19,6 +19,10 @@
 #include <sound/pcm_params.h>
 #include <sound/dmaengine_pcm.h>
 
+#if TSAI
+	#include "tsai_macro.h"
+#endif
+
 #include "rockchip_i2s.h"
 
 #define DRV_NAME "rockchip-i2s"
@@ -414,6 +418,9 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
 	struct resource *res;
 	void __iomem *regs;
 	int ret;
+#if 0 && TSAI
+BKPT;
+#endif
 
 	i2s = devm_kzalloc(&pdev->dev, sizeof(*i2s), GFP_KERNEL);
 	if (!i2s) {
@@ -514,7 +521,7 @@ static int rockchip_i2s_remove(struct platform_device *pdev)
 }
 
 static const struct of_device_id rockchip_i2s_match[] = {
-	{ .compatible = "rockchip,rk3066-i2s", },
+	{ .compatible = "rockchip-i2s", }, //TSAI
 	{},
 };
 
@@ -533,7 +540,20 @@ static struct platform_driver rockchip_i2s_driver = {
 		.pm = &rockchip_i2s_pm_ops,
 	},
 };
+
+#if TSAI /* expansion macro to debug */
+static int __attribute__ ((__section__(".init.text"))) __attribute__((__cold__)) __attribute__((no_instrument_function)) 
+rockchip_i2s_driver_init(void) { 	
+	pr_info("TSAI rockchip_i2s_driver_init \n");
+	return __platform_driver_register(&(rockchip_i2s_driver), ((struct module *)0)); 
+} 
+
+static initcall_t __initcall_rockchip_i2s_driver_init6 __attribute__((__used__)) __attribute__((__section__(".initcall" "6" ".init"))) = rockchip_i2s_driver_init; ;; 
+static void __attribute__ ((__section__(".exit.text"))) __attribute__((__used__)) __attribute__((__cold__)) __attribute__((no_instrument_function)) rockchip_i2s_driver_exit(void) { platform_driver_unregister(&(rockchip_i2s_driver)); } static exitcall_t __exitcall_rockchip_i2s_driver_exit __attribute__((__used__)) __attribute__ ((__section__(".exitcall.exit"))) = rockchip_i2s_driver_exit;;;
+
+#else
 module_platform_driver(rockchip_i2s_driver);
+#endif
 
 MODULE_DESCRIPTION("ROCKCHIP IIS ASoC Interface");
 MODULE_AUTHOR("jianqun <jay.xu@rock-chips.com>");

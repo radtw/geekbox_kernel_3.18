@@ -398,6 +398,23 @@ TSAI_STATIC int tsai_find_ion_from_fd(int num_fds, uint32_t* ptr) {
 	return ret;
 }
 
+static char tsai_android_prop_debug[64];
+
+TSAI_STATIC int tsai_android_property(struct TSpy_AndroidSysProp* pr) {
+	if (tsai_android_prop_debug[0]) {
+		int res;
+		char copy_prop[64];
+		const char* prop = (const char*)(NATIVE_UINT)(pr->ptr_prop_name);
+		const char* value = (const char*)(NATIVE_UINT)(pr->ptr_prop_value);
+		res = copy_from_user(copy_prop, prop, sizeof(copy_prop));
+		if (res)
+			return res;
+		if (strcmp(copy_prop, tsai_android_prop_debug)==0) {
+			BKPT;
+		}
+	}
+	return 0;
+}
 
 /* ================ PROFILER SPECIFIC CODE =================================================================== */
 #if defined(DEBUG)
@@ -3572,6 +3589,13 @@ TSAI_STATIC long tsai_spy_ioctl(struct file *file, unsigned int cmd,
 			ret = tsai_find_ion_from_fd(p->num_fd, fds);
 		}
 		break;
+	case TSpyCmd_AndroidSysProp:
+		{
+			struct TSpy_AndroidSysProp* p = (struct TSpy_AndroidSysProp*)arg;
+			//int ret2;
+			ret = tsai_android_property(p);
+		}
+		break;
 	default:
 		pr_info("[%s:%d] Unknown ioctl cmd\n", __func__, __LINE__);
 		return -EINVAL;
@@ -3755,7 +3779,7 @@ static int tsai_spy_open(struct inode *inode, struct file *file) {
 	 * previous mmap will be affected and map to zero page, so get rid of unwanted flags here! */
 	//file->f_flags &= ~(O_CREAT | O_EXCL | O_NOCTTY | O_TRUNC);
 	//inode->i_mode &= ~S_IFREG;
-	pr_info("tsai_spy_open called in %s %u\n", current->comm, current->pid);
+	//pr_info("tsai_spy_open called in %s %u\n", current->comm, current->pid);
 	return 0;
 }
 /* usage example:

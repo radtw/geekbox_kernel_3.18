@@ -1636,6 +1636,10 @@ static void ffs_func_eps_disable(struct ffs_function *func)
 	spin_unlock_irqrestore(&func->ffs->eps_lock, flags);
 }
 
+#if TSAI
+int tsai_ffs_ep2_enable = 0;
+#endif
+
 static int ffs_func_eps_enable(struct ffs_function *func)
 {
 	struct ffs_data *ffs      = func->ffs;
@@ -1688,7 +1692,14 @@ static int ffs_func_eps_enable(struct ffs_function *func)
 		} else {
 			break;
 		}
-
+#if TSAI
+		if (strcmp(epfile->name, "ep2")==0) {
+			if (!tsai_ffs_ep2_enable) {
+				pr_info("TSAI: ep2 enable for 1st time, ADBD should receive a remote packet @%s\n", __FILE__);
+			}
+			tsai_ffs_ep2_enable++;
+		}
+#endif
 		wake_up(&epfile->wait);
 
 		++ep;

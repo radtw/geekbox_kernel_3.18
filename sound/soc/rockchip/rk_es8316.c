@@ -31,6 +31,10 @@
 /*extern int codec_type;*/
 #endif
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 #if 1
 #define	DBG(x...)	printk(x)
 #else
@@ -150,12 +154,16 @@ static struct snd_soc_card rockchip_es8316_snd_card = {
 #endif
 };
 
+/* TSAI: this function may enter twice, if the first time DAI is not registered yet, it will request deferral
+ * and 2nd time is expected to succeeded
+ * */
 static int rockchip_es8316_audio_probe(struct platform_device *pdev)
 {
 	int ret;
 	struct snd_soc_card *card = &rockchip_es8316_snd_card;
 #if TSAI
-	pr_info("TSAI:rockchip_es8316_audio_probe @%s\n", __FILE__);
+	static int enter_count = 0;
+	pr_info("TSAI:rockchip_es8316_audio_probe enter_count=%d @%s\n", enter_count++, __FILE__);
 #endif
 	card->dev = &pdev->dev;
 
@@ -200,7 +208,7 @@ static struct platform_driver rockchip_es8316_audio_driver = {
 	.remove         = rockchip_es8316_audio_remove,
 };
 
-#if 0 && TSAI /* expand the macro to have more debug log */
+#if 1 && TSAI /* expand the macro to have more debug log */
 
 static int __init rockchip_es8316_init(void)
 {

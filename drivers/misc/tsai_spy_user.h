@@ -30,6 +30,7 @@ enum TsaiSpyCmd {
 	TSpyCmd_LD_Annotate_Lookup,
 	TSpyCmd_Printk,
 	TSpyCmd_FindION, /* given an array for FDs, find if any of them is ION and extract ION name from it */
+	TSpyCmd_AndroidSysProp, /* coming from Android libc */
 	TSpyCmd_User_Var01 = TSpyCmd_Base + 101,
 	TSpyCmdCount
 };
@@ -99,6 +100,12 @@ struct TSpy_FindIon {
 	uint32_t num_fd;
 	uint32_t padding; /* padding for alignment*/
 	uint64_t ptr;
+};
+
+struct TSpy_AndroidSysProp {
+	uint32_t readwrite; /* 0=read, 1=write*/
+	uint64_t ptr_prop_name;
+	uint64_t ptr_prop_value;
 };
 
 #if defined(__aarch64__)

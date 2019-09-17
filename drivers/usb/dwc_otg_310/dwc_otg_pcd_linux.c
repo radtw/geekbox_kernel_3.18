@@ -1495,6 +1495,9 @@ unsigned int dwc_otg_battery_detect(bool det_type)
 	printk("%s\n", __func__);
 	return 0;
 }
+#if TSAI && CONFIG_USB_F_FS
+extern int tsai_ffs_ep2_enable;
+#endif
 
 static void dwc_phy_reconnect(struct work_struct *work)
 {
@@ -1505,6 +1508,10 @@ static void dwc_phy_reconnect(struct work_struct *work)
 	struct dwc_otg_platform_data *pldata;
 #if TSAI
 	pr_info("TSAI: dwc_phy_reconnect() %s \n", __FILE__);
+#if CONFIG_USB_F_FS
+	tsai_ffs_ep2_enable = 0; /* to make f_fs.c print out confirm information when ep2 is up */
+#endif
+
 #endif
 	pcd = container_of(work, dwc_otg_pcd_t, reconnect.work);
 	pldata = pcd->otg_dev->pldata;

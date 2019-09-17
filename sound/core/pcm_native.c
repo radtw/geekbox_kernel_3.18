@@ -2256,7 +2256,12 @@ int snd_pcm_open_substream(struct snd_pcm *pcm, int stream,
 		pcm_dbg(pcm, "snd_pcm_hw_constraints_init failed\n");
 		goto error;
 	}
-
+#if 0 && TSAI
+	if (stream==1) { //mic
+		__asm("nop");
+		__asm("hlt #0");
+	}
+#endif
 	if ((err = substream->ops->open(substream)) < 0)
 		goto error;
 

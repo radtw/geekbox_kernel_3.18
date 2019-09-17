@@ -316,7 +316,7 @@ static int __init uboot_storage_media(char *media)
 		media++;
 
 	strncpy(tsai_uboot_storage_media, media, 15);
-	tsai_printk_stack_trace_current();
+	//tsai_printk_stack_trace_current();
 	return 1;
 }
 __setup("storagemedia", uboot_storage_media);

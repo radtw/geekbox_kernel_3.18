@@ -201,12 +201,17 @@ void clk_put(struct clk *clk)
 	__clk_put(clk);
 }
 EXPORT_SYMBOL(clk_put);
-
+#if TSAI
+#include <linux/clk-private.h>
+#endif
 void clkdev_add(struct clk_lookup *cl)
 {
 	mutex_lock(&clocks_mutex);
 	list_add_tail(&cl->node, &clocks);
 	mutex_unlock(&clocks_mutex);
+#if 0 && TSAI
+	pr_info("TSAI:clkdev_add %s %s clk %s @%s\n", cl->dev_id, cl->con_id, cl->clk->name, __FILE__);
+#endif
 }
 EXPORT_SYMBOL(clkdev_add);
 

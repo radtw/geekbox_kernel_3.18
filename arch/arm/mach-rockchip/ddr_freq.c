@@ -30,7 +30,8 @@
 #include <linux/rockchip/iomap.h>
 #include <linux/clk-private.h>
 #include <linux/rockchip/cpu.h>
-#include "../../../drivers/clk/rockchip/clk-pd.h"
+
+//#include "../../../drivers/clk/rockchip/clk-pd.h" //TSAI: comment it out as no actual use
 
 #if TSAI
 #include "tsai_macro.h"

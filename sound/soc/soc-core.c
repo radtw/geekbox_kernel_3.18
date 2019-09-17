@@ -21,7 +21,7 @@
  *   o Add more codecs and platforms to ensure good API coverage.
  *   o Support TDM on PCM and I2S
  */
-//#define DEBUG 1 /* TSAI */
+#define DEBUG 1 /* TSAI */
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/init.h>
@@ -909,7 +909,12 @@ static int soc_bind_dai_link(struct snd_soc_card *card, int num)
 	int i;
 
 	dev_dbg(card->dev, "ASoC: binding %s at idx %d\n", dai_link->name, num);
-
+#if 0 && TSAI
+	/* even if name is not set, it can still defer and enter again */
+	if (!dai_link->cpu_name || *dai_link->cpu_name==0) {
+		pr_info("TSAI: card %s dai_link->cpu_name=%s, will fail!\n", card->name, dai_link->name);
+	}
+#endif
 	cpu_dai_component.name = dai_link->cpu_name;
 	cpu_dai_component.of_node = dai_link->cpu_of_node;
 	cpu_dai_component.dai_name = dai_link->cpu_dai_name;
@@ -4318,7 +4323,7 @@ int snd_soc_register_codec(struct device *dev,
 	struct snd_soc_dai *dai;
 	int ret, i;
 
-	dev_dbg(dev, "codec register %s\n", dev_name(dev));
+	dev_dbg(dev, "codec register %s @%s:%d\n", dev_name(dev), __FILE__, __LINE__);
 
 	codec = kzalloc(sizeof(struct snd_soc_codec), GFP_KERNEL);
 	if (codec == NULL)
@@ -4394,6 +4399,9 @@ int snd_soc_register_codec(struct device *dev,
 
 	dev_dbg(codec->dev, "ASoC: Registered codec '%s'\n",
 		codec->component.name);
+#if TSAI
+	pr_info("TSAI: snd_soc_register_codec %p component name %s\n", codec, codec->component.name);
+#endif
 	return 0;
 
 err_cleanup:

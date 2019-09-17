@@ -1887,7 +1887,7 @@ static void __init rk_clk_tree_init(struct device_node *np)
 	struct rkclk *rkclk;
 	const char *compatible;
 
-	printk("%s start!\n", __func__);
+	printk("%s start! @%s\n", __func__, __FILE__);
 
 	node_init = of_find_node_by_name(NULL, "clocks-init");
 	if (!node_init) {
@@ -1959,7 +1959,9 @@ static void __init rk_clk_tree_init(struct device_node *np)
 		clk_debug("\n");
 		rkclk_cache_parents(rkclk);
 	}
+#if TSAI
 
+#endif
 	rkclk_init_clks(node_init);
 
 	rk_clk_test();

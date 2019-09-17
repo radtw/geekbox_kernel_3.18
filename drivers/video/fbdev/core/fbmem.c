@@ -1091,6 +1091,10 @@ fb_blank(struct fb_info *info, int blank)
 }
 EXPORT_SYMBOL(fb_blank);
 
+#if TSAI
+	extern char tsai_uboot_storage_media[];
+#endif
+
 static long do_fb_ioctl(struct fb_info *info, unsigned int cmd,
 			unsigned long arg)
 {
@@ -1116,7 +1120,12 @@ static long do_fb_ioctl(struct fb_info *info, unsigned int cmd,
 	case FBIOPUT_VSCREENINFO:
 		if (copy_from_user(&var, argp, sizeof(var)))
 			return -EFAULT;
+#if TSAI
+		//skip console lock for ums
+		if (strcmp(tsai_uboot_storage_media, "ums"))
+#endif
 		console_lock();
+
 		if (!lock_fb_info(info)) {
 			console_unlock();
 			return -ENODEV;
@@ -1125,7 +1134,12 @@ static long do_fb_ioctl(struct fb_info *info, unsigned int cmd,
 		ret = fb_set_var(info, &var);
 		info->flags &= ~FBINFO_MISC_USEREVENT;
 		unlock_fb_info(info);
+#if TSAI
+		//skip console lock for ums
+		if (strcmp(tsai_uboot_storage_media, "ums"))
+#endif
 		console_unlock();
+
 		if (!ret && copy_to_user(argp, &var, sizeof(var)))
 			ret = -EFAULT;
 		break;
@@ -1207,7 +1221,12 @@ static long do_fb_ioctl(struct fb_info *info, unsigned int cmd,
 		console_unlock();
 		break;
 	case FBIOBLANK:
+#if TSAI
+		//skip console lock for ums
+		if (strcmp(tsai_uboot_storage_media, "ums"))
+#endif
 		console_lock();
+
 		if (!lock_fb_info(info)) {
 			console_unlock();
 			return -ENODEV;
@@ -1216,7 +1235,12 @@ static long do_fb_ioctl(struct fb_info *info, unsigned int cmd,
 		ret = fb_blank(info, arg);
 		info->flags &= ~FBINFO_MISC_USEREVENT;
 		unlock_fb_info(info);
+#if TSAI
+		//skip console lock for ums
+		if (strcmp(tsai_uboot_storage_media, "ums"))
+#endif
 		console_unlock();
+
 		break;
 	default:
 		if (!lock_fb_info(info))
