@@ -713,7 +713,10 @@ int bus_add_driver(struct device_driver *drv)
 		uint64_t bus_name_u64 = *(uint64_t*)(bus->name);
 		if (bus_name_u64==0x6D726F6674616C70) { /* "platform" */
 			struct platform_driver* pd = container_of(drv, struct platform_driver, driver);
-			pr_info("TSAI  bus '%s': add driver %s probe %p %s\n", bus->name, drv->name, pd->probe, __FILE__);
+			pr_info("TSAI  bus '%s': add driver %s probe %p %ps %s\n", bus->name, drv->name, pd->probe, pd->probe, __FILE__);
+		}
+		else if (strcmp(bus->name, "i2c")==0) {
+			pr_info("TSAI  bus '%s': add driver %s %s\n", bus->name, drv->name, __FILE__);
 		}
 		else
 			pr_info("TSAI  bus '%s': add driver %s %s\n", bus->name, drv->name, __FILE__);

@@ -500,7 +500,7 @@ int of_platform_populate(struct device_node *root,
 
 	for_each_child_of_node(root, child) {
 #if TSAI
-	pr_info("TSAI child %s %s @%s\n", child->name, child->type, __FILE__);
+	pr_info("TSAI child %s type %s @%s %d\n", child->name, child->type, __FILE__, __LINE__);
 #endif
 		rc = of_platform_bus_create(child, matches, lookup, parent, true);
 		if (rc)

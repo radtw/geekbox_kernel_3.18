@@ -219,6 +219,7 @@ fail:
 int camsys_rk3368_cfg (camsys_soc_cfg_t cfg_cmd, void* cfg_para)
 {
     unsigned int *para_int;
+    pr_info("camsys_rk3368_cfg cmd %d @%s\n", (int)cfg_cmd, __FILE__);
     
     switch (cfg_cmd)
     {

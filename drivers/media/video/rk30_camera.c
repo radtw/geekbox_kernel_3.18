@@ -17,8 +17,10 @@ static int rk_register_camera_devices(void)
 {
     int i;
     int host_registered_0,host_registered_1;
-    struct rkcamera_platform_data *new_camera;    
-
+    struct rkcamera_platform_data *new_camera;
+#if TSAI
+    pr_info("rk_register_camera_devices @%s\n", __FILE__);
+#endif
 	//printk(KERN_EMERG "/$$$$$$$$$$$$$$$$$$$$$$//n Here I am: %s:%i-------%s()\n", __FILE__, __LINE__,__FUNCTION__);
 
 	rk_cif_sensor_init();

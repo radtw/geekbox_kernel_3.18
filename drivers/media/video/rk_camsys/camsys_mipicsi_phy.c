@@ -107,6 +107,7 @@ int camsys_mipiphy_probe_cb(struct platform_device *pdev, camsys_dev_t *camsys_d
     int err,i;
 	struct device_node *node;
 	const char *compatible = NULL;
+pr_info("camsys_mipiphy_probe_cb @%s \n", __FILE__);
 
 	err = of_property_read_string(dev->of_node->parent,"compatible",&compatible);	
     if (err < 0) {

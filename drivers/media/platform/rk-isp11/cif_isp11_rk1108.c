@@ -13,7 +13,7 @@
  * (at your option) any later version.
 **************************************************************************
  */
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_ARM64) /* TSAI: add ARM64*/
 #include <linux/init.h>
 #include <linux/delay.h>
 #include <linux/regmap.h>

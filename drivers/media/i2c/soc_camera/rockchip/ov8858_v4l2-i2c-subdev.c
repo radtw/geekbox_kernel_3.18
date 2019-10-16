@@ -27,6 +27,10 @@
 #include <linux/slab.h>
 #include "ov_camera_module.h"
 
+#if TSAI
+#include "tsai_macro.h"
+#endif
+
 #define ov8858_DRIVER_NAME "ov8858"
 
 #define ov8858_FETCH_LSB_GAIN(VAL) (VAL & 0x00ff)
@@ -3064,7 +3068,7 @@ static int ov8858_probe(
 	const struct i2c_device_id *id)
 {
 	int ret = 0;
-
+//TSAI_BUSY_WAIT;
 	dev_info(&client->dev, "probing...\n");
 
 	v4l2_i2c_subdev_init(&ov8858.sd, client, &ov8858_camera_module_ops);

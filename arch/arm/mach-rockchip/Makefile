@@ -34,5 +34,5 @@ obj-$(CONFIG_RK_DSP) += dsp/
 
 ifeq ($(TSAI_OPT),1) 
 	CFLAGS_dvfs.o += -O0
+	CFLAGS_rk_camera.o += -O0
 endif
-

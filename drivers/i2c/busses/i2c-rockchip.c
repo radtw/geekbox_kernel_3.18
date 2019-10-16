@@ -832,6 +832,10 @@ static int rockchip_i2c_probe(struct platform_device *pdev)
 	struct rockchip_i2c_data *data = rockchip_i2c_get_data();
 	int ret;
 
+#if TSAI
+	pr_info("rockchip_i2c_probe @%s\n", __FILE__);
+#endif
+
 	if (!np) {
 		dev_err(&pdev->dev, "Missing device tree node.\n");
 		return -EINVAL;

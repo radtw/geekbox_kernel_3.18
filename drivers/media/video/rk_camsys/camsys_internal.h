@@ -325,8 +325,15 @@ static inline camsys_meminfo_t* camsys_find_devmem(char *name, camsys_dev_t *cam
     return NULL;
 }
 
-
-static inline int camsys_sysctl_extdev(camsys_extdev_t *extdev, camsys_sysctrl_t *devctl, camsys_dev_t *camsys_dev)
+#if TSAI
+//move instance to camsys_drv.c
+#else
+#if TSAI_OPT
+static
+#else
+static inline
+#endif
+int camsys_sysctl_extdev(camsys_extdev_t *extdev, camsys_sysctrl_t *devctl, camsys_dev_t *camsys_dev)
 {
     int err = 0;
     camsys_regulator_t *regulator;
@@ -381,6 +388,8 @@ static inline int camsys_sysctl_extdev(camsys_extdev_t *extdev, camsys_sysctrl_t
 end:
     return err;
 }
+#endif
 
 extern struct file_operations camsys_fops;
 #endif
+

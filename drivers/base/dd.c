@@ -30,6 +30,7 @@
 #include "power/power.h"
 
 #if TSAI
+	#include <linux/i2c.h>
 	#include "tsai_macro.h"
 #endif
 
@@ -511,7 +512,13 @@ static int __driver_attach(struct device *dev, void *data)
 	device_lock(dev);
 	if (!dev->driver) {
 #if 1 && TSAI
-		pr_info("TSAI __driver_attach dev %s drv %s \n", dev->kobj.name, drv->name);
+		pr_info("TSAI __driver_attach bus %s dev %s drv %s @%s %d\n", drv->bus->name,
+			dev->kobj.name, drv->name, __FILE__, __LINE__);
+		if (strcmp(drv->bus->name, "i2c")==0) {
+			struct i2c_driver *idriver = to_i2c_driver(drv);
+			pr_info("TSAI  __driver_attach bus '%s' driver %s probe %ps @%s\n", drv->bus->name, drv->name,
+					idriver->probe, __FILE__);
+		}
 #endif
 		driver_probe_device(drv, dev);
 	}

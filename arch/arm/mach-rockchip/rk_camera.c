@@ -1,3 +1,4 @@
+#define DEBUG 1 //TSAI
 #include "rk_camera.h"
 #include "rk30_camera.h"
 #include <linux/gpio.h>
@@ -14,7 +15,9 @@
 #include <linux/module.h>
 #include <linux/regulator/consumer.h>
 
-
+#if TSAI
+#include "tsai_macro.h"
+#endif
 static int camio_version = KERNEL_VERSION(0,1,9); 
 module_param(camio_version, int, S_IRUGO);
 
@@ -330,8 +333,10 @@ static int rk_dts_cif_probe(struct platform_device *pdev)
 	struct device_node * vpu_node =NULL;	
     int vpu_iommu_enabled = 0;
 
-	debug_printk( "/$$$$$$$$$$$$$$$$$$$$$$//n Here I am: %s:%i-------%s()\n", __FILE__, __LINE__,__FUNCTION__);
-	
+	pr_info( "%s:%i-------%s()\n", __FILE__, __LINE__,__FUNCTION__);
+#if 0 && TSAI
+	TSAI_BUSY_WAIT;
+#endif
 	rk_camera_platform_data.cif_dev = &pdev->dev;
 	
 	err = of_address_to_resource(dev->of_node, 0, &rk_camera_resource_host_0[0]);
@@ -1232,6 +1237,9 @@ int rk_sensor_register(void)
 {
     int i;    
 	struct rkcamera_platform_data *new_camera;	
+#if TSAI
+    pr_info("rk_sensor_register @%s\n", __FILE__);
+#endif
 	
     i = 0;
 	debug_printk( "/$$$$$$$$$$$$$$$$$$$$$$//n Here I am: %s:%i-------%s()\n", __FILE__, __LINE__,__FUNCTION__);

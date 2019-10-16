@@ -7,6 +7,71 @@
 #include "camsys_soc_priv.h"
 #include "ext_flashled_drv/rk_ext_fshled_ctl.h"
 
+#if TSAI
+
+#if TSAI_OPT
+static
+#else
+static inline
+#endif
+int camsys_sysctl_extdev(camsys_extdev_t *extdev, camsys_sysctrl_t *devctl, camsys_dev_t *camsys_dev)
+{
+    int err = 0;
+    camsys_regulator_t *regulator;
+    camsys_gpio_t *gpio;
+
+    if ((devctl->ops>CamSys_Vdd_Start_Tag) && (devctl->ops < CamSys_Vdd_End_Tag)) {
+        regulator = &extdev->avdd;
+        regulator += devctl->ops-1;
+
+        if (!IS_ERR_OR_NULL(regulator->ldo)) {
+            if (devctl->on) {
+                err = regulator_set_voltage(regulator->ldo,regulator->min_uv,regulator->max_uv);
+                err |= regulator_enable(regulator->ldo);
+                camsys_trace(1,"Sysctl %d success, regulator set (%d,%d) uv!",devctl->ops, regulator->min_uv,regulator->max_uv);
+            } else {
+                while(regulator_is_enabled(regulator->ldo)>0)
+			        regulator_disable(regulator->ldo);
+			    camsys_trace(1,"Sysctl %d success, regulator off!",devctl->ops);
+            }
+        } else {
+            //camsys_err("Sysctl %d failed, because regulator ldo is NULL!",devctl->ops);
+            err = -EINVAL;
+            goto end;
+        }
+    } else if ((devctl->ops>CamSys_Gpio_Start_Tag) && (devctl->ops < CamSys_Gpio_End_Tag)) {
+        gpio = &extdev->pwrdn;
+        gpio += devctl->ops - CamSys_Gpio_Start_Tag -1;
+
+        if (gpio->io != 0xffffffff) {
+            if (devctl->on) {
+                gpio_direction_output(gpio->io, gpio->active);
+                gpio_set_value(gpio->io, gpio->active);
+                camsys_trace(1,"Sysctl %d success, gpio(%d) set %d",devctl->ops, gpio->io, gpio->active);
+            } else {
+                gpio_direction_output(gpio->io, !gpio->active);
+                gpio_set_value(gpio->io, !gpio->active);
+                camsys_trace(1,"Sysctl %d success, gpio(%d) set %d",devctl->ops, gpio->io, !gpio->active);
+            }
+        } else {
+            camsys_err("Sysctl %d failed, because gpio is NULL!",devctl->ops);
+            err = -EINVAL;
+            goto end;
+        }
+    } else if (devctl->ops == CamSys_ClkIn) {
+        if (camsys_dev->clkout_cb)
+            camsys_dev->clkout_cb(camsys_dev,devctl->on,extdev->clk.in_rate);
+    } else if (devctl->ops == CamSys_Phy) {
+        if (camsys_dev->phy_cb)
+            (camsys_dev->phy_cb)(extdev,devctl,(void*)camsys_dev);
+    }
+
+end:
+    return err;
+}
+
+#endif
+
 unsigned int camsys_debug=1;
 module_param(camsys_debug, int, S_IRUGO|S_IWUSR);
 
@@ -159,6 +224,7 @@ static int camsys_extdev_register(camsys_devio_name_t *devio, camsys_dev_t *cams
     camsys_regulator_t *regulator;
     camsys_gpio_info_t *gpio_info;
     camsys_gpio_t *gpio;
+    pr_info("TSAI: camsys_extdev_register devio %d name=%s @%s", devio->dev_id, devio->dev_name, __FILE__);
     
     if ((devio->dev_id & CAMSYS_DEVID_EXTERNAL) == 0) {
         err = -EINVAL;
@@ -1268,6 +1334,7 @@ static int camsys_platform_probe(struct platform_device *pdev){
     unsigned long i2cmem;
 	camsys_meminfo_t *meminfo;
     unsigned int irq_id;
+    pr_info("camsys_platform_probe @%s\n", __FILE__);
     
     err = of_address_to_resource(dev->of_node, 0, &register_res);
     if (err < 0){
@@ -1503,7 +1570,7 @@ static int  camsys_platform_remove(struct platform_device *pdev)
 
 
 static const struct of_device_id cif_of_match[] = {
-    { .compatible = "rockchip,isp" },
+    { .compatible = "rockchip,isp" }, //TSAI: found in arch/arm64/boot/dts/rk3368.dtsi
 };
 MODULE_DEVICE_TABLE(of, cif_of_match);
 
@@ -1520,11 +1587,11 @@ static struct platform_driver camsys_platform_driver =
 MODULE_ALIAS(CAMSYS_PLATFORM_DRV_NAME);
 static int __init camsys_platform_init(void)  
 {
-    printk("CamSys driver version: v%d.%d.%d,  CamSys head file version: v%d.%d.%d\n",
+    pr_info("camsys_platform_init CamSys driver version: v%d.%d.%d,  CamSys head file version: v%d.%d.%d @%s\n",
         (CAMSYS_DRIVER_VERSION&0xff0000)>>16, (CAMSYS_DRIVER_VERSION&0xff00)>>8,
         CAMSYS_DRIVER_VERSION&0xff,
         (CAMSYS_HEAD_VERSION&0xff0000)>>16, (CAMSYS_HEAD_VERSION&0xff00)>>8,
-        CAMSYS_HEAD_VERSION&0xff);
+        CAMSYS_HEAD_VERSION&0xff, __FILE__);
 
     spin_lock_init(&camsys_devs.lock);
     INIT_LIST_HEAD(&camsys_devs.devs);

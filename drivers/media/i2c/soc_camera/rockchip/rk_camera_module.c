@@ -40,6 +40,9 @@
 #include <linux/platform_data/rk_isp11_platform.h>
 #include <media/v4l2-controls_rockchip.h>
 
+#include <linux/version.h> /* TSAI */
+
+
 #define OF_OV_GPIO_PD "rockchip,pd-gpio"
 #define OF_OV_GPIO_PWR "rockchip,pwr-gpio"
 #define OF_OV_GPIO_FLASH "rockchip,flash-gpio"
@@ -1469,7 +1472,7 @@ int pltfrm_camera_module_init(
 		if (NULL == pdata)
 			return -EFAULT;
 		else
-			return (int)pdata;
+			return PTR_ERR(pdata);
 	}
 
 	ret = pltfrm_camera_module_init_gpio(sd);
@@ -1523,9 +1526,18 @@ long pltfrm_camera_module_ioctl(struct v4l2_subdev *sd,
 		struct camera_module_info_s *p_camera_module =
 		(struct camera_module_info_s *)arg;
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0)) //TSAI
+		{
+			struct i2c_driver *client_driver = to_i2c_driver(client->dev.driver);
+			strlcpy((char *)p_camera_module->sensor_name,
+			(char *)client_driver->driver.name,
+			sizeof(p_camera_module->sensor_name));
+		}
+#else
 		strlcpy((char *)p_camera_module->sensor_name,
 			(char *)client->driver->driver.name,
 			sizeof(p_camera_module->sensor_name));
+#endif
 
 		if (pdata->info.module_name)
 			strcpy((char *)p_camera_module->module_name, pdata->info.module_name);

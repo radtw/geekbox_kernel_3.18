@@ -16,8 +16,10 @@ camsys_soc_priv_t* camsys_soc_get(void)
     }
 }
 
+//TSAI: called from __init camsys_platform_init
 int camsys_soc_init(void)
-{    
+{
+	pr_info("camsys_soc_init @%s\n", __FILE__);
     camsys_soc_p = kzalloc(sizeof(camsys_soc_priv_t),GFP_KERNEL);
     if (camsys_soc_p == NULL) {
         camsys_err("malloc camsys_soc_priv_t failed!");
@@ -27,7 +29,7 @@ int camsys_soc_init(void)
 #ifdef CONFIG_ARM64
 	strlcpy(camsys_soc_p->name,"camsys_rk3368",31);
 	camsys_soc_p->soc_cfg = camsys_rk3368_cfg;
-	camsys_err("camsys_soc_init exit!");
+	//camsys_err("camsys_soc_init exit!");
 #else
 	if (cpu_is_rk3288()) {
 	        strlcpy(camsys_soc_p->name,"camsys_rk3288",31);
