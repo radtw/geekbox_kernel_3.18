@@ -169,6 +169,10 @@ EXPORT_SYMBOL(tsai_spy_data);
 ///////////////////////////////////////////////////////////
 
 TSAI_STATIC void tsai_spy_walk_through_modules(void) {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 1, 100)
+	/* module structure has changed and not implemented yet*/
+	pr_info("tsai_spy_walk_through_modules not implemented yet\n");
+#else
 	struct module *mod;
 	struct list_head* p;
 	struct list_head* mod_begin;
@@ -189,6 +193,7 @@ TSAI_STATIC void tsai_spy_walk_through_modules(void) {
 		}
 	}
 	__symbol_put("modules");
+#endif
 }
 
 /* copy from stacktrace.c, use pr_info instead of printk for early debug */
@@ -406,6 +411,7 @@ TSAI_STATIC int tsai_android_property(struct TSpy_AndroidSysProp* pr) {
 		char copy_prop[64];
 		const char* prop = (const char*)(NATIVE_UINT)(pr->ptr_prop_name);
 		const char* value = (const char*)(NATIVE_UINT)(pr->ptr_prop_value);
+		(void)value;
 		res = copy_from_user(copy_prop, prop, sizeof(copy_prop));
 		if (res)
 			return res;
@@ -659,7 +665,9 @@ void tsai_vma_mgr_process_defer_read(struct TSAI_VMA_MGR* vm) {
 
 		/* defer read if needed, walk through the table */
 			//__asm("bkpt");
-#if LINUX_VERSION_CODE > KERNEL_VERSION(4,0,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+		BKPT;
+#elif LINUX_VERSION_CODE > KERNEL_VERSION(4,0,0)
 			tsai_vma_walk_section_header(vw);
 #else
 			BKPT;
@@ -808,7 +816,11 @@ int tsai_spy_profiling_user_recover(struct tsai_intermediate_regs *regs, void *d
 				{
 					unsigned int lr;
 					unsigned int next_pc;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+		BKPT;
+#else
 					lr = tsai_callstack_copy_from_user_stack(pf->lr_from_addr, 4);
+#endif
 					next_pc = prevs->frame[i+1].pc;
 					if (lr==next_pc) {
 						int frame_copied = 0;
@@ -1303,11 +1315,16 @@ TSAI_STATIC int tsai_profile_thread_fn(void *arg)
 
 
 TSAI_STATIC int tsai_trigger_hrtimer_asap(struct hrtimer *timer) {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 1, 100)
+	/* not implemented yet */
+	return 0;
+#else
 	int ret;
 	ktime_t time;
 	time.tv64 = 0;
 	ret = __hrtimer_start_range_ns(timer, time, 0, HRTIMER_MODE_ABS, 0);
 	return ret;
+#endif
 }
 
 TSAI_STATIC void tsai_probe_irq_entry(void* data, PARAMS(TP_PROTO(int irq, struct irqaction *action))) {
@@ -1380,6 +1397,10 @@ TSAI_STATIC  void tsai_probe_irq_exit(void* data, PARAMS(TP_PROTO(int irq, struc
  * do not use kmalloc etc, it will enable interrupt and fall into complication siutation
  *  */
 TSAI_STATIC  void tsai_probe_sched_switch(void *data, PARAMS(TP_PROTO(struct task_struct *prev, struct task_struct *next))) {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 1, 100)
+	/* not implemented yet */
+	return;
+#else
 	struct TSAI_PROFILER_DATA* pr = (struct TSAI_PROFILER_DATA*)data;
 			/* restart a timer may require waking up some other process, which requires scheduler to do something,
 			 * since this is the tracepoint of scheduler, it becomes deadlock
@@ -1458,6 +1479,7 @@ TSAI_STATIC  void tsai_probe_sched_switch(void *data, PARAMS(TP_PROTO(struct tas
 		}
 	}
 	tsai_spy_mem_log_mark_rq_lock(0);
+#endif
 }
 
 /* inside this probe, rq lock has been obtained, so do not try to acquire the same lock again (dead lock)
@@ -1737,15 +1759,24 @@ TSAI_STATIC int tsai_spy_profiler_read_trace(struct TSAI_PROFILER_DATA* pr, unsi
 							tsai_spy_mem_log(&pr->mem_log, "---------------\n" );
 
 						if (tfi.plt_target) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+		BKPT;
+#else
 							symbol_addr = tsai_callstack_demangle_bin_symbol(&pr->vma_mgr, tnode->task, (void*)(NATIVE_UINT)tfi.plt_target,
 								full_path, sizeof(full_path), &ptr_full_path, &symbol_str);
+#endif
 							tsai_spy_mem_log(&pr->mem_log, "%08x=(PLT jumping to) %08x %s %s\n",
 									pc, tfi.plt_target, symbol_addr?symbol_str:"", ptr_full_path);
 						}
 					}
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+		(void)full_path;
+		BKPT;
+#else
 					symbol_addr = tsai_callstack_demangle_bin_symbol(&pr->vma_mgr, tnode->task, (void*)(NATIVE_UINT)pc,
 						full_path, sizeof(full_path), &ptr_full_path, &symbol_str);
+#endif
 					if (!symbol_addr) {
 						if (frame_idx == tfi.frame_kern && tfi.plt_target)
 							symbol_str = "(PLT)";
@@ -2802,8 +2833,11 @@ int tsai_spy_profiler(struct TSpy_Profiler* p) {
 		return ret;
 	}
 #endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+		BKPT;
+#else
 	tsai_callstack_preload_symbol();
-
+#endif
 	if (p->on_off) {
 		pr->opt_task_state_trace = 0;
 		pr->opt_task_on_rq_backup = 1;
@@ -3420,8 +3454,11 @@ int tsai_print_process_fd(struct task_struct* p) {
 			PRINT_FOP(llseek)
 			PRINT_FOP(read)
 			PRINT_FOP(write)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3, 18, 0)
+#else
 			PRINT_FOP(aio_read)
 			PRINT_FOP(aio_write)
+#endif
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3, 18, 0)
 			PRINT_FOP(read_iter)
 			PRINT_FOP(write_iter)
@@ -3437,7 +3474,11 @@ int tsai_print_process_fd(struct task_struct* p) {
 			PRINT_FOP(flush)
 			PRINT_FOP(release)
 			PRINT_FOP(fsync)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3, 18, 0)
+			/* not exist in 4.14*/
+#else
 			PRINT_FOP(aio_fsync)
+#endif
 			PRINT_FOP(fasync)
 			PRINT_FOP(lock)
 			PRINT_FOP(sendpage)
@@ -3765,7 +3806,9 @@ ssize_t tsai_spy_write(struct file *f, char const __user *buf, size_t count_orig
 		}
 	}
 	else {
-	#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 0, 0)
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+		BKPT;
+	#elif LINUX_VERSION_CODE > KERNEL_VERSION(4, 0, 0)
 		tsai_callstack_preload_symbol();
 	#else
 		BKPT;

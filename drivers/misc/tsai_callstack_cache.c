@@ -377,7 +377,9 @@ Retry:
 
 const char* ts_binary_node_find_demangle(struct ts_binary_node* bn, const char* mangled) {
 	const char* ret = mangled;
-#if	LINUX_VERSION_CODE > KERNEL_VERSION(4, 0, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+		BKPT;
+#elif	LINUX_VERSION_CODE > KERNEL_VERSION(4, 0, 0)
 		struct ts_rb_node* n;
 		n = ts_rb_find(&bn->root_demangle, (unsigned int)(NATIVE_UINT)mangled);
 		if (n) {
@@ -468,6 +470,9 @@ void tsai_restore_mm(unsigned int* out_save_mm, struct mm_struct** out_mm)  {
 #endif
 
 void tsai_force_load_user_address(struct mm_struct *tsk_mm, unsigned int addr) {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 1, 100)
+	/* not implemented, handle_mm_fault has changed*/
+#else
 	int ret;
 	int is_atomic;
 	struct vm_area_struct* vma;
@@ -482,6 +487,7 @@ void tsai_force_load_user_address(struct mm_struct *tsk_mm, unsigned int addr) {
 
 	if (!is_atomic)
 		up_write(&tsk_mm->mmap_sem);
+#endif
 }
 
 unsigned int tsai_force_read_user_address(struct mm_struct *tsk_mm, unsigned int addr) {
@@ -553,6 +559,12 @@ and should not enter mm_fault handler again (causing deadlock)
  * return: pte if it can be found in MMU
  * */
 pte_t* tsai_address_is_on_mmu(struct mm_struct* mm, uint64_t address, unsigned int* is_locked) {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 1, 100)
+	/* not implemented, error: invalid operands to binary && (have 'int' and 'pmd_t {aka struct <anonymous>}')
+  if (!(pmd && *pmd) )
+  */
+	return NULL;
+#else
 	pgd_t *pgd;
 	pud_t *pud;
 	pmd_t *pmd;
@@ -581,6 +593,7 @@ pte_t* tsai_address_is_on_mmu(struct mm_struct* mm, uint64_t address, unsigned i
 	}
 Leave:
 	return pte;
+#endif
 }
 
 #if 0
@@ -678,6 +691,13 @@ void tsai_mmu_pfn_reset(void) {
  * */
 int tsai_get_user_data_caution(struct mm_struct* mm, unsigned int pc, long sz, void* pinsn)
 {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 1, 100)
+	/* not implemented, error: invalid operands to binary && (have 'int' and 'pmd_t {aka struct <anonymous>}')
+  if (!(pmd && *pmd) )
+  */
+	return 0;
+#else
+
 	int err;
 	unsigned int pfn;
 	int retry = 0;
@@ -723,6 +743,7 @@ Retry:
 	}
 Leave:
 	return err;
+#endif
 }
 
 #if 0
@@ -811,7 +832,12 @@ int tsai_rq_is_locked(void) {
  *
  */
 void* tsai_task_rq_lock(struct task_struct *p, unsigned long *flags) {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 0, 0)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 1, 100)
+	/* not implemented, error: passing argument 3 of 'task_rq_unlock' from incompatible pointer type [-Werror=incompatible-pointer-types]
+  task_rq_unlock((struct rq*)rq, p, flags);
+  */
+	return NULL;
+#elif LINUX_VERSION_CODE > KERNEL_VERSION(4, 0, 0)
 	struct rq* rq;
 	rq = task_rq_lock(p, flags);
 	return (void*)rq;
@@ -821,7 +847,12 @@ void* tsai_task_rq_lock(struct task_struct *p, unsigned long *flags) {
 }
 
 void tsai_task_rq_unlock(void* rq, struct task_struct *p, unsigned long *flags) {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 0, 0)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 1, 100)
+	/* not implemented, error: passing argument 2 of 'task_rq_lock' from incompatible pointer type [-Werror=incompatible-pointer-types]
+  rq = task_rq_lock(p, flags);
+  */
+	return ;
+#elif LINUX_VERSION_CODE > KERNEL_VERSION(4, 0, 0)
 	task_rq_unlock((struct rq*)rq, p, flags);
 #else
 #endif
@@ -903,6 +934,9 @@ int tsai_task_prevent_run(struct task_struct* p, int skip_lock, atomic_t* succes
  *
  * */
 void tsai_task_restore_run(struct task_struct* p, int skip_lock, atomic_t* atmflag, int* p_state, int* p_on_rq ) {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 1, 100)
+	/* error: 'ENQUEUE_WAKING' undeclared (first use in this function) */
+#else
 	//int queued;
 	unsigned long flags;
 	struct rq* rq;
@@ -928,7 +962,7 @@ void tsai_task_restore_run(struct task_struct* p, int skip_lock, atomic_t* atmfl
 		local_irq_restore(flags);
 	else
 		tsai_task_rq_unlock(rq, p, &flags);
-
+#endif
 }
 
 int tsai_task_on_cpu(struct task_struct* p) {

@@ -13,5 +13,5 @@ obj-$(CONFIG_SW_SYNC)			+= sw_sync.o
 obj-$(CONFIG_ANDROID_VSOC)		+= vsoc.o
 
 ifeq ($(TSAI_OPT),1) 
-#	CFLAGS_drm_crtc.o += -O0
+	CFLAGS_binder.o += -O0
 endif

@@ -447,6 +447,7 @@ extern void gator_annotate_channel_color_ts(int channel, int color, const char *
 #endif
 {
 	int err = 0;
+	uaccess_enable();
 	switch (cmd) {
 	case SRUK_GATOR_IOCTL_ANNOTATE_RAW_IMAGE:
 		{
@@ -506,7 +507,7 @@ extern void gator_annotate_channel_color_ts(int channel, int color, const char *
 	default:
 		BKPT;
 	}
-
+	uaccess_disable();
 	return err;
 }
 
