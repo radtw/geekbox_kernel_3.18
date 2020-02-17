@@ -4,7 +4,9 @@ ifneq ($(KERNELRELEASE),)
 # EXTRA_CFLAGS +=	-DGATOR_KERNEL_STACK_UNWINDING
 
 #TSAI: for android, it has -Wunused-variable and it stops build
-EXTRA_CFLAGS += -Wno-unused-variable
+EXTRA_CFLAGS += -Wno-unused-variable -Wno-unused-function 
+#TSAI: when moving on to clang, these becomes issue
+EXTRA_CFLAGS += -Wno-expansion-to-defined -Wno-visibility -Wno-enum-conversion
 
 CONFIG_GATOR ?= m
 obj-$(CONFIG_GATOR) := gator.o
@@ -79,8 +81,9 @@ gator-$(CONFIG_ARM) +=	gator_events_armv6.o \
 
 gator-$(CONFIG_ARM64) +=
 
-#TSAI
-ccflags-y += -g -O0 -DTSAI_USE_MAIN2=1  -DTSAI_IRQ_ATOMIC=1
+#TSAI with android 4.9 kernel, -O0 cause problem of undefined reference to __compiletime_assert_
+ccflags-y += -g -DTSAI_USE_MAIN2=1  -DTSAI_IRQ_ATOMIC=1
+ccflags-y += -O0
 CFLAGS_gator_main.o += -DTSAI_IS_MAIN2=0
 CFLAGS_gator_main2.o += -DTSAI_IS_MAIN2=1
 

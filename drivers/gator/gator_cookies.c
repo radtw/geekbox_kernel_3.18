@@ -279,7 +279,7 @@ static int translate_app_process(const char **text, int cpu, struct task_struct 
 
 	down_read(&mm->mmap_sem);
 	while (len) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0) /* TSAI: copied */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0) /* TSAI: copied, Linux 4.9 go through this clause */
         if (get_user_pages_remote(task, mm, addr, 1, 0, 1, &page, &page_vma) <= 0)
             goto outsem;
 #else	

@@ -14,8 +14,11 @@
 #include <linux/spinlock.h>
 #include <linux/workqueue.h>
 #include <linux/interrupt.h>
+#include <linux/vmalloc.h>
+#include <linux/miscdevice.h>
 
 #include "gator.h"
+#include "gator_annotate_tsai.h"
 
 /* TSAI: if annotations are used excessively, it may run-out very quick.
  * Try increase the buffer size by changing ANNOTATE_BUFFER_SIZE value
@@ -426,4 +429,47 @@ void tsai_bufinfo_capture_start(void) {
 void tsai_bufinfo_capture_stop(void) {
 
 
+}
+
+/* ====================================== */
+
+struct GATOR_DATA_USER_SHARE* tsai_gator_user_share;
+unsigned long long tsai_gator_user_share_paddr;
+
+static const char tsai_gator_dev_name[] = "gator_annotate_tsai";
+
+extern const struct file_operations tsai_annotate_fops; /* instance in gator_annotate.c */
+
+static struct miscdevice tsai_gator_dev = {
+	.minor = MISC_DYNAMIC_MINOR,
+	.fops = &tsai_annotate_fops,
+	.name = tsai_gator_dev_name,
+    .parent = NULL,
+	.mode = S_IRUGO|S_IWUGO,
+};
+
+
+static int tsai_register_chardev(void) {
+	int ret;
+	//__asm("bkpt");
+	ret = misc_register(&tsai_gator_dev);
+	if (ERR_PTR(ret)) {
+		pr_info("failed to create tsai_gator device");
+		return -1;
+	}
+	return 0;
+}
+
+//called from gator_module_init > gator_init > tsai_annotate_init
+int tsai_annotate_init(void) {
+	struct page* pg;
+	tsai_register_chardev();
+	tsai_gator_user_share = (struct GATOR_DATA_USER_SHARE*)vmalloc_user(4096);
+
+	pg = vmalloc_to_page( (const void *) tsai_gator_user_share);
+	tsai_gator_user_share_paddr = page_to_phys(pg);
+
+	tsai_gator_user_share->id = 'G' | 'A'<<8 | 'T'<<16 | 'R' <<24;
+
+	return 0;
 }

@@ -511,14 +511,10 @@ extern void gator_annotate_channel_color_ts(int channel, int color, const char *
 	return err;
 }
 
-/* use this structure to share data with user mode directly through memory pointer */
-struct GATOR_DATA_USER_SHARE {
-	unsigned int id;
-	int gator_started;
-};
+#include "gator_annotate_tsai.h"
 
-static struct GATOR_DATA_USER_SHARE* tsai_gator_user_share;
-static unsigned long long tsai_gator_user_share_paddr;
+extern struct GATOR_DATA_USER_SHARE* tsai_gator_user_share;
+extern unsigned long long tsai_gator_user_share_paddr;
 
 struct tsai_debug_mmap_log {
 	unsigned int pid;
@@ -576,17 +572,8 @@ static int tsai_annotate_open(struct inode *inode, struct file *file) {
 	return 0;
 }
 
-static int tsai_annotate_init(void) {
-	struct page* pg;
-	tsai_gator_user_share = (struct GATOR_DATA_USER_SHARE*)vmalloc_user(4096);
-
-	pg = vmalloc_to_page( (const void *) tsai_gator_user_share);
-	tsai_gator_user_share_paddr = page_to_phys(pg);
-
-	tsai_gator_user_share->id = 'G' | 'A'<<8 | 'T'<<16 | 'R' <<24;
-
-	return 0;
-}
+//called from gator_module_init > gator_init > tsai_annotate_init
+extern int tsai_annotate_init(void);
 
 extern void tsai_bufinfo_capture_start(void);
 extern void tsai_bufinfo_capture_stop(void);

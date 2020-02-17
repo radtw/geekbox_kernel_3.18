@@ -266,7 +266,8 @@ static int annotate_release(struct inode *inode, struct file *file)
 #if TSAI_IOCTL
 	#include "sruk_gator_annotate_ioctl.h"
 
-static const struct file_operations tsai_annotate_fops = {
+const struct file_operations tsai_annotate_fops = {
+	.owner = THIS_MODULE,
 	#ifdef HAVE_UNLOCKED_IOCTL
 	.unlocked_ioctl = annotate_ioctl,
 	#else

@@ -918,6 +918,32 @@ static void gator_unregister_hotcpu_notifier(void)
     cpuhp_remove_state(gator_cpuhp_online);
 }
 
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0) /* TSAI: there is no __cpuinit keyword*/
+static int gator_hotcpu_notify(struct notifier_block *self, unsigned long action, void *hcpu)
+{
+	int cpu = lcpu_to_pcpu((long)hcpu);
+
+	switch (action) {
+	case CPU_DOWN_PREPARE:
+	case CPU_DOWN_PREPARE_FROZEN:
+		smp_call_function_single(cpu, gator_timer_offline, NULL, 1);
+		gator_timer_offline_dispatch(cpu, false);
+		break;
+	case CPU_ONLINE:
+	case CPU_ONLINE_FROZEN:
+		gator_timer_online_dispatch(cpu, false);
+		smp_call_function_single(cpu, gator_timer_online, NULL, 1);
+		break;
+	}
+
+	return NOTIFY_OK;
+}
+
+static struct notifier_block __refdata gator_hotcpu_notifier = {
+	.notifier_call = gator_hotcpu_notify,
+};
+
+
 #else
 static int __cpuinit gator_hotcpu_notify(struct notifier_block *self, unsigned long action, void *hcpu)
 {
