@@ -23,3 +23,8 @@ obj-$(CONFIG_NETWORK_PHY_TIMESTAMPING) += timestamping.o
 obj-$(CONFIG_NET_PTP_CLASSIFY) += ptp_classifier.o
 obj-$(CONFIG_CGROUP_NET_PRIO) += netprio_cgroup.o
 obj-$(CONFIG_CGROUP_NET_CLASSID) += netclassid_cgroup.o
+
+ifeq ($(TSAI_OPT),1)
+CFLAGS_dev.o += -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-inline -fno-unit-at-a-time -fno-toplevel-reorder -fno-predictive-commoning
+CFLAGS_dev_ioctl.o += -O0
+endif

@@ -1,9 +1,7 @@
 /*
  * tsai_spy_user.h
  *
- *  Created on: 28 Feb 2017
- *      Author: cheng.tsai
- *      2019-03-07
+ * 2020-02-12
  */
 
 #ifndef TSAI_SPY_USER_H_
@@ -12,6 +10,7 @@
 #if !defined(__KERNEL__)
 	//typedef uint64_t u64;
 	//typedef uint32_t u32;
+#include <stdint.h> /* for uint32_t */
 #endif
 
 enum TsaiSpyCmd {
@@ -31,6 +30,7 @@ enum TsaiSpyCmd {
 	TSpyCmd_Printk,
 	TSpyCmd_FindION, /* given an array for FDs, find if any of them is ION and extract ION name from it */
 	TSpyCmd_AndroidSysProp, /* coming from Android libc */
+    TSpyCmd_MarkDebugProcessThread, /* notify kernel which process/thread is of interest*/	
 	TSpyCmd_User_Var01 = TSpyCmd_Base + 101,
 	TSpyCmdCount
 };
@@ -108,6 +108,18 @@ struct TSpy_AndroidSysProp {
 	uint64_t ptr_prop_value;
 };
 
+
+
+struct Tspy_MarkDebugProcessThread {
+    uint32_t set_get; /* 0=get, 1=set */
+    uint32_t slot;
+    uint32_t process_or_thread; /* 0=process, 1=thread*/
+    uint32_t pid;
+    uint32_t tid;
+    uint32_t result;  /*[out] the answer to return to user mode */
+};
+
+
 #if defined(__aarch64__)
 	typedef uint64_t NATIVE_UINT;
 #else
@@ -176,7 +188,7 @@ struct TSpy_AndroidSysProp {
 	extern "C" {
 #endif
 
-	void tsai_spy_init(void);
+	int tsai_spy_init(void);
 
 	void tsai_spy_ld_annotate_relocate(struct TSpy_LD_Param* p);
 	void tsai_spy_ld_annotate_lookup(struct TSpy_LD_Param* p);
@@ -195,13 +207,18 @@ struct TSpy_AndroidSysProp {
 	int tsai_spy_profiler(struct TSpy_Profiler* prf);
 	int tsai_spy_callstack_print(void);
 
-	int tsai_spy_backtrace(void **buffer, int count);
+	int tsai_spy_backtrace(struct TSpy_Backtrace* bt);
 	int tsai_spy_printk(const char* fmt, ...);
+	int tsai_spy_printk_raw(const char* msg);
 	int tsai_spy_find_ion(int num_fds, uint32_t* ptr);
+	unsigned int tsai_cpu_core_id(void);
+	unsigned int tsai_mark_debug_current(int slot);
+	int tsai_is_current_mark_debug(int slot, int process_or_thread );
 #ifdef ANDROID
+#ifdef AOSP //Fixme: define AOSP if you know you can build from AOSP source tree
 	struct native_handle;
 	int tsai_android_native_buffer_to_ion_name(const struct native_handle* hdl);
-
+#endif
 #endif
 
 

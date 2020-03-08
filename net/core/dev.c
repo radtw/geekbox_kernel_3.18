@@ -1259,6 +1259,9 @@ static int __dev_open(struct net_device *dev)
 	int ret;
 
 	ASSERT_RTNL();
+#if TSAI
+    pr_info("TSAI __dev_open %s @%d", dev?dev->name:"", __LINE__);
+#endif
 
 	if (!netif_device_present(dev))
 		return -ENODEV;

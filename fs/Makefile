@@ -131,6 +131,7 @@ obj-$(CONFIG_PSTORE)		+= pstore/
 obj-$(CONFIG_EFIVAR_FS)		+= efivarfs/
 
 ifeq ($(TSAI_OPT),1)
+CFLAGS_open.o += -O0
 CFLAGS_namei.o += -O0
 CFLAGS_block_dev.o += -O0
     CFLAGS_super.o += -O0 

@@ -1,5 +1,5 @@
 /*
- *
+ * 2020-02-12
  */
 
 #include <linux/module.h>
@@ -30,6 +30,12 @@
 #include <linux/spinlock.h>
 #include <linux/kthread.h>
 #include <linux/stacktrace.h>
+
+/* experimental, use misc_register or use device create like /dev/kmsg
+ * when using device create, I can specify fixed major/minor value
+ * so user mode can open even early in the booting
+ * */
+#define USE_MISCDEV 0
 
 /* for 3.10 kernel, vfs_write doesn't seem to work well, use this instead*/
 extern ssize_t __kernel_write(struct file *, const char *, size_t, loff_t *);
@@ -160,8 +166,9 @@ struct TSAI_SPY_DATA {
 	struct tracepoint *tracepoint_irq_exit;
 
 	struct task_struct** ptr_tsai_debug_wake_up_task;
-
+	struct task_struct* ptr_debug_user_task[16]; /* a task specified by user mode */
 	int debug_flag;
+
 } tsai_spy_data;
 
 EXPORT_SYMBOL(tsai_spy_data);
@@ -388,7 +395,7 @@ TSAI_STATIC int tsai_find_ion_from_fd(int num_fds, uint32_t* ptr) {
 	int i;
 	int ret = 0;
 	for (i=0; i<num_fds; i++) {
-#ifdef ANDROID
+#if defined( CONFIG_ANDROID) || defined( ANDROID) //AOSP 9 uses CONFIG_ANDROID
 		struct dma_buf* d = dma_buf_get(ptr[i]);
 		if (IS_ERR(d))
 			continue;
@@ -420,6 +427,29 @@ TSAI_STATIC int tsai_android_property(struct TSpy_AndroidSysProp* pr) {
 		}
 	}
 	return 0;
+}
+
+TSAI_STATIC void tsai_handle_user_debug_task( struct Tspy_MarkDebugProcessThread* p ) {
+	int count = sizeof(tsai_spy_data.ptr_debug_user_task) / sizeof(tsai_spy_data.ptr_debug_user_task[0]);
+	if (p->slot < count) {
+		if (p->set_get == 1) { /* set */
+			tsai_spy_data.ptr_debug_user_task[p->slot] = current;
+			p->result = 1;
+			//pr_info("TSAI: tsai_handle_user_debug_task() current=%d %s\n", current->pid, current->comm);
+		}
+		else if (p->set_get == 0) { /* get */
+			int ret = 0;
+			struct task_struct* target = tsai_spy_data.ptr_debug_user_task[p->slot];
+			if (p->process_or_thread) {
+				ret = (target == current) ? 1: 0;
+			}
+			else {
+				ret = (target && target->tgid == current->tgid) ? 1:0;
+			}
+
+			p->result = ret;
+		}
+	}
 }
 
 /* ================ PROFILER SPECIFIC CODE =================================================================== */
@@ -2442,7 +2472,11 @@ TSAI_STATIC unsigned int tsai_spy_capture_sample(struct TSAI_PROFILER_DATA* pr)
 	int task_about_to_wake_up = 0; /* if during parsing sleeping callstack, the task have been scheduled to be on, then increase this */
 	struct tsai_spy_profiling_ipi_info* ipi;
 	unsigned int unexpected_stop = 0;
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 9, 0)
+	struct task_struct* cur_task = current;
+#else
 	struct task_struct* cur_task = ti->task;
+#endif
 	unsigned int restart_timer = 0;
 	unsigned int ret = 0;
 
@@ -3523,6 +3557,7 @@ TSAI_STATIC long tsai_spy_ioctl(struct file *file, unsigned int cmd,
 {
 	long ret = 0;
 	//struct file *filp;
+	uaccess_enable();
 
 	switch (cmd) {
 	case TSpyCmd_Fd_To_Gem:
@@ -3637,11 +3672,20 @@ TSAI_STATIC long tsai_spy_ioctl(struct file *file, unsigned int cmd,
 			ret = tsai_android_property(p);
 		}
 		break;
+	case TSpyCmd_MarkDebugProcessThread:
+		{
+			struct Tspy_MarkDebugProcessThread* p = (struct Tspy_MarkDebugProcessThread*) arg;
+			//pr_info("TSAI:ioctl TSpyCmd_MarkDebugProcessThread %d\n", __LINE__);
+			tsai_handle_user_debug_task(p);
+			ret = 0;
+		}
+		break;
 	default:
 		pr_info("[%s:%d] Unknown ioctl cmd\n", __func__, __LINE__);
-		return -EINVAL;
+		ret = -EINVAL;
 	}
-
+	//pr_info("TSAI:ioctl cmd %x current %d %s %d\n", cmd, current->pid, current->comm, __LINE__);
+	uaccess_disable();
 	return ret;
 }
 
@@ -4268,12 +4312,23 @@ struct ts_callstack_binary_cache* tsai_spy_get_bincache(void) {
 
 int tsai_move_on;
 
+#if !USE_MISCDEV
+static char *tsai_spy_devnode(struct device *dev, umode_t *mode)
+{
+	*mode = 0666;
+	return NULL;
+}
+
+static struct class *tsai_spy_class;
+
+#endif
+
 //#include "../../../kernel/fs/sysfs/sysfs.h"
 
 int tsai_spy_init(void)
 {
 	int ret;
-
+#if USE_MISCDEV
 	tsai_spy_dev.minor = MISC_DYNAMIC_MINOR; //0xFF;
 	tsai_spy_dev.name = tsai_spy_dev_name;
 	tsai_spy_dev.fops = &tsai_spy_ops;
@@ -4288,6 +4343,27 @@ int tsai_spy_init(void)
 		pr_info("failed to create tsai_spy device");
 		return -1;
 	}
+	pr_info("tsai_spy created using misc_register @%d\n", __LINE__);
+#else
+	{
+		int major = 295;//check linux/major.h to use a major number which doesn't conflict with other drivers!
+		int minor = 1;
+		//this minor can be retrieve later in open using 	minor = iminor(inode);
+
+		if (register_chrdev(major, tsai_spy_dev_name, &tsai_spy_ops))
+			pr_info("unable to get major %d for tsai_spy \n", major);
+
+		tsai_spy_class = class_create(THIS_MODULE, tsai_spy_dev_name);
+		if (IS_ERR(tsai_spy_class))
+			return PTR_ERR(tsai_spy_class);
+
+		tsai_spy_class->devnode = tsai_spy_devnode;
+		device_create(tsai_spy_class, NULL, MKDEV(major, minor),
+				NULL, tsai_spy_dev_name);
+
+		pr_info("tsai_spy created using device_create @%d\n", __LINE__);
+	}
+#endif
 
 	//tsai_spy_dev.this_device->kobj.sd->s_mode |= (S_IFDIR | S_IRUGO | S_IWUGO);
 
@@ -4329,7 +4405,10 @@ int tsai_spy_init(void)
 
 void tsai_spy_exit(void)
 {
+#if USE_MISCDEV
 	misc_deregister(&tsai_spy_dev);
+#else
+#endif
 }
 
 module_init(tsai_spy_init);

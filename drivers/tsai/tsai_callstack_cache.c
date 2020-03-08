@@ -966,12 +966,17 @@ void tsai_task_restore_run(struct task_struct* p, int skip_lock, atomic_t* atmfl
 }
 
 int tsai_task_on_cpu(struct task_struct* p) {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 9, 0)
+	BKPT;
+	return 0;
+#else
 	int ret = -1;
 	if (p->on_cpu) {
 		struct thread_info* ti = task_thread_info(p);
 		ret = ti->cpu;
 	}
 	return ret;
+#endif
 }
 
 const char* tsai_task_on_cpu_str(struct task_struct* p) {

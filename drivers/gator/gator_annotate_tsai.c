@@ -381,6 +381,9 @@ void tsai_annotate_exit_lock(int cpu_id, unsigned int seq_no) {
 }
 
 /*==== TSAI: Buffer Status =========================================================================*/
+
+#include "tsai_rb_node_array.h"
+
 extern u64 gator_annotate_get_ts(void);
 extern void gator_annotate_channel_color_ts(int channel, int color, const char *str, u64* ts, int* ppid);
 extern void gator_annotate_name_group_pid(int group, const char *str, int* ppid);
@@ -392,10 +395,30 @@ extern void gator_annotate_name_channel_pid(int channel, int group, const char *
 #define TSAI_CH_OS_VSYNC  (35)
 #define TSAI_GROUP  (2)
 
-struct TSAI_BUFINFO {
-	unsigned int fOsHdr : 1;
+#define MAX_BUF_ANNOTATION (64)
 
-} tsai_bufinfo;
+struct TBUFANNO {
+	struct ts_rba rb;
+	uint32_t channel;
+};
+
+struct TSAI_BUFINFO {
+	struct rb_root req_root; /* rb tree to find buffer record based on buffer name */
+	unsigned int fOsHdr : 1;
+	struct TBUFANNO* buf_anno[MAX_BUF_ANNOTATION];
+	struct TSAI_RBA rta;
+	uint32_t slot_free_stack[MAX_BUF_ANNOTATION];
+	uint32_t slot_used;
+	spinlock_t lock;
+}
+tsai_bufinfo = {
+	.rta = {
+		.pRBAptr = (struct ts_rba**) tsai_bufinfo.buf_anno,
+		.max_count = MAX_BUF_ANNOTATION,
+		.lock = __SPIN_LOCK_UNLOCKED(lock),
+	},
+	.lock = __SPIN_LOCK_UNLOCKED(lock),
+};
 
 /* uint64_t os_ts: OS timestamp:
  * seqno: optional seqno provided by the OS */
@@ -410,8 +433,32 @@ void tsai_bufinfo_os_vsync(uint64_t os_ts, u32 seqno) {
 
 }
 
+static uint32_t tsai_bufinto_get_free_slot(void) {
+	int ret = 0;
+	spin_lock(&tsai_bufinfo.lock);
+
+
+	spin_unlock(&tsai_bufinfo.lock);
+	return ret;
+}
+
+/* */
+void tsai_bufinfo_owner(uint32_t owner, uint32_t buf, uint32_t on_off) {
+#if 0
+	if (on_off) { /* On */
+		struct TBUFANNO* bi = kzalloc(sizeof(struct TBUFANNO), GFP_KERNEL);
+		;
+	}
+	else { /* Off */
+
+
+	}
+#endif
+}
+
 /* called from tsai_annotate_start() */
 void tsai_bufinfo_capture_start(void) {
+	int i;
 	tsai_bufinfo.fOsHdr = 0;
 
 	if (!tsai_bufinfo.fOsHdr) {
@@ -421,6 +468,12 @@ void tsai_bufinfo_capture_start(void) {
 
 		//ANNOTATE_NAME_CHANNEL_PID(TSAI_CH_OS_VSYNC, 1, "V-Sync", &pid);
 		gator_annotate_name_channel_pid(TSAI_CH_OS_VSYNC, TSAI_GROUP, "OS VSync", &pid);
+
+		//populate free slot;
+		for (i=0; i<MAX_BUF_ANNOTATION; i++) {
+			tsai_bufinfo.slot_free_stack[i] = i;
+		}
+		tsai_bufinfo.slot_used = 0;
 
 		tsai_bufinfo.fOsHdr = 1;
 	}
@@ -457,6 +510,17 @@ static int tsai_register_chardev(void) {
 		pr_info("failed to create tsai_gator device");
 		return -1;
 	}
+
+	//examine the file mode here
+#if 0
+	{
+		struct file* f = filp_open("/dev/gator_annotate_tsai", O_RDWR, 0);
+		if (f && !ERR_PTR(f)) {
+			filp_close(f, (fl_owner_t)current->pid);
+		}
+	}
+#endif
+
 	return 0;
 }
 

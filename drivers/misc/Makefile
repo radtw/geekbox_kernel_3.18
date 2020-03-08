@@ -2,7 +2,6 @@
 # Makefile for misc devices that really don't fit anywhere else.
 #
 
-obj-y	+= tsai_spy.o tsai_breakpoint.o tsai_callstack_cache.o
 #TSAI: geekbox
 obj-$(CONFIG_GEEKBOX_FAN) += geekbox-fan.o
 obj-$(CONFIG_IBM_ASM)		+= ibmasm/
@@ -70,7 +69,3 @@ obj-$(CONFIG_VEXPRESS_SYSCFG)	+= vexpress-syscfg.o
 obj-$(CONFIG_CXL_BASE)		+= cxl/
 obj-$(CONFIG_UID_SYS_STATS) += uid_sys_stats.o
 obj-$(CONFIG_MEMORY_STATE_TIME) += memory_state_time.o
-ifeq ($(TSAI_OPT),1) 
-	CFLAGS_tsai_spy.o += -O0
-	CFLAGS_tsai_breakpoint.o += -O0
-endif 

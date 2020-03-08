@@ -56,6 +56,16 @@ struct tsai_gator_get_ts {
 	uint64_t ts; /* [out], for use mode to receive a timestamp */
 };
 
+enum TSAI_BUF_OWNDER {
+	TBO_SURFACEFLINGER = 1,
+};
+
+struct tsai_gator_buf_owner {
+    uint32_t owner; /* owner of this buffer, must be a value from enum TSAI_BUF_OWNDER */
+    uint32_t buf; /* buffer identifier, eg. Android ION seqno, or DRM GEM name */
+    uint32_t on_off; /* 0=stop owner, 1=start owning */
+};
+
 enum SRUK_GATOR_IOCTL {
 	SRUK_GATOR_IOCTL_INVALID = 0,
 	SRUK_GATOR_IOCTL_BASE = 0x100,
@@ -67,6 +77,7 @@ enum SRUK_GATOR_IOCTL {
 	SRUK_GATOR_IOCTL_ANNOTATE_CHANNEL_COLOR_TS_PID,
 	SRUK_GATOR_IOCTL_ANNOTATE_GET_TS = 0x1FF,
 	SRUK_GATOR_IOCTL_OS_VSYNC = 0x200,
+    TSAI_GATOR_IOCTL_BUF_OWNDER = 0x201,
 	SRUK_GATOR_IOCTL_END
 };
 
@@ -440,6 +451,8 @@ Leave:
 extern void tsai_bufinfo_os_vsync(uint64_t os_ts, u32 seqno);
 extern void gator_annotate_channel_color_ts(int channel, int color, const char *str, u64* ts, int* ppid);
 
+#include "gator_annotate_tsai.h"
+
 #ifdef HAVE_UNLOCKED_IOCTL
 	static long annotate_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 #else
@@ -504,6 +517,12 @@ extern void gator_annotate_channel_color_ts(int channel, int color, const char *
 					//u64 gator_annotate_get_ts(void)
 		}
 		break;
+	case TSAI_GATOR_IOCTL_BUF_OWNDER:
+		{
+			struct tsai_gator_buf_owner* p = (struct tsai_gator_buf_owner*)arg;
+			tsai_bufinfo_owner(p->owner, p->buf, p->on_off);
+		}
+		break;
 	default:
 		BKPT;
 	}
@@ -511,7 +530,7 @@ extern void gator_annotate_channel_color_ts(int channel, int color, const char *
 	return err;
 }
 
-#include "gator_annotate_tsai.h"
+
 
 extern struct GATOR_DATA_USER_SHARE* tsai_gator_user_share;
 extern unsigned long long tsai_gator_user_share_paddr;

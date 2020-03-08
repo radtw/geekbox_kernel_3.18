@@ -487,7 +487,11 @@ static u64 tsai_watch_pc_addr;
 
 /* comes from arm64/kernel/entry.S */
 void tsai_enter_kernel(void* regdump, struct thread_info* ti) {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 9, 0)
+	struct task_struct* tsk = current;
+#else
 	struct task_struct* tsk = ti->task;
+#endif
 	if (tsk->pid > 1 && ((*(u64*)tsk->comm)& 0xFFFFFFFFFF) == 0x0074696E69) { /* when task->comm is "init"*/
 		if (!tsai_init_2nd)
 			tsai_init_2nd = tsk;
@@ -503,7 +507,11 @@ void tsai_enter_kernel(void* regdump, struct thread_info* ti) {
 }
 
 void tsai_exit_kernel(void* regdump, struct thread_info* ti) {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 9, 0)
+	struct task_struct* tsk = current;
+#else
 	struct task_struct* tsk = ti->task;
+#endif
 	if (tsai_watch_task && tsai_watch_task==tsk) {
 		//__asm("hlt #0");
 		tsai_remove_watchpoint(tsai_watch_pc_addr);

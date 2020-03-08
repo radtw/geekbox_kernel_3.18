@@ -1,1 +1,1 @@
-../drivers/misc/tsai_spy.h
+../drivers/tsai/tsai_spy.h

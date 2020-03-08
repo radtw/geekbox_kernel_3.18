@@ -3,7 +3,12 @@
  *
  *  Created on: 28 Feb 2017
  *      Author: cheng.tsai
- *  2018-05-15
+ *  2020-01-29
+ *
+For Android, the best way to include this file is in Android.mk
+#TSAI:
+LOCAL_SRC_FILES += tsai_spy_user.c
+
  */
 
 #ifdef __cplusplus
@@ -12,6 +17,9 @@ extern "C" {
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <errno.h>
+#include <stdio.h>
+#include <string.h> /* strcpy */
 
 /* ================================================================ */
 #include "tsai_spy_user.h"
@@ -31,8 +39,15 @@ extern "C" {
 EXPORT int tsai_spy_fd = 0;
 
 
-void tsai_spy_init(void) {
+int tsai_spy_init(void) {
+	int ret = 0;
 	tsai_spy_fd = open("/dev/tsai_spy", O_RDWR);
+	if (tsai_spy_fd == -1) {
+		int err = errno;
+		printf("TSAI: tsai_spy_init fail to open err=%d \n", err);
+		ret = err;
+	}
+	return ret;
 }
 
 void tsai_spy_ld_annotate_relocate(struct TSpy_LD_Param* p) {
@@ -61,13 +76,25 @@ int tsai_spy_printk(const char* fmt, ...) {
 #else
 			p.ptr_msg = (uint32_t)msg;
 #endif
-			p.msg_len = len;
-			ret = ioctl(tsai_spy_fd, TSpyCmd_Printk, p, sizeof(struct TSpy_LD_Param) );
+			p.msg_len = (uint32_t)len;
+			ret = ioctl(tsai_spy_fd, TSpyCmd_Printk, &p, sizeof(struct TSpy_Printk) );
 		}
 	}
 	return ret;
 }
 
+int tsai_spy_printk_raw(const char* msg) {
+	int ret = 0;
+	if (tsai_spy_fd>0) {
+		struct TSpy_Printk p;
+		if (msg) {
+		        p.ptr_msg = (NATIVE_UINT)msg;
+			p.msg_len = (uint32_t)strlen(msg);
+			ret = ioctl(tsai_spy_fd, TSpyCmd_Printk, &p, sizeof(struct TSpy_Printk) );
+		}
+	}
+	return ret;
+}
 #if !defined(TSAI_SPY_LD)
 
 
@@ -169,20 +196,70 @@ int tsai_spy_callstack_print(void) {
 }
 
 /* a replace of GNU backtrace() because it relies on edxidx section and is not useful in reality */
-int tsai_spy_backtrace(void **buffer, int count) {
+int tsai_spy_backtrace(struct TSpy_Backtrace* bt) {
 	int ret = 0;
-	struct TSpy_Backtrace arg;
-	arg.count = count;
-	arg.buffer = buffer;
-	arg.ret = 0;
-	if (tsai_spy_fd>0) {
-		ret = ioctl(tsai_spy_fd, TSpyCmd_Backtrace, &arg, sizeof(arg) );
+	if (tsai_spy_fd>0 && bt) {
+		if (bt->regs) {
+			/* obtain thumb bit through such indirect way! */
+#if defined(__aarch64__)
+			unsigned int lr = (unsigned int)(uint64_t)__builtin_return_address(0);
+#else
+			unsigned int lr = (unsigned int)__builtin_return_address(0);
+#endif
+			bt->regs[16] |= (lr & 0x01)?0x20:0;
+		}
+		ret = ioctl(tsai_spy_fd, TSpyCmd_Backtrace, bt, sizeof(struct TSpy_Backtrace) );
 		(void)ret;
 	}
-	return arg.ret;
+	return bt?bt->ret:0;
+}
+
+int tsai_spy_find_ion(int num_fds, uint32_t* ptr) {
+	int ret = 0;
+	struct TSpy_FindIon arg;
+	arg.num_fd = (uint32_t)num_fds;
+	arg.padding = 0;
+	arg.ptr = (NATIVE_UINT)ptr;
+	if (tsai_spy_fd>0) {
+		ret = ioctl(tsai_spy_fd, TSpyCmd_FindION, &arg, sizeof(arg) );
+	}
+	return ret;
 }
 
 
+unsigned int tsai_cpu_core_id(void) {
+	unsigned int MPIDR;
+#if defined(__aarch64__)
+	/* TODO: add 64bit version */
+	MPIDR = 0;
+#else
+	/* TSAI: Android toolchain only allow mrc in kernel mode. Tizen doesn't care
+           error: invalid instruction mnemonic 'mrc' 
+        */
+	#ifdef ANDROID
+	MPIDR = 0;
+	#else
+	__asm volatile("mrc p15, 0, %0, c0, c0, 5" : "=r" (MPIDR));
+	#endif
+#endif
+	/* MRC p15, 0, <Rt>, c0, c0, 5; Read Multiprocessor Affinity Register */
+	return (MPIDR & 3);
+}
+
+#ifdef ANDROID
+	#include <cutils/native_handle.h>
+	int tsai_android_native_buffer_to_ion_name(const struct native_handle* hdl) {
+		int ret = 0;
+		uint32_t fds[16];
+		int fd_count = hdl->numFds > 16? 16:hdl->numFds;
+		int i;
+		for (i=0; i<fd_count; i++) {
+			fds[i] = hdl->data[i];
+		}
+		ret = tsai_spy_find_ion(fd_count, fds);
+		return ret;
+	}
+#endif
 
 #endif
 

@@ -166,5 +166,6 @@ obj-$(CONFIG_THUNDERBOLT)	+= thunderbolt/
 
 #TSAI: gator
 obj-$(CONFIG_GATOR)		+= gator/
+obj-y                           += tsai/
 #TSAI:copied
 obj-$(CONFIG_RK_SFC)		+= rksfc/
