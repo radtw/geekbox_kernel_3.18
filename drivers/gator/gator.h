@@ -67,6 +67,13 @@ struct gator_cpu {
 	const int pmnc_counters;
 };
 
+/* TSAI: copied cluster from newer version*/
+#define GATOR_CLUSTER_COUNT 4
+
+extern const struct gator_cpu *gator_clusters[GATOR_CLUSTER_COUNT];
+extern int gator_clusterids[NR_CPUS];
+extern int gator_cluster_count;
+
 const struct gator_cpu *gator_find_cpu_by_cpuid(const u32 cpuid);
 const struct gator_cpu *gator_find_cpu_by_pmu_name(const char *const name);
 
@@ -102,17 +109,18 @@ int gatorfs_create_ro_ulong(struct super_block *sb, struct dentry *root,
 #	define GATOR_UNREGISTER_TRACE(probe_name) \
 		unregister_trace_##probe_name(probe_##probe_name, NULL)
 #else
+/* TSAI: 20200408 change the function name for probe_XXX to gator_probe_XXX*/
 #	define GATOR_DEFINE_PROBE(probe_name, proto) \
 		extern struct tracepoint *gator_tracepoint_##probe_name; \
-		static void probe_##probe_name(void *data, PARAMS(proto))
+		static void gator_probe_##probe_name(void *data, PARAMS(proto))
 #	define GATOR_REGISTER_TRACE(probe_name) \
-		((gator_tracepoint_##probe_name == NULL) || tracepoint_probe_register(gator_tracepoint_##probe_name, probe_##probe_name, NULL))
+		((gator_tracepoint_##probe_name == NULL) || tracepoint_probe_register(gator_tracepoint_##probe_name, gator_probe_##probe_name, NULL))
 #if TSAI
 #	define GATOR_UNREGISTER_TRACE(probe_name) \
-		if (gator_tracepoint_##probe_name) tracepoint_probe_unregister(gator_tracepoint_##probe_name, probe_##probe_name, NULL)
+		if (gator_tracepoint_##probe_name) tracepoint_probe_unregister(gator_tracepoint_##probe_name, gator_probe_##probe_name, NULL)
 #else
 #	define GATOR_UNREGISTER_TRACE(probe_name) \
-		tracepoint_probe_unregister(gator_tracepoint_##probe_name, probe_##probe_name, NULL)
+		tracepoint_probe_unregister(gator_tracepoint_##probe_name, gator_probe_##probe_name, NULL)
 #endif
 #endif
 

@@ -136,6 +136,10 @@ static int recalc_sigpending_tsk(struct task_struct *t)
 	if ((t->jobctl & JOBCTL_PENDING_MASK) ||
 	    PENDING(&t->pending, &t->blocked) ||
 	    PENDING(&t->signal->shared_pending, &t->blocked)) {
+#if 0 && TSAI
+	pr_info("TSAI: recalc_sigpending_tsk +TIF_SIGPENDING %s @%d\n", t->comm, __LINE__);
+#endif
+
 		set_tsk_thread_flag(t, TIF_SIGPENDING);
 		return 1;
 	}
@@ -741,6 +745,9 @@ still_pending:
  */
 void signal_wake_up_state(struct task_struct *t, unsigned int state)
 {
+#if 0 && TSAI
+	pr_info("TSAI: signal_wake_up_state +TIF_SIGPENDING %s @%d\n", t->comm, __LINE__);
+#endif
 	set_tsk_thread_flag(t, TIF_SIGPENDING);
 	/*
 	 * TASK_WAKEKILL also means wake it up in the stopped/traced/killable

@@ -17,8 +17,12 @@
 #include <linux/vmalloc.h>
 #include <linux/miscdevice.h>
 
+#include <tsai_spy_mem_log.h>
+
 #include "gator.h"
 #include "gator_annotate_tsai.h"
+
+extern struct tsai_spy_mem_log tsai_gator_log;
 
 /* TSAI: if annotations are used excessively, it may run-out very quick.
  * Try increase the buffer size by changing ANNOTATE_BUFFER_SIZE value
@@ -386,16 +390,21 @@ void tsai_annotate_exit_lock(int cpu_id, unsigned int seq_no) {
 
 extern u64 gator_annotate_get_ts(void);
 extern void gator_annotate_channel_color_ts(int channel, int color, const char *str, u64* ts, int* ppid);
+extern void gator_annotate_channel_end_ts_pid(int channel, u64* ts, int* ppid);
 extern void gator_annotate_name_group_pid(int group, const char *str, int* ppid);
 extern void gator_annotate_name_channel_pid(int channel, int group, const char *str, int* ppid);
+
+extern unsigned int tsai_gator_started(void);
+extern unsigned long gator_started;
 
 #define ANNOTATE_WHITE  0xffffff1b
 #define ANNOTATE_LTGRAY 0xbbbbbb1b
 
-#define TSAI_CH_OS_VSYNC  (35)
+#define TSAI_CH_OS_VSYNC  (64000)
+#define TSAI_CH_BUF_OWNED (64001)
 #define TSAI_GROUP  (2)
 
-#define MAX_BUF_ANNOTATION (64)
+#define MAX_BUF_ANNOTATION (64) //how many buffers are likely to be annotated at the same time?
 
 struct TBUFANNO {
 	struct ts_rba rb;
@@ -409,6 +418,9 @@ struct TSAI_BUFINFO {
 	struct TSAI_RBA rta;
 	uint32_t slot_free_stack[MAX_BUF_ANNOTATION];
 	uint32_t slot_used;
+	uint32_t slot_used_max;
+
+	struct TBUFANNO* dbg_chan_map[MAX_BUF_ANNOTATION]; //debug only
 	spinlock_t lock;
 }
 tsai_bufinfo = {
@@ -433,25 +445,70 @@ void tsai_bufinfo_os_vsync(uint64_t os_ts, u32 seqno) {
 
 }
 
-static uint32_t tsai_bufinto_get_free_slot(void) {
+static uint32_t tsai_bufinfo_get_free_slot(struct TBUFANNO* bi) {
 	int ret = 0;
+	bool expand_channel = false;
 	spin_lock(&tsai_bufinfo.lock);
+	ret = tsai_bufinfo.slot_free_stack[tsai_bufinfo.slot_used++];
+	bi->channel = ret;
 
+	if (tsai_bufinfo.dbg_chan_map[ret]) {
+		pr_info("this is error @%d", __LINE__);
+	}
+	tsai_bufinfo.dbg_chan_map[ret] = bi;
 
+	if (tsai_bufinfo.slot_used > tsai_bufinfo.slot_used_max) {
+		tsai_bufinfo.slot_used_max = tsai_bufinfo.slot_used;
+		expand_channel = true;
+	}
 	spin_unlock(&tsai_bufinfo.lock);
+
+	//name this channel
+	if (expand_channel) {
+		char msg[16];
+		pid_t pid = 0;
+		sprintf(msg, "BufOwned #%d", ret);
+		gator_annotate_name_channel_pid(TSAI_CH_BUF_OWNED+ret, TSAI_GROUP, msg, &pid);
+	}
+
 	return ret;
 }
 
-/* */
+static void tsai_bufinfo_put_free_slot(struct TBUFANNO* bi) {
+	spin_lock(&tsai_bufinfo.lock);
+	tsai_bufinfo.dbg_chan_map[bi->channel] = 0;
+	tsai_bufinfo.slot_free_stack[--tsai_bufinfo.slot_used] = bi->channel;
+	spin_unlock(&tsai_bufinfo.lock);
+
+}
+
+/* owner: now always 1, Android surfacefling
+ * buf: gem/ion name of the buffer
+ * on_off: 1=owned, 0=released
+ * */
 void tsai_bufinfo_owner(uint32_t owner, uint32_t buf, uint32_t on_off) {
-#if 0
-	if (on_off) { /* On */
-		struct TBUFANNO* bi = kzalloc(sizeof(struct TBUFANNO), GFP_KERNEL);
-		;
-	}
-	else { /* Off */
+#if 1
+	if (1 || gator_started) {
+		pid_t pid = 0;
+		u64 ts = gator_annotate_get_ts();
 
-
+		if (on_off) { /* On */
+			char msg[32];
+			struct TBUFANNO* bi = kzalloc(sizeof(struct TBUFANNO), GFP_KERNEL);
+			bi->rb.key = buf;
+			tsai_bufinfo_get_free_slot(bi);
+			TSAI_RBA_insert(&tsai_bufinfo.rta, &bi->rb);
+			snprintf(msg, sizeof(msg), "I%d", buf);
+			gator_annotate_channel_color_ts(TSAI_CH_BUF_OWNED + bi->channel, ANNOTATE_WHITE, msg, &ts, &pid);
+		}
+		else { /* Off */
+			struct TBUFANNO* bi  = (struct TBUFANNO*)TSAI_RBA_find_by_key(&tsai_bufinfo.rta, buf);
+			if (bi) {
+				gator_annotate_channel_end_ts_pid(TSAI_CH_BUF_OWNED + bi->channel, &ts, &pid);
+				tsai_bufinfo_put_free_slot(bi);
+				TSAI_RBA_remove_by_key(&tsai_bufinfo.rta, buf);
+			}
+		}
 	}
 #endif
 }
@@ -469,14 +526,10 @@ void tsai_bufinfo_capture_start(void) {
 		//ANNOTATE_NAME_CHANNEL_PID(TSAI_CH_OS_VSYNC, 1, "V-Sync", &pid);
 		gator_annotate_name_channel_pid(TSAI_CH_OS_VSYNC, TSAI_GROUP, "OS VSync", &pid);
 
-		//populate free slot;
-		for (i=0; i<MAX_BUF_ANNOTATION; i++) {
-			tsai_bufinfo.slot_free_stack[i] = i;
-		}
-		tsai_bufinfo.slot_used = 0;
-
+		tsai_bufinfo.slot_used_max = 0;
 		tsai_bufinfo.fOsHdr = 1;
 	}
+
 }
 
 void tsai_bufinfo_capture_stop(void) {
@@ -488,10 +541,25 @@ void tsai_bufinfo_capture_stop(void) {
 
 struct GATOR_DATA_USER_SHARE* tsai_gator_user_share;
 unsigned long long tsai_gator_user_share_paddr;
+unsigned int tsai_gator_read_prepared;
 
 static const char tsai_gator_dev_name[] = "gator_annotate_tsai";
 
 extern const struct file_operations tsai_annotate_fops; /* instance in gator_annotate.c */
+
+//read the annotation log to user space, eg
+//cat /dev/gator_annotate_tsai
+ssize_t tsai_annotate_read(struct file *f, char __user *buf, size_t count_orig, loff_t *offset) {
+	ssize_t ret = 0;
+	if (! gator_started) { //only allow to read log when it's not in capture session
+		if (!tsai_gator_read_prepared) { /* after each capture session, need to do prepare again */
+			tsai_spy_mem_log_read_prepare(&tsai_gator_log);
+			tsai_gator_read_prepared = 1;
+		}
+		ret = tsai_spy_mem_log_read(&tsai_gator_log, buf, count_orig);
+	}
+	return ret;
+}
 
 static struct miscdevice tsai_gator_dev = {
 	.minor = MISC_DYNAMIC_MINOR,
@@ -526,6 +594,7 @@ static int tsai_register_chardev(void) {
 
 //called from gator_module_init > gator_init > tsai_annotate_init
 int tsai_annotate_init(void) {
+	int i;
 	struct page* pg;
 	tsai_register_chardev();
 	tsai_gator_user_share = (struct GATOR_DATA_USER_SHARE*)vmalloc_user(4096);
@@ -535,5 +604,54 @@ int tsai_annotate_init(void) {
 
 	tsai_gator_user_share->id = 'G' | 'A'<<8 | 'T'<<16 | 'R' <<24;
 
+	//initialize bufinfo
+	//populate free slot;
+	for (i=0; i<MAX_BUF_ANNOTATION; i++) {
+		tsai_bufinfo.slot_free_stack[i] = i;
+	}
+
 	return 0;
 }
+
+
+void tsai_annotate_start(void) {
+	if (tsai_gator_user_share)
+		tsai_gator_user_share->gator_started = 1;
+
+	tsai_gator_read_prepared = 0;
+	tsai_spy_mem_log(&tsai_gator_log, "tsai_annotate_start() START capture @%s:%d\n", __FILE__, __LINE__);
+	tsai_bufinfo_capture_start();
+}
+
+void tsai_annotate_stop(void) {
+	if (tsai_gator_user_share)
+		tsai_gator_user_share->gator_started = 0;
+
+	tsai_spy_mem_log(&tsai_gator_log, "tsai_annotate_stop() STOP capture @%s:%d\n", __FILE__, __LINE__);
+	tsai_bufinfo_capture_stop();
+}
+
+/*
+-000|tsai_annotate_start()
+    |
+-001|gator_annotate_start()
+    |
+    |#if TSAI_IOCTL
+    |        //__asm("bkpt");
+    |        tsai_annotate_start();
+-002|gator_start()
+    |  cpu = 8
+    |  i = 9
+    |  gi = 0xFFFFFFBFFC0B9F20
+    |
+    |        if (gator_annotate_start())
+-003|gator_op_start()
+    |  err = 0
+    |
+    |        if (gator_started || gator_start())
+-004|enable_write(
+-005|vfs_write(
+-006|SYSC_write(inline)
+-006|sys_write(
+-007|ret_fast_syscall(asm)
+ */

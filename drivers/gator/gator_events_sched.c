@@ -27,13 +27,22 @@ GATOR_DEFINE_PROBE(sched_switch, TP_PROTO(bool preempt, struct task_struct *prev
 #endif
 {
 	unsigned long flags;
-
 	/* disable interrupts to synchronize with gator_events_sched_read()
 	 * spinlocks not needed since percpu buffers are used
 	 */
+#if 0 && TSAI //expand for debug
+	const int cpu = get_physical_cpu();
+	int* ptr_schedCnt = per_cpu(schedCnt, cpu);
+//	pr_info("TSAI: cpu=%d ptr_schedCnt=%p @%d\n", cpu, ptr_schedCnt, __LINE__);
+	local_irq_save(flags);
+	ptr_schedCnt[SCHED_SWITCH]++;
+	local_irq_restore(flags);
+//	pr_info("TSAI: gator_probe_sched_switch() exit \n", cpu, ptr_schedCnt, __LINE__);
+#else
 	local_irq_save(flags);
 	per_cpu(schedCnt, get_physical_cpu())[SCHED_SWITCH]++;
 	local_irq_restore(flags);
+#endif
 }
 
 static int gator_events_sched_create_files(struct super_block *sb, struct dentry *root)

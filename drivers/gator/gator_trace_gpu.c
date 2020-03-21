@@ -384,7 +384,7 @@ GATOR_DEFINE_PROBE(mali_timeline_event_timestamp, TP_PROTO(unsigned int event_id
 	}
 }
 /* TSAI: temp*/
-EXPORT_SYMBOL(probe_mali_timeline_event_timestamp);
+EXPORT_SYMBOL(gator_probe_mali_timeline_event_timestamp);
 
 	#endif
 

@@ -59,6 +59,10 @@
 #include <asm/memblock.h>
 #include <asm/psci.h>
 #include <asm/efi.h>
+#if TSAI
+/* record machine name so that cpuinfo can use it*/
+char saved_machine_name[32];
+#endif
 #if TSAI && defined(CONFIG_ARCH_ROCKCHIP)
 /* needed by arch/arm64/mach-rockchip/../../arm/mach-rockchip/efuse.c:224 */
 unsigned int system_serial_low;
@@ -204,6 +208,20 @@ static void __init setup_machine_fdt(phys_addr_t dt_phys)
 	}
 
 	dump_stack_set_arch_desc("%s (DT)", of_flat_dt_get_machine_name());
+#if TSAI /* copied from 3.10 to preserve machine name, used by cpuinfo*/
+{
+	unsigned long dt_root;
+	const char* machine_name;
+	dt_root = of_get_flat_dt_root();
+	machine_name = of_get_flat_dt_prop(dt_root, "model", NULL);
+	if (!machine_name)
+		machine_name = of_get_flat_dt_prop(dt_root, "compatible", NULL);
+	if (!machine_name)
+		machine_name = "<unknown>";
+	pr_info("Machine: %s\n", machine_name);
+	strcpy(saved_machine_name, machine_name);
+}
+#endif
 }
 
 /*

@@ -369,11 +369,20 @@ static int register_tracepoints(void)
 	}
 
 	pr_debug("gator: Mali-Midgard: start\n");
+#if TSAI /* 20200408, renamin probe function to be gator_probe_xxx */
+	pr_debug("gator: Mali-Midgard: mali_pm_status probe is at %p\n", &gator_probe_mali_pm_status);
+	pr_debug("gator: Mali-Midgard: mali_page_fault_insert_pages probe is at %p\n", &gator_probe_mali_page_fault_insert_pages);
+	pr_debug("gator: Mali-Midgard: mali_mmu_as_in_use probe is at %p\n", &gator_probe_mali_mmu_as_in_use);
+	pr_debug("gator: Mali-Midgard: mali_mmu_as_released probe is at %p\n", &gator_probe_mali_mmu_as_released);
+	pr_debug("gator: Mali-Midgard: mali_total_alloc_pages_change probe is at %p\n", &gator_probe_mali_total_alloc_pages_change);
+#else
 	pr_debug("gator: Mali-Midgard: mali_pm_status probe is at %p\n", &probe_mali_pm_status);
 	pr_debug("gator: Mali-Midgard: mali_page_fault_insert_pages probe is at %p\n", &probe_mali_page_fault_insert_pages);
 	pr_debug("gator: Mali-Midgard: mali_mmu_as_in_use probe is at %p\n", &probe_mali_mmu_as_in_use);
 	pr_debug("gator: Mali-Midgard: mali_mmu_as_released probe is at %p\n", &probe_mali_mmu_as_released);
 	pr_debug("gator: Mali-Midgard: mali_total_alloc_pages_change probe is at %p\n", &probe_mali_total_alloc_pages_change);
+#endif
+
 #if TSAI
 		/* allow gator to run without mali */
 TsaiAllowWithoutMali:

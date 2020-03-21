@@ -66,6 +66,10 @@
 
 #include <trace/events/sched.h>
 
+#if TSAI_DS5
+#include "streamline_annotate.h"
+#endif
+
 int suid_dumpable = 0;
 
 static LIST_HEAD(formats);
@@ -1484,7 +1488,9 @@ static int do_execve_common(struct filename *filename,
 	struct file *file;
 	struct files_struct *displaced;
 	int retval;
-
+#if TSAI_DS5
+	SRUK_ANNOTATE_CHANNEL_COLOR(10001, ANNOTATE_WHITE, "do_execve_common %s", filename ? filename->name: "");
+#endif
 	if (IS_ERR(filename))
 		return PTR_ERR(filename);
 
@@ -1572,6 +1578,10 @@ static int do_execve_common(struct filename *filename,
 	putname(filename);
 	if (displaced)
 		put_files_struct(displaced);
+
+#if TSAI_DS5
+	ANNOTATE_CHANNEL_END(10001);
+#endif
 	return retval;
 
 out:

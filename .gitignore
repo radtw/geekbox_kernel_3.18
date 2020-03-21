@@ -104,4 +104,5 @@ android/configs/android-*.cfg
 /kernel.img
 /resource.img
 /dmesg*
+*.bak
 

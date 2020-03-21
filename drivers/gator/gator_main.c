@@ -34,7 +34,11 @@ static unsigned long gator_protocol_version = PROTOCOL_VERSION;
 	
 #else /* TSAI_USE_MAIN2 && !TSAI_IS_MAIN2 */
 
-#define TSAI_FTRACE 1
+#define TSAI_FTRACE 0
+
+#if TSAI
+#include "tsai_spy_mem_log.h"
+#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 32)
 #error kernels prior to 2.6.32 are not supported
@@ -98,6 +102,28 @@ static unsigned long gator_protocol_version = PROTOCOL_VERSION;
 #define FRAME_SCHED_TRACE   7
 #define FRAME_IDLE          9
 #define FRAME_ACTIVITY     13
+
+#if TSAI
+const char* frametype_label[] = {
+	"INVALID=0",
+	"FRAME_SUMMARY=1",
+	"FRAME_BACKTRACE=2",
+	"FRAME_NAME=3",
+	"FRAME_COUNTER=4",
+	"FRAME_BLOCK_COUNTER=5",
+	"FRAME_ANNOTATE=6",
+	"FRAME_SCHED_TRACE=7",
+	"FRAME_IDLE=8",
+	"INVALID=9",
+	"INVALID=10",
+	"INVALID=11",
+	"INVALID=12",
+	"FRAME_ACTIVITY=13",
+};
+
+
+#endif
+
 
 #define MESSAGE_END_BACKTRACE 1
 
@@ -212,9 +238,18 @@ static DEFINE_PER_CPU(u64, last_timestamp);
 static bool printed_monotonic_warning;
 
 static u32 gator_cpuids[NR_CPUS];
+/* TSAI: copied this from newer version*/
+int gator_clusterids[NR_CPUS];
+
 static bool sent_core_name[NR_CPUS];
 
 static DEFINE_PER_CPU(bool, in_scheduler_context);
+
+#if TSAI
+//get a log mechanism here
+struct tsai_spy_mem_log tsai_gator_log;
+
+#endif
 
 /******************************************************************************
  * Prototypes
@@ -666,9 +701,18 @@ static void gator_send_core_name(const int cpu, const u32 cpuid)
 #endif
 }
 
+//TSAI: this function is called from
 static void gator_read_cpuid(void *arg)
 {
+#if TSAI //expansion for debug
+	const u32 smp_cpuid = smp_processor_id();
+    const u32 cpuid = gator_cpuid();
+    const int cpu = get_physical_cpu();
+    gator_cpuids[cpu] = cpuid;
+    pr_info("TSAI: gator_read_cpuid cpu=%d id=%x smpid=%d\n", cpu, cpuid, smp_cpuid);
+#else
 	gator_cpuids[get_physical_cpu()] = gator_cpuid();
+#endif
 }
 
 /* This function runs in interrupt context and on the appropriate core */
@@ -1500,6 +1544,10 @@ static int tsai_diff_microsec(struct timeval* first, struct timeval* second)
 
 #endif
 
+/* TSAI: [info] if this function returns 0, it will lead to gatord exit immediately (with message length=0)
+ * pay attention on what kind of circumstances will lead to return 0
+ * */
+
 static ssize_t userspace_buffer_read(struct file *file, char __user *buf, size_t count, loff_t *offset)
 {
 	int commit, length1, length2, read;
@@ -1523,6 +1571,9 @@ static ssize_t userspace_buffer_read(struct file *file, char __user *buf, size_t
 #if TSAI_FTRACE
 		trace_printk("-EINVAL \n");
 #endif
+#if TSAI
+		pr_err("TSAI gator userspace_buffer_read() return EINVAL @%d\n", __LINE__);
+#endif
 		return -EINVAL;
 	}
 
@@ -1538,15 +1589,32 @@ static ssize_t userspace_buffer_read(struct file *file, char __user *buf, size_t
 #if TSAI_FTRACE
 		trace_printk("-EINTR \n");
 #endif
+#if TSAI
+		pr_err("TSAI gator userspace_buffer_read() return EINTR (signal pending, %s) @%d\n",
+			current->comm, __LINE__);
+#endif
+
 		return -EINTR;
 	}
 
 	if (buftype == -1 || cpu == -1)
+#if TSAI
+	{
+		/* 2020-04-20 return 0 will lead to gatord to quit a capture session,
+		 * therefore need to check whether there has been error */
+		pr_info("TSAI: gator userspace_buffer_read return 0, buftype=%d cpu=%d @%d\n", buftype, cpu, __LINE__);
 		return 0;
+	}
+#else
+		return 0;
+#endif
 
 	mutex_lock(&gator_buffer_mutex);
 
 	do {
+#if TSAI
+		bool partial_read_workaround = false;
+#endif
 		read = per_cpu(gator_buffer_read, cpu)[buftype];
 		commit = per_cpu(gator_buffer_commit, cpu)[buftype];
 
@@ -1565,7 +1633,33 @@ static ssize_t userspace_buffer_read(struct file *file, char __user *buf, size_t
 		}
 
 		if (length1 + length2 > count - written)
+#if TSAI
+		{
+			if (length1 + length2 > userspace_buffer_size) {
+				//2020-03-20 I make annotation buffer 512KB, but user mode gatord only allocate 128KB,
+				//so if kernel mode has accumulated more than gatord can read at once go, it will quit the loop and return EFAULT,
+				//this will make gatord quit the loop
+				//do a partial read, and let user mode do next round to retrieve the remaining
+				int kernel_side_buf_size = gator_buffer_size[buftype];
+				//__asm("hlt #0");
+				int user_buffer_left = (count - written);
+				if (length1 > user_buffer_left) {
+					length1 = user_buffer_left;
+				}
+				length2 = 0;
+				commit = (read + length1);
+				if (commit >= kernel_side_buf_size) {
+					commit -= kernel_side_buf_size;
+				}
+				partial_read_workaround = true;
+			}
+			else {
+				break;
+			}
+		}
+#else
 			break;
+#endif
 
 		/* start, middle or end */
 		if (length1 > 0 && copy_to_user(&buf[written], buffer1, length1))
@@ -1585,7 +1679,17 @@ static ssize_t userspace_buffer_read(struct file *file, char __user *buf, size_t
 #if TSAI_FTRACE
 		trace_printk("buftype %s len %d \n", buftype_label[buftype], (length1 + length2) );
 #endif
+#if TSAI
+		if (partial_read_workaround)
+			break;
+#endif
 	} while (buffer_commit_ready(&cpu, &buftype));
+
+#if TSAI //debug: encounter returning -EFAULT
+	if (written == 0) {
+		__asm("hlt #0");
+	}
+#endif
 
 	mutex_unlock(&gator_buffer_mutex);
 
@@ -1648,6 +1752,11 @@ static void gator_op_create_files(struct super_block *sb, struct dentry *root)
 		gator_cpu_cores++;
 	}
 	userspace_buffer_size = BACKTRACE_BUFFER_SIZE;
+#if 1 && TSAI /* 2020-04-26: since I make annotation buffer size, bigger, use the max of them*/
+	if (ANNOTATE_BUFFER_SIZE > BACKTRACE_BUFFER_SIZE) {
+		userspace_buffer_size = ANNOTATE_BUFFER_SIZE;
+	}
+#endif
 	gator_response_type = 1;
 	gator_live_rate = 0;
 
@@ -1896,6 +2005,18 @@ static int __init gator_module_init(void)
 	memset(gator_cpuids, -1, sizeof(gator_cpuids));
 	on_each_cpu(gator_read_cpuid, NULL, 1);
 
+#if TSAI
+	tsai_spy_mem_log_init(&tsai_gator_log, "TGATOR", 384*1024, NULL, NULL );
+	tsai_spy_mem_log(&tsai_gator_log, "GATOR KO INIT @%s:%d\n", __FILE__, __LINE__);
+#if 0 /* one off test, fill in contents so it is recycling*/
+	{
+		int i;
+		for (i=0; i<4096; i++)
+			tsai_spy_mem_log(&tsai_gator_log, "GATOR KO INIT filling test pass %d @%s:%d\n", i, __FILE__, __LINE__);
+	}
+#endif
+#endif
+
 	return 0;
 #endif /* TSAI_USE_MAIN2 && !TSAI_IS_MAIN2 */
 }
@@ -1919,6 +2040,10 @@ static void __exit gator_module_exit(void)
 	tracepoint_synchronize_unregister();
 	gator_exit();
 	gatorfs_unregister();
+#if TSAI
+	tsai_spy_mem_log_free(&tsai_gator_log);
+#endif
+
 #endif
 }
 

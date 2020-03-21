@@ -87,7 +87,14 @@ static int buffer_bytes_available(int cpu, int buftype)
 	else
 		/* Hysteresis, prevents multiple overflow messages */
 		remaining -= 2000;
-
+#if 0 && TSAI
+	if (remaining < 0) {
+		if (buftype == ANNOTATE_BUF) {
+			pr_info("TSAI: gator buffer low, filled %d/%d @%d\n", filled, gator_buffer_size[buftype], __LINE__);
+			//__asm("hlt #0");
+		}
+	}
+#endif
 	return remaining;
 }
 
@@ -140,8 +147,33 @@ static void gator_commit_buffer(int cpu, int buftype, u64 time)
 		return;
 	}
 
+#if 1 && TSAI //by logging, it is not easy to reproduce buffer length negative bug.
+	{
+		//my log the length for verification
+		//Note this boundary case, when commit==65535 and buffer mask is 65535, then byte will be at the beginning of the buffer
+		unsigned char* pBufForType = &(per_cpu(gator_buffer, cpu)[buftype][0]);
+		u32 buffer_mask = gator_buffer_mask[buftype];
+		unsigned char encoded_length[4];
+		unsigned char FrameType;
+
+		for (byte = 0; byte < sizeof(s32); byte++) {
+			encoded_length[byte] = (length >> byte * 8) & 0xFF;
+			pBufForType[ (commit + type_length + byte) & buffer_mask ] = encoded_length[byte];
+		}
+		FrameType = pBufForType[ (commit + type_length + 4) & buffer_mask ];
+
+		//use ftrace to log sending events
+		//Note: 2020-04-26: on 4.9.124 kernel, trace_printk has interference with gator capture. not sure how
+		//
+		tsai_spy_mem_log(&tsai_gator_log, "frame cpu=%d frametype=%s(%d) length=%d, encoded as=%x %x %x %x\n",
+			cpu, frametype_label[FrameType],(int)FrameType, 
+			length, encoded_length[0], encoded_length[1], encoded_length[2], encoded_length[3]);
+	}
+#else
 	for (byte = 0; byte < sizeof(s32); byte++)
 		per_cpu(gator_buffer, cpu)[buftype][(commit + type_length + byte) & gator_buffer_mask[buftype]] = (length >> byte * 8) & 0xFF;
+#endif
+
 
 	per_cpu(gator_buffer_commit, cpu)[buftype] = per_cpu(gator_buffer_write, cpu)[buftype];
 

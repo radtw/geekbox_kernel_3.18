@@ -31,6 +31,13 @@
 #include <linux/sched.h>
 #include <linux/smp.h>
 
+#if TSAI
+//#include <linux/of_fdt.h>
+//#include <linux/of_platform.h>
+
+extern char saved_machine_name[]; //instance in setup.c, saved machine name
+#endif
+
 /*
  * In case the boot CPU is hotpluggable, we record its initial state and
  * current state separately. Certain system registers may contain different
@@ -143,6 +150,12 @@ static int c_show(struct seq_file *m, void *v)
 		seq_printf(m, "CPU variant\t: 0x%x\n", MIDR_VARIANT(midr));
 		seq_printf(m, "CPU part\t: 0x%03x\n", MIDR_PARTNUM(midr));
 		seq_printf(m, "CPU revision\t: %d\n\n", MIDR_REVISION(midr));
+#if 1 && TSAI /* copied from 4.9 Android kernel, because gator daemon expects to read it, but it cause crash  */
+		{
+			pr_info("TSAI: machine_name=%s @%s:%d\n", saved_machine_name,__FILE__, __LINE__);
+			seq_printf(m, "Hardware\t: %s\n", saved_machine_name);
+		}
+#endif
 	}
 
 	return 0;

@@ -37,3 +37,21 @@ config GATOR_MALI_PATH
 	help
 	  The gator code adds this to its include path so it can get the Mali
 	  trace headers with: #include "linux/mali_linux_trace.h"
+
+#TSAI: the follwing is copied from versio 620, so that it can be compatible when switching
+
+config GATOR_MALI_4XXMP_PATH
+	string "Path to Mali driver"
+	depends on GATOR_MALI_4XXMP
+	default "drivers/gpu/arm/mali400mp"
+	help
+	  The gator code adds this to its include path so it can get the Mali
+	  trace headers with: #include "linux/mali_linux_trace.h"
+
+config GATOR_MALI_MIDGARD_PATH
+	string "Path to Mali driver"
+	depends on GATOR_MALI_MIDGARD
+	default "drivers/gpu/arm/midgard"
+	help
+	  The gator code adds this to its include path so it can get the Mali
+	  trace headers with: #include "linux/mali_linux_trace.h"

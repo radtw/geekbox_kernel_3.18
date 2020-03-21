@@ -105,7 +105,7 @@ void kannotate_write_ts(const char *ptr, unsigned int size, u64* timestamp, int*
 	while (pos < size) {
 		retval = annotate_write_ts(NULL, &ptr[pos], size - pos, &offset, timestamp, ppid);
 		if (retval < 0) {
-			pr_warning("gator: kannotate_write_ts failed with return value %d\n", retval);
+			pr_warning("gator: kannotate_write_ts failed with return value %d @%d\n", retval, __LINE__);
 			return;
 		}
 		pos += retval;

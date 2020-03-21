@@ -49,6 +49,9 @@ bool collect_annotations;
 #else
 static bool collect_annotations;
 #endif
+#if TSAI
+static int tsai_signal_pending_msg_print_once;
+#endif
 
 static int annotate_copy(struct file *file, char const __user *buf, size_t count)
 {
@@ -170,8 +173,18 @@ static ssize_t annotate_write(struct file *file, char const __user *buf, size_t 
 
 		/* Check to see if a signal is pending */
 		if (signal_pending(current))
+#if TSAI
+		{
+			if (!tsai_signal_pending_msg_print_once++) {
+				/* when coming here, there is no buffer space left, so something must have went wrong */
+			    pr_info("TSAI gator: available=%d size=%d signal pending @%d\n", available, size, __LINE__);
+			    __asm("hlt #0");
+			    return -EINTR;
+			}
+		}
+#else
 			return -EINTR;
-
+#endif
 		goto retry;
 	}
 
@@ -276,6 +289,7 @@ const struct file_operations tsai_annotate_fops = {
 	.compat_ioctl = annotate_ioctl,
 	.mmap = tsai_annotate_file_mmap,
 	.open = tsai_annotate_open,
+	.read = tsai_annotate_read,
 };
 
 #endif
@@ -309,6 +323,9 @@ static int gator_annotate_create_files(struct super_block *sb, struct dentry *ro
 static int gator_annotate_start(void)
 {
 	collect_annotations = true;
+#if TSAI
+	tsai_signal_pending_msg_print_once = 0;
+#endif
 #if TSAI_IOCTL
 	//__asm("bkpt");
 	tsai_annotate_start();

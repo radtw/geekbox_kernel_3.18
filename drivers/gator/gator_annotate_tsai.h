@@ -19,4 +19,11 @@ struct GATOR_DATA_USER_SHARE {
 //uint32_t on_off; /* 0=stop owner, 1=start owning */
 extern void tsai_bufinfo_owner(uint32_t owner, uint32_t buf, uint32_t on_off);
 
+extern ssize_t tsai_annotate_read(struct file *f, char __user *buf, size_t count_orig, loff_t *offset);
+
+extern void tsai_annotate_start(void);
+extern void tsai_annotate_stop(void);
+extern int tsai_annotate_init(void);
+
+
 #endif /* DRIVERS_GATOR_GATOR_ANNOTATE_TSAI_H_ */

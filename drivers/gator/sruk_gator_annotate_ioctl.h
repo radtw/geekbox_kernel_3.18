@@ -591,49 +591,5 @@ static int tsai_annotate_open(struct inode *inode, struct file *file) {
 	return 0;
 }
 
-//called from gator_module_init > gator_init > tsai_annotate_init
-extern int tsai_annotate_init(void);
-
-extern void tsai_bufinfo_capture_start(void);
-extern void tsai_bufinfo_capture_stop(void);
-
-static void tsai_annotate_start(void) {
-	if (tsai_gator_user_share)
-		tsai_gator_user_share->gator_started = 1;
-
-	tsai_bufinfo_capture_start();
-}
-
-static void tsai_annotate_stop(void) {
-	if (tsai_gator_user_share)
-		tsai_gator_user_share->gator_started = 0;
-
-	tsai_bufinfo_capture_stop();
-}
-
-/*
--000|tsai_annotate_start()
-    |
--001|gator_annotate_start()
-    |
-    |#if TSAI_IOCTL
-    |        //__asm("bkpt");
-    |        tsai_annotate_start();
--002|gator_start()
-    |  cpu = 8
-    |  i = 9
-    |  gi = 0xFFFFFFBFFC0B9F20
-    |
-    |        if (gator_annotate_start())
--003|gator_op_start()
-    |  err = 0
-    |
-    |        if (gator_started || gator_start())
--004|enable_write(
--005|vfs_write(
--006|SYSC_write(inline)
--006|sys_write(
--007|ret_fast_syscall(asm)
- */
 
 #endif /* SRUK_GATOR_ANNOTATE_IOCTL_H_ */

@@ -5,8 +5,8 @@ ifneq ($(KERNELRELEASE),)
 
 #TSAI: for android, it has -Wunused-variable and it stops build
 EXTRA_CFLAGS += -Wno-unused-variable -Wno-unused-function 
-#TSAI: when moving on to clang, these becomes issue
-EXTRA_CFLAGS += -Wno-expansion-to-defined -Wno-visibility -Wno-enum-conversion
+#TSAI: when moving on to clang, these becomes issue, comment out these lines if using clang 
+#EXTRA_CFLAGS += -Wno-expansion-to-defined -Wno-visibility -Wno-enum-conversion
 
 CONFIG_GATOR ?= m
 obj-$(CONFIG_GATOR) := gator.o
@@ -62,6 +62,11 @@ ifeq ($(CONFIG_GATOR_WITH_MALI_SUPPORT),y)
   ifneq ($(CONFIG_GATOR_MALI_PATH),)
     ccflags-y += -I$(CONFIG_GATOR_MALI_PATH)
   endif
+#TSAI: copied from 620 so that is can be compatible
+  ifneq ($(CONFIG_GATOR_MALI_MIDGARD_PATH),)
+    ccflags-$(CONFIG_GATOR_MALI_MIDGARD) += -I$(CONFIG_GATOR_MALI_MIDGARD_PATH)
+  endif
+# end of TSAI  
   ccflags-$(CONFIG_GATOR_MALI_4XXMP) += -DMALI_SUPPORT=MALI_4xx
   ccflags-$(CONFIG_GATOR_MALI_MIDGARD) += -DMALI_SUPPORT=MALI_MIDGARD
 endif
@@ -86,6 +91,7 @@ ccflags-y += -g -DTSAI_USE_MAIN2=1  -DTSAI_IRQ_ATOMIC=1
 ccflags-y += -O0
 CFLAGS_gator_main.o += -DTSAI_IS_MAIN2=0
 CFLAGS_gator_main2.o += -DTSAI_IS_MAIN2=1
+#CFLAGS_gator_events_sched.o += -O0
 
 $(obj)/gator_main.o: $(obj)/gator_src_md5.h
 
