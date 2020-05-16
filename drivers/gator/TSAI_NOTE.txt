@@ -1,0 +1,14 @@
+
+When calling gator_annotate_channel_color_ts()
+
+if it's in interrupt context, 
+it will go to void tsai_annotate_enter_lock(int cpu_id, unsigned int seq_no), which write the annotation in a deferred buffer
+
+When exiting 
+it will call void tsai_annotate_exit_lock(int cpu_id, unsigned int seq_no), which scheduler a deferred work
+
+
+if in interrupt
+static void kannotate_write(const char *ptr, unsigned int size) 
+will write to deferred buffer
+

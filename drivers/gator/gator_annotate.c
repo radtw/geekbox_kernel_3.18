@@ -72,6 +72,7 @@ static int annotate_copy(struct file *file, char const __user *buf, size_t count
 }
 
 #if TSAI
+
 /* timestamp: if not NULL, overwrite timestamp
  * ppid: if not NULL, overwrite pid*/
 static ssize_t annotate_write_ts(struct file *file, char const __user *buf, size_t count_orig, loff_t *offset, u64* timestamp, int* ppid);
@@ -86,6 +87,7 @@ static ssize_t annotate_write(struct file *file, char const __user *buf, size_t 
 	return annotate_write_ts(file, buf, count_orig, offset, NULL, NULL);
 }
 
+/*TSAI: 20200519, caller has already called spinlock, so skip spinlock in this function */
 static ssize_t annotate_write_ts(struct file *file, char const __user *buf, size_t count_orig, loff_t *offset, u64* timestamp, int* ppid)
 #else
 static ssize_t annotate_write(struct file *file, char const __user *buf, size_t count_orig, loff_t *offset)
@@ -95,8 +97,9 @@ static ssize_t annotate_write(struct file *file, char const __user *buf, size_t 
 	bool interrupt_context;
 #if TSAI
 	int tsai_preempt_count = preempt_count();
+	/* this only examine whether this is a user mode address, not whether it's already on MMU */
+	bool is_user_mem = access_ok(VERIFY_READ, buf, sizeof(void*)); 
 #endif
-
 	if (*offset) {
 		return -EINVAL;
 	}
@@ -122,7 +125,19 @@ static ssize_t annotate_write(struct file *file, char const __user *buf, size_t 
 	}
 #endif
 
- retry:
+retry:
+#if TSAI 
+/* 2020-05-18: once interrupt is disabled, data abort cannot happen , if this is a memory tight embedded system and we try to access user buffer directly
+ * now it is the last chance trigger data abort 
+ * still not working, so for now use copy_from_user. If going through annotate_ioctl, there will be no struct file *file
+ * annotate_copy determine whether this is a kernel/user memory by check file,
+ * so making a dummy file for now
+ * */
+	if(is_user_mem) {
+		//tsai_user_mem_temp = *(uint32_t*)(buf);
+		file = (struct file*) 0x1;
+	}
+#endif
 	/* synchronize between cores and with collect_annotations */
 #if TSAI_SPINLOCK_IRQ
 		spin_lock_irqsave(&annotate_lock, annotate_lock_flags);
@@ -325,6 +340,7 @@ static int gator_annotate_start(void)
 	collect_annotations = true;
 #if TSAI
 	tsai_signal_pending_msg_print_once = 0;
+	pr_info("TSAI: gator_annotate_start() @%d\n", __LINE__);
 #endif
 #if TSAI_IOCTL
 	//__asm("bkpt");
@@ -351,6 +367,9 @@ static void gator_annotate_stop(void)
 		spin_unlock_irqrestore(&annotate_lock, annotate_lock_flags);
 #else
 		spin_unlock(&annotate_lock);
+#endif
+#if TSAI
+	pr_info("TSAI: gator_annotate_stop() @%d\n", __LINE__);
 #endif
 }
 

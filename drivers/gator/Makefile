@@ -1,7 +1,7 @@
 ifneq ($(KERNELRELEASE),)
 
 # Uncomment the following line to enable kernel stack unwinding within gator, or update gator_backtrace.c
-# EXTRA_CFLAGS +=	-DGATOR_KERNEL_STACK_UNWINDING
+EXTRA_CFLAGS +=	-DGATOR_KERNEL_STACK_UNWINDING
 
 #TSAI: for android, it has -Wunused-variable and it stops build
 EXTRA_CFLAGS += -Wno-unused-variable -Wno-unused-function 

@@ -9,10 +9,11 @@
 
 
 // TSAI: I add rockchip_jtag
+//Note, if in command line, make ldship.img then this dts is used
 / {
 	chosen {
-#if 1 && TSAI
-		bootargs = "earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag";
+#if 1 && TSAI 
+		bootargs = "earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag maxcpus=2 ";
 #else
 		bootargs = "earlyprintk=uart8250-32bit,0xff690000";
 #endif

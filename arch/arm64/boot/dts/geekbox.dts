@@ -13,7 +13,7 @@
 / {
 	chosen {
 #if 1 && TSAI
-		bootargs = "earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag";
+		bootargs = "earlyprintk=uart8250-32bit,0xff690000 rockchip_jtag max_cpus=8 ";
 #else
 		bootargs = "earlyprintk=uart8250-32bit,0xff690000";
 #endif

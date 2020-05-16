@@ -7,6 +7,10 @@
  *
  */
 
+#if TSAI
+extern uint64_t tsai_kimage_offset;
+#endif
+
 /*
  * EABI backtrace stores {fp,lr} on the stack.
  */
@@ -30,6 +34,7 @@ struct stack_frame_eabi {
 	};
 };
 
+/* TSAI: comment, this function is for user-mode */
 static void gator_add_trace(int cpu, unsigned long address)
 {
 	off_t offset = 0;
@@ -130,8 +135,19 @@ static int report_trace(struct stackframe *frame, void *d)
 
 		if (mod) {
 			cookie = get_cookie(cpu, current, mod->name, false);
-			addr = addr - (unsigned long)mod->module_core;
+            addr = addr -
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0) /* TSAI: Copied from later gator*/
+              (unsigned long)mod->module_core;
+#else
+              (unsigned long)mod->core_layout.base;
+#endif
 		}
+#endif
+#if defined(CONFIG_RANDOMIZE_BASE)
+	if (cookie == NO_COOKIE) {
+		/* main kernel .text image */
+		addr -= tsai_kimage_offset;
+	}
 #endif
 		marshal_backtrace(addr & ~1, cookie, 1);
 		(*depth)--;

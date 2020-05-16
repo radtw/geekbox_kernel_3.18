@@ -40,8 +40,8 @@ extern u64 gator_get_time(void);
 	extern wait_queue_head_t gator_annotate_wait;
 	extern bool buffer_check_space(int cpu, int buftype, int bytes);
 
-	extern void tsai_lock_kannotate(unsigned long* pflags);
-	extern void tsai_unlock_kannotate(unsigned long* pflags);
+	extern void tsai_lock_kannotate_ds5_irq(unsigned long* pflags);
+	extern void tsai_unlock_kannotate_ds5_irq(unsigned long* pflags);
 	extern void kannotate_write_ts(const char *ptr, unsigned int size, u64* timestamp, int* ppid);
 #endif
 
@@ -101,7 +101,7 @@ struct ds5_irq_node_container {
  * */
 struct TSAI_DS5_IRQ {
 	struct ds5_irq_node_container node_fifo[256];
-	spinlock_t lock;
+//	spinlock_t lock; //currently dead code
 	struct tasklet_struct ds5_irq_tl;
 	struct workqueue_struct* ds5_irq_wq;
 	struct work_struct irq_work;
@@ -149,7 +149,7 @@ int tsai_alloc_ds5_irq_workqueue(void)
 		return -ENOMEM;
 	}
 
-	spin_lock_init(&tsai_ds5_irq.lock);
+//	spin_lock_init(&tsai_ds5_irq.lock);
 	tasklet_init(&tsai_ds5_irq.ds5_irq_tl, tsai_ds5_irq_tasklet, (unsigned long)0);
 	tasklet_disable(&tsai_ds5_irq.ds5_irq_tl);
 	tasklet_enable(&tsai_ds5_irq.ds5_irq_tl);
@@ -269,7 +269,7 @@ static void tsai_ds5_irq_worker(struct work_struct *work)
 				tsai_last_irq_seq_no = expect_seq_no;
 			}
 #endif
-			tsai_lock_kannotate(&atomic_lock_irqflags);
+			tsai_lock_kannotate_ds5_irq(&atomic_lock_irqflags);
 			tsai_ds5_irq.queue_own_atomic_lock = 1;
 			lock_balance++;
 		}
@@ -290,7 +290,7 @@ static void tsai_ds5_irq_worker(struct work_struct *work)
 		/* Unlock */
 		{
 			tsai_ds5_irq.queue_own_atomic_lock = 0;
-			tsai_unlock_kannotate(&atomic_lock_irqflags);
+			tsai_unlock_kannotate_ds5_irq(&atomic_lock_irqflags);
 			lock_balance--;
 		}
 		c->seq_no = 0;
@@ -305,6 +305,7 @@ static void tsai_ds5_irq_worker(struct work_struct *work)
 	}
 }
 
+/* pre-condition: caller aqcuire spinlock and disable interrupt */
 int tsai_schedule_ds5_irq_annotate(char const *buf, size_t count_orig, u64* timestamp, int* ppid, unsigned int seq_no) {
 	if(tsai_ds5_irq.ds5_irq_wq)
 	{
@@ -349,9 +350,18 @@ int tsai_schedule_ds5_irq_annotate(char const *buf, size_t count_orig, u64* time
 	return -1;
 }
 
-void tsai_annotate_enter_lock(int cpu_id, unsigned int seq_no) {
+/* pre-condition:
+ * caller should acquire spinlock before calling this function
+ * caller ensure it is in interrupt context
+ * */
+void tsai_annotate_ds5_irq_enter_lock(int cpu_id, unsigned int seq_no) {
+#if DBG
 	bool interrupt_context = in_interrupt();
-	if (interrupt_context) {
+	if (!interrupt_context) {
+		pr_err("TSAI: error @%s:%d\n", __FILE__, __LINE__);
+	}
+#endif
+	{
 		int w = tsai_obtain_w_cursor(1);
 		if (w != -1) {
 			struct ds5_irq_node_container* c = &tsai_ds5_irq.node_fifo[w];
@@ -363,9 +373,15 @@ void tsai_annotate_enter_lock(int cpu_id, unsigned int seq_no) {
 	}
 }
 
-void tsai_annotate_exit_lock(int cpu_id, unsigned int seq_no) {
+/* pre-condition: caller should acquire spinlock before calling this function */
+void tsai_annotate_ds5_irq_exit_lock(int cpu_id, unsigned int seq_no) {
+#if DBG
 	bool interrupt_context = in_interrupt();
-	if (interrupt_context) {
+	if (!interrupt_context) {
+		pr_err("TSAI: error @%s:%d\n", __FILE__, __LINE__);
+	}
+#endif
+	{
 		struct ds5_irq_node_container* c = tsai_ds5_irq.pending_container[cpu_id];
 		if (c) {
 #if DBG
@@ -592,6 +608,16 @@ static int tsai_register_chardev(void) {
 	return 0;
 }
 
+#ifdef CONFIG_RANDOMIZE_BASE
+#include <linux/kdebug.h>
+#include <linux/kallsyms.h>
+#endif
+
+uint64_t tsai_kimage_offset;
+
+#include <linux/of.h>
+extern int tsai_annotate_lock_behavior;
+
 //called from gator_module_init > gator_init > tsai_annotate_init
 int tsai_annotate_init(void) {
 	int i;
@@ -609,6 +635,26 @@ int tsai_annotate_init(void) {
 	for (i=0; i<MAX_BUF_ANNOTATION; i++) {
 		tsai_bufinfo.slot_free_stack[i] = i;
 	}
+#ifdef CONFIG_RANDOMIZE_BASE
+	tsai_kimage_offset = (kimage_vaddr - KIMAGE_VADDR);
+	pr_info("TSAI offset=%llx\n", (kimage_vaddr - KIMAGE_VADDR));
+#endif
+	//Special work-around for specific devices
+#if TSAI && defined(CONFIG_OF)
+	{
+		struct device_node *node;
+		const char* out_model = NULL;
+
+		node = of_find_compatible_node(NULL, NULL, "samsung,exynos9110");
+		if (node) {
+			of_property_read_string(node, "model", &out_model);
+			pr_info("TSAI: this is samsung,exynos9110 %s @%s\n", out_model, __FILE__);
+			if (out_model && strcmp(out_model, "GALILEO-LARGE-LTE")==0) {
+				tsai_annotate_lock_behavior = 1;
+			}
+		}
+	}
+#endif
 
 	return 0;
 }

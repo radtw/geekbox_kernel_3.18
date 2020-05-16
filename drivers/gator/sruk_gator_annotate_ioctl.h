@@ -454,9 +454,9 @@ extern void gator_annotate_channel_color_ts(int channel, int color, const char *
 #include "gator_annotate_tsai.h"
 
 #ifdef HAVE_UNLOCKED_IOCTL
-	static long annotate_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+	long annotate_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 #else
-	static int annotate_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg)
+	int annotate_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg)
 #endif
 {
 	int err = 0;
@@ -490,12 +490,14 @@ extern void gator_annotate_channel_color_ts(int channel, int color, const char *
 		{
 			struct tsai_gator_common_parameter* p = (struct tsai_gator_common_parameter*)arg;
 			const char* str;
+			//ts is 64bit, copy over to kernel mode
+			uint64_t ts_copy = p->ts;
 #if defined(__LP64__) && __LP64__
 			str = (const char*)p->str;
 #else
 			str = (const char*)(u32)p->str;
 #endif
-			gator_annotate_channel_color_ts(p->channel, p->color, str, &p->ts, 0);
+			gator_annotate_channel_color_ts(p->channel, p->color, str, &ts_copy, 0);
 		}
 		break;
 	case SRUK_GATOR_IOCTL_ANNOTATE_CHANNEL_END:
@@ -527,10 +529,11 @@ extern void gator_annotate_channel_color_ts(int channel, int color, const char *
 		BKPT;
 	}
 	uaccess_disable();
+
+__asm("annotate_ioctl_end:");
+__asm(".global annotate_ioctl_end");
 	return err;
 }
-
-
 
 extern struct GATOR_DATA_USER_SHARE* tsai_gator_user_share;
 extern unsigned long long tsai_gator_user_share_paddr;
