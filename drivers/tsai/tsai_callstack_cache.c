@@ -377,7 +377,7 @@ Retry:
 
 const char* ts_binary_node_find_demangle(struct ts_binary_node* bn, const char* mangled) {
 	const char* ret = mangled;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
 		BKPT;
 #elif	LINUX_VERSION_CODE > KERNEL_VERSION(4, 0, 0)
 		struct ts_rb_node* n;
@@ -966,7 +966,7 @@ void tsai_task_restore_run(struct task_struct* p, int skip_lock, atomic_t* atmfl
 }
 
 int tsai_task_on_cpu(struct task_struct* p) {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 9, 0)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 4, 0)
 	BKPT;
 	return 0;
 #else

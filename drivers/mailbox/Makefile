@@ -13,5 +13,4 @@ obj-$(CONFIG_SCPI_PROTOCOL)	+= scpi_protocol.o
 ifeq ($(TSAI_OPT),1) 
 	CFLAGS_rockchip_mailbox.o += -O0
 	CFLAGS_scpi_protocol.o += -O0
-#CFLAGS_ddr_freq.o += -O0
 endif

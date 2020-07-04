@@ -696,7 +696,7 @@ void tsai_vma_mgr_process_defer_read(struct TSAI_VMA_MGR* vm) {
 
 		/* defer read if needed, walk through the table */
 			//__asm("bkpt");
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
 		BKPT;
 #elif LINUX_VERSION_CODE > KERNEL_VERSION(4,0,0)
 			tsai_vma_walk_section_header(vw);
@@ -847,7 +847,7 @@ int tsai_spy_profiling_user_recover(struct tsai_intermediate_regs *regs, void *d
 				{
 					unsigned int lr;
 					unsigned int next_pc;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
 		BKPT;
 #else
 					lr = tsai_callstack_copy_from_user_stack(pf->lr_from_addr, 4);
@@ -1790,7 +1790,7 @@ TSAI_STATIC int tsai_spy_profiler_read_trace(struct TSAI_PROFILER_DATA* pr, unsi
 							tsai_spy_mem_log(&pr->mem_log, "---------------\n" );
 
 						if (tfi.plt_target) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
 		BKPT;
 #else
 							symbol_addr = tsai_callstack_demangle_bin_symbol(&pr->vma_mgr, tnode->task, (void*)(NATIVE_UINT)tfi.plt_target,
@@ -1801,7 +1801,7 @@ TSAI_STATIC int tsai_spy_profiler_read_trace(struct TSAI_PROFILER_DATA* pr, unsi
 						}
 					}
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
 		(void)full_path;
 		BKPT;
 #else
@@ -2473,7 +2473,7 @@ TSAI_STATIC unsigned int tsai_spy_capture_sample(struct TSAI_PROFILER_DATA* pr)
 	int task_about_to_wake_up = 0; /* if during parsing sleeping callstack, the task have been scheduled to be on, then increase this */
 	struct tsai_spy_profiling_ipi_info* ipi;
 	unsigned int unexpected_stop = 0;
-#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 9, 0)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(4, 4, 0)
 	struct task_struct* cur_task = current;
 #else
 	struct task_struct* cur_task = ti->task;
@@ -2868,7 +2868,7 @@ int tsai_spy_profiler(struct TSpy_Profiler* p) {
 		return ret;
 	}
 #endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
 		BKPT;
 #else
 	tsai_callstack_preload_symbol();
@@ -3570,14 +3570,10 @@ TSAI_STATIC long tsai_spy_ioctl(struct file *file, unsigned int cmd,
 	case TSpyCmd_Fd_To_File_Ptr:
 		{
 		struct TSpy_Fd_To_File_Ptr* a = (struct TSpy_Fd_To_File_Ptr*) arg;
-		//struct file* p = fget(a->fd);
-
-		a->fileptr = 0;
-#if defined(__aarch64__)
-		BKPT;
-#else
-		*(unsigned int*)(&a->fileptr) = *(unsigned int*)&p;
-#endif
+		struct file* p = fget(a->fd);
+		NATIVE_UINT value;
+		value = (NATIVE_UINT)p;
+		a->fileptr = (unsigned long long) value;
 		}
 		break;
 	case TSpyCmd_LastGpuSchedulePid:
@@ -3851,7 +3847,7 @@ ssize_t tsai_spy_write(struct file *f, char const __user *buf, size_t count_orig
 		}
 	}
 	else {
-	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0)
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)
 		BKPT;
 	#elif LINUX_VERSION_CODE > KERNEL_VERSION(4, 0, 0)
 		tsai_callstack_preload_symbol();

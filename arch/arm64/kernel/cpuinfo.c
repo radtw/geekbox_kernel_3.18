@@ -152,7 +152,9 @@ static int c_show(struct seq_file *m, void *v)
 		seq_printf(m, "CPU revision\t: %d\n\n", MIDR_REVISION(midr));
 #if 1 && TSAI /* copied from 4.9 Android kernel, because gator daemon expects to read it, but it cause crash  */
 		{
-			pr_info("TSAI: machine_name=%s @%s:%d\n", saved_machine_name,__FILE__, __LINE__);
+			static int print_once;
+			if (print_once++ == 0)
+				pr_info("TSAI: machine_name=%s @%s:%d\n", saved_machine_name,__FILE__, __LINE__);
 			seq_printf(m, "Hardware\t: %s\n", saved_machine_name);
 		}
 #endif

@@ -17,7 +17,7 @@
  *
  * */
 #define DEBUG
-#include "tsai_assert.h"
+#include "tsai_macro.h"
 
 struct tsai_spy_mem_log;
 extern int tsai_spy_log(const char* fmt, ...);

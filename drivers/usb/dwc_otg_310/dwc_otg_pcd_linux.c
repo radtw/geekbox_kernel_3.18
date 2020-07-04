@@ -964,6 +964,10 @@ static int _complete(dwc_otg_pcd_t *pcd, void *ep_handle,
 	if (req && req->complete) {
 		switch (status) {
 		case -DWC_E_SHUTDOWN:
+#if TSAI	//this would cause adb restart in a loop
+			pr_info("TSAI: %s return ESHUTDOWN @%s\n", __FUNCTION__, __FILE__);
+//			__asm("hlt #0");
+#endif
 			req->status = -ESHUTDOWN;
 			break;
 		case -DWC_E_RESTART:

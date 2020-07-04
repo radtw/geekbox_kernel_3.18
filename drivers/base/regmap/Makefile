@@ -6,3 +6,7 @@ obj-$(CONFIG_REGMAP_SPI) += regmap-spi.o
 obj-$(CONFIG_REGMAP_SPMI) += regmap-spmi.o
 obj-$(CONFIG_REGMAP_MMIO) += regmap-mmio.o
 obj-$(CONFIG_REGMAP_IRQ) += regmap-irq.o
+
+#TSAI
+CFLAGS_regmap.o += -O0
+CFLAGS_regmap-mmio.o += -O0

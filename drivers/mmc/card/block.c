@@ -2756,7 +2756,10 @@ static int mmc_blk_probe(struct mmc_card *card)
 {
 	struct mmc_blk_data *md, *part_md;
 	char cap_str[10];
-
+#if TSAI
+	pr_info("TSAI mmc_blk_probe card id=%s name=%s \n", 
+		mmc_card_id(card), mmc_card_name(card));
+#endif
 	/*
 	 * Check that the card supports the command class(es) we need.
 	 */

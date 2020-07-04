@@ -197,6 +197,9 @@ static int ehci_halt (struct ehci_hcd *ehci)
 
 	/* disable any irqs left enabled by previous code */
 	ehci_writel(ehci, 0, &ehci->regs->intr_enable);
+#if TSAI
+	pr_info("TSAI: ehci interrupt disabled by %s\n", __func__);
+#endif
 
 	if (ehci_is_TDI(ehci) && !tdi_in_host_mode(ehci)) {
 		spin_unlock_irq(&ehci->lock);
@@ -637,6 +640,9 @@ static int ehci_run (struct usb_hcd *hcd)
 
 	ehci_writel(ehci, INTR_MASK,
 		    &ehci->regs->intr_enable); /* Turn On Interrupts */
+#if TSAI
+	pr_info("TSAI: ehci interrupt ENabled by %s\n", __func__);
+#endif
 
 	/* GRR this is run-once init(), being done every time the HC starts.
 	 * So long as they're part of class devices, we can't do it init()
@@ -648,6 +654,19 @@ static int ehci_run (struct usb_hcd *hcd)
 	return 0;
 }
 
+#if TSAI 
+struct ehci_hcd* tsai_debug_ehci_hcd;
+
+void tsai_print_ehci_reg(void) {
+	struct ehci_regs* r= tsai_debug_ehci_hcd? tsai_debug_ehci_hcd->regs:NULL;
+	if (r) {
+		pr_info("TSAI: echi regs: .command=%x .status=%x .intr_enable=%x \n", 
+			r->command, r->status, r->intr_enable);
+	}
+}
+
+#endif
+
 int ehci_setup(struct usb_hcd *hcd)
 {
 	struct ehci_hcd *ehci = hcd_to_ehci(hcd);
@@ -655,6 +674,17 @@ int ehci_setup(struct usb_hcd *hcd)
 
 	ehci->regs = (void __iomem *)ehci->caps +
 	    HC_LENGTH(ehci, ehci_readl(ehci, &ehci->caps->hc_capbase));
+#if 0 && TSAI
+	{
+		struct ehci_regs* r= ehci->regs;
+		pr_info("TSAI: ehci_setup, the regs:\n");
+		pr_info(".command=%x .status=%x .intr_enable=%x .frame_index=%x\n", 
+			r->command, r->status, r->intr_enable, r->frame_index);
+		pr_info(".segment=%x .frame_list=%x .async_next=%x\n", 
+			r->segment, r->frame_list, r->async_next);
+		tsai_debug_ehci_hcd = ehci;
+	}
+#endif
 	dbg_hcs_params(ehci, "reset");
 	dbg_hcc_params(ehci, "reset");
 
@@ -679,6 +709,9 @@ int ehci_setup(struct usb_hcd *hcd)
 EXPORT_SYMBOL_GPL(ehci_setup);
 
 /*-------------------------------------------------------------------------*/
+#if TSAI
+int tsai_log_ehci_irq;
+#endif
 
 static irqreturn_t ehci_irq (struct usb_hcd *hcd)
 {
@@ -686,7 +719,11 @@ static irqreturn_t ehci_irq (struct usb_hcd *hcd)
 	u32			status, masked_status, pcd_status = 0, cmd;
 	int			bh;
 	unsigned long		flags;
-
+#if 0 && TSAI
+	if (tsai_log_ehci_irq) {
+		pr_info("TSAI: ehci_irq() \n");
+	}
+#endif
 	/*
 	 * For threadirqs option we use spin_lock_irqsave() variant to prevent
 	 * deadlock with ehci hrtimer callback, because hrtimer callbacks run
@@ -814,6 +851,9 @@ dead:
 		ehci->command &= ~(CMD_RUN | CMD_ASE | CMD_PSE);
 		ehci_writel(ehci, ehci->command, &ehci->regs->command);
 		ehci_writel(ehci, 0, &ehci->regs->intr_enable);
+#if TSAI
+	pr_info("TSAI: ehci interrupt disabled by %s\n", __func__);
+#endif
 		ehci_handle_controller_death(ehci);
 
 		/* Handle completions when the controller stops */
@@ -849,7 +889,12 @@ static int ehci_urb_enqueue (
 ) {
 	struct ehci_hcd		*ehci = hcd_to_ehci (hcd);
 	struct list_head	qtd_list;
-
+#if 0 && TSAI && defined(DEBUG)
+	struct usb_ctrlrequest *req = (struct usb_ctrlrequest*)urb->setup_packet;
+	if (req && req->bRequest == USB_REQ_GET_DESCRIPTOR) {
+		pr_info("ehci_urb_enqueue() a urb of USB_REQ_GET_DESCRIPTOR \n");
+	}
+#endif
 	INIT_LIST_HEAD (&qtd_list);
 
 	switch (usb_pipetype (urb->pipe)) {
@@ -889,7 +934,12 @@ static int ehci_urb_dequeue(struct usb_hcd *hcd, struct urb *urb, int status)
 	struct ehci_qh		*qh;
 	unsigned long		flags;
 	int			rc;
-
+#if 0 && TSAI && defined(DEBUG)
+	struct usb_ctrlrequest *req = (struct usb_ctrlrequest*)urb->setup_packet;
+	if (req->bRequest == USB_REQ_GET_DESCRIPTOR) {
+		pr_info("ehci_urb_dequeue() a urb of USB_REQ_GET_DESCRIPTOR \n");
+	}
+#endif
 	spin_lock_irqsave (&ehci->lock, flags);
 	rc = usb_hcd_check_unlink_urb(hcd, urb, status);
 	if (rc)
@@ -1087,6 +1137,9 @@ int ehci_suspend(struct usb_hcd *hcd, bool do_wakeup)
 
 	spin_lock_irq(&ehci->lock);
 	ehci_writel(ehci, 0, &ehci->regs->intr_enable);
+#if TSAI
+	pr_info("TSAI: ehci interrupt disabled by %s\n", __func__);
+#endif
 	(void) ehci_readl(ehci, &ehci->regs->intr_enable);
 
 	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
@@ -1136,6 +1189,9 @@ int ehci_resume(struct usb_hcd *hcd, bool hibernated)
 		if (!hcd->self.root_hub->do_remote_wakeup)
 			mask &= ~STS_PCD;
 		ehci_writel(ehci, mask, &ehci->regs->intr_enable);
+#if TSAI
+	pr_info("TSAI: ehci interrupt mask %x by %s\n", mask, __func__);
+#endif
 		ehci_readl(ehci, &ehci->regs->intr_enable);
  skip:
 		spin_unlock_irq(&ehci->lock);
@@ -1228,6 +1284,9 @@ void ehci_init_driver(struct hc_driver *drv,
 {
 	/* Copy the generic table to drv and then apply the overrides */
 	*drv = ehci_hc_driver;
+#if TSAI
+	pr_info("TSAI:ehci_init_driver\n");
+#endif
 
 	if (over) {
 		drv->hcd_priv_size += over->extra_priv_size;
@@ -1304,7 +1363,9 @@ static int __init ehci_hcd_init(void)
 
 	if (usb_disabled())
 		return -ENODEV;
-
+#if TSAI
+	pr_info("ehci_hcd_init @%s\n", __FILE__);
+#endif
 	printk(KERN_INFO "%s: " DRIVER_DESC "\n", hcd_name);
 	set_bit(USB_EHCI_LOADED, &usb_hcds_loaded);
 	if (test_bit(USB_UHCI_LOADED, &usb_hcds_loaded) ||

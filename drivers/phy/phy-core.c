@@ -756,7 +756,12 @@ struct phy_provider *__of_phy_provider_register(struct device *dev,
 	phy_provider->dev = dev;
 	phy_provider->owner = owner;
 	phy_provider->of_xlate = of_xlate;
-
+#if TSAI
+	{
+        const char *dev_id = dev ? dev_name(dev) : NULL;
+		pr_info("TSAI:__of_phy_provider_register dev=%s \n", dev_id);
+	}
+#endif
 	mutex_lock(&phy_provider_mutex);
 	list_add_tail(&phy_provider->list, &phy_provider_list);
 	mutex_unlock(&phy_provider_mutex);

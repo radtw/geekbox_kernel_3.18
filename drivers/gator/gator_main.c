@@ -962,7 +962,7 @@ static void gator_unregister_hotcpu_notifier(void)
     cpuhp_remove_state(gator_cpuhp_online);
 }
 
-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0) /* TSAI: there is no __cpuinit keyword*/
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0) /* TSAI: there is no __cpuinit keyword*/
 static int gator_hotcpu_notify(struct notifier_block *self, unsigned long action, void *hcpu)
 {
 	int cpu = lcpu_to_pcpu((long)hcpu);

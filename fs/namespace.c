@@ -945,7 +945,7 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 		mnt_free_id(mnt);
 		free_vfsmnt(mnt);
 #if TSAI
-		pr_info("vfs_kern_mount %s failed %d \n", type->name, ERR_CAST(root));
+		pr_info("vfs_kern_mount %s failed %d \n", type->name, PTR_ERR_OR_ZERO(root));
 #endif
 		return ERR_CAST(root);
 	}
@@ -2943,7 +2943,8 @@ SYSCALL_DEFINE5(mount, char __user *, dev_name, char __user *, dir_name,
 		(void *) data_page);
 
 #if TSAI
-	pr_info("TSAI mount %s %s %s flg %x opt %x ret=%d from %s @%s\n", kernel_dev, dir_name, kernel_type, flags, data_page,
+	pr_info("TSAI mount %s %s %s flg %lx opt %x ret=%d from %s @%s\n", 
+	kernel_dev, dir_name, kernel_type, flags, (unsigned int)data_page,
 			ret, current->comm, __FILE__);
 #endif
 	free_page(data_page);

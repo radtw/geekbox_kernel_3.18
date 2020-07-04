@@ -90,7 +90,7 @@ static inline int tsai_get_preempt_flags(int* out_preempt_count, uint32_t* inter
 	struct thread_info* ti = current_thread_info();
 	*out_preempt_count = ti->preempt_count;
 	*interrupt_context = ti->preempt_count & (HARDIRQ_MASK | SOFTIRQ_MASK | NMI_MASK);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)
 	return smp_processor_id();
 #else
 	return ti->cpu;

@@ -25,8 +25,10 @@
 
 extern int tsai_move_on; /* instance in tsai_spy.c */
 #define TSAI_BUSY_WAIT while(!tsai_move_on) {\
-	                     cpu_relax();\
-	                     pr_info("TSAI_BUSY_WAIT @%s%d\n",__FILE__,__LINE__);\
+                        static int tsai_print_count;\
+	                cpu_relax();\
+			if ( tsai_print_count++ < 20 ) \
+	                     pr_info("TSAI_BUSY_WAIT @%s%d\n", __FILE__, __LINE__);\
 						}
 
 #endif /* TSAI_ASSERT_H_ */

@@ -3483,7 +3483,9 @@ err_invalid_target_handle:
 		     proc->pid, thread->pid, return_error, return_error_param,
 		     (u64)tr->data_size, (u64)tr->offsets_size,
 		     return_error_line);
-
+#if 0 && TSAI
+	__asm("brk #0");
+#endif
 	{
 		struct binder_transaction_log_entry *fe;
 

@@ -17,6 +17,9 @@
 #include <asm/byteorder.h>
 
 #include "usb.h"
+#if TSAI
+    #include "tsai_macro.h"
+#endif
 
 static void cancel_async_set_config(struct usb_device *udev);
 
@@ -28,10 +31,22 @@ struct api_context {
 static void usb_api_blocking_completion(struct urb *urb)
 {
 	struct api_context *ctx = urb->context;
-
+#if 0 && TSAI && defined(DEBUG) //interested to know about USB_REQ_GET_DESCRIPTOR
+	struct usb_ctrlrequest *req = (struct usb_ctrlrequest*)urb->setup_packet;
+	struct usb_device* dev = urb->dev;		
+	if (req->bRequest == USB_REQ_GET_DESCRIPTOR) {
+		pr_debug("TSAI USB_REQ_GET_DESCRIPTOR result status = %d, devnum=%d path=%s port=%d\n", urb->status,
+		dev->devnum, dev->devpath, dev->portnum);
+	}
+#endif
 	ctx->status = urb->status;
 	complete(&ctx->done);
 }
+
+#if TSAI
+extern int tsai_log_ehci_irq;
+extern void tsai_print_ehci_reg(void);
+#endif
 
 
 /*
@@ -45,7 +60,21 @@ static int usb_start_wait_urb(struct urb *urb, int timeout, int *actual_length)
 	struct api_context ctx;
 	unsigned long expire;
 	int retval;
+#if 0 && TSAI && defined(DEBUG)
+	struct usb_ctrlrequest *req = (struct usb_ctrlrequest*)urb->setup_packet;
+	struct usb_device* dev = urb->dev;
+	if (*dev->devpath=='1') {
+		//enable logging irq from first urb of path '1', there will be interleved path '0' and '1' urbs from now on
+		tsai_log_ehci_irq = 1;
+	}
 
+	if (req->bRequest == USB_REQ_GET_DESCRIPTOR) {
+		pr_info("TSAI start waiting for USB_REQ_GET_DESCRIPTOR devnum=%d path=%s port=%d\n", 
+			dev->devnum, dev->devpath, dev->portnum);
+		tsai_print_ehci_reg();
+//		TSAI_BUSY_WAIT;
+	}
+#endif
 	init_completion(&ctx.done);
 	urb->context = &ctx;
 	urb->actual_length = 0;

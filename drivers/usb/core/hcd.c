@@ -2341,6 +2341,9 @@ EXPORT_SYMBOL_GPL(usb_bus_start_enum);
 #endif
 
 /*-------------------------------------------------------------------------*/
+#if TSAI
+extern int tsai_log_ehci_irq;
+#endif
 
 /**
  * usb_hcd_irq - hook IRQs to HCD framework (bus glue)
@@ -2356,9 +2359,18 @@ irqreturn_t usb_hcd_irq (int irq, void *__hcd)
 {
 	struct usb_hcd		*hcd = __hcd;
 	irqreturn_t		rc;
+#if 0 && TSAI
+	if (tsai_log_ehci_irq) {
+		pr_info("TSAI: usb_hcd_irq\n");
+	}
+#endif
 
-	if (unlikely(HCD_DEAD(hcd) || !HCD_HW_ACCESSIBLE(hcd)))
+	if (unlikely(HCD_DEAD(hcd) || !HCD_HW_ACCESSIBLE(hcd))) {
 		rc = IRQ_NONE;
+#if TSAI
+		pr_info("TSAI: usb_hcd_irq DEAD or !HCD_HW_ACCESSIBLE\n");
+#endif
+	}
 	else if (hcd->driver->irq(hcd) == IRQ_NONE)
 		rc = IRQ_NONE;
 	else

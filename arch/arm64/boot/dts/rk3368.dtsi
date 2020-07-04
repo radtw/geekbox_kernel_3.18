@@ -431,6 +431,7 @@
 		tune_regsbase = <0x400>;
 		resets = <&reset RK3368_SRST_MMC0>;
 		reset-names = "mmc_ahb_reset";
+
 	};
 
 	sdio: rksdmmc@ff0d0000 {
@@ -1570,11 +1571,14 @@
 
 		usbphy0: usb-phy0 {
 			#phy-cells = <0>;
+			//TSAI:give it human reable name
+			tsai_debug_name = "for_otg@700";
 			reg = <0x700>;
 		};
 
 		usbphy1: usb-phy1 {
 			#phy-cells = <0>;
+			tsai_debug_name = "for_host@728";
 			reg = <0x728>;
 		};
 	};

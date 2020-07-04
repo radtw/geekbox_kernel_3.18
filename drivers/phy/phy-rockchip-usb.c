@@ -31,6 +31,7 @@
 
 #if TSAI
 	#include <linux/version.h>
+	#include <tsai_macro.h>
 #endif
 
 /*
@@ -47,6 +48,9 @@ struct rockchip_usb_phy {
 	struct clk	*clk;
 	struct phy	*phy;
 	int (*rk_usb_phy_power)(struct rockchip_usb_phy *phy, bool on);
+#if TSAI
+	const char*		tsai_debug_name;
+#endif
 };
 
 static int rk32_usb_phy_power(struct rockchip_usb_phy *phy,
@@ -62,6 +66,10 @@ static int rk32_usb_phy_power(struct rockchip_usb_phy *phy,
 static int rk33_usb_phy_power(struct rockchip_usb_phy *phy,
 			      bool on)
 {
+#if TSAI
+pr_info("TSAI rk33_usb_phy_power %s on=%d @%s\n", phy->tsai_debug_name, on, __FILE__);
+//TSAI_BUSY_WAIT;
+#endif
 	if (on)
 		return regmap_write(phy->reg_base, phy->reg_offset, 0xffff0000);
 	else
@@ -129,7 +137,9 @@ static int rockchip_usb_phy_probe(struct platform_device *pdev)
 	const struct of_device_id *match;
 	unsigned int reg_offset;
 	int (*rk_usb_phy_power)(struct rockchip_usb_phy *phy, bool siddq);
-
+#if TSAI
+	pr_info("TSAI: rockchip_usb_phy_probe \n");
+#endif
 	grf = syscon_regmap_lookup_by_phandle(dev->of_node, "rockchip,grf");
 	if (IS_ERR(grf)) {
 		dev_err(&pdev->dev, "Missing rockchip,grf property\n");
@@ -152,6 +162,9 @@ static int rockchip_usb_phy_probe(struct platform_device *pdev)
 				child->name);
 			return -EINVAL;
 		}
+#if TSAI
+		of_property_read_string(child, "tsai_debug_name", &rk_phy->tsai_debug_name);		
+#endif
 
 		rk_phy->rk_usb_phy_power = rk_usb_phy_power;
 		rk_phy->reg_offset = reg_offset;

@@ -189,7 +189,7 @@ static void kernel_backtrace(int cpu, struct pt_regs *const regs)
 	frame.sp = regs->sp;
 	frame.pc = regs->pc;
 #endif
-#if defined(__aarch64__) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 0) /* TSAI: Copied from newer DS5, for Pixel 3a, Linux 4.9*/
+#if defined(__aarch64__) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0) /* TSAI: Copied from newer DS5, for Pixel 3a, Linux 4.9*/
 	walk_stackframe(current, &frame, report_trace, &depth);
 #else
 	walk_stackframe(&frame, report_trace, &depth);

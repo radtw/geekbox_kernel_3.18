@@ -92,5 +92,6 @@ ifeq ($(TSAI_OPT),1)
 	CFLAGS_dw_mmc-pltfm.o += -O0
 	CFLAGS_rk_sdmmc.o += -O0
 	#-O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-inline -fno-unit-at-a-time
+#	CFLAGS_rk_sdmmc_ops.o += -O0
 endif 
 
